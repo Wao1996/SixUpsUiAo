@@ -1,0 +1,22 @@
+<RCC>
+  <qresource prefix="SixUpsUiAo">
+    <file>icon/6UPS85Gray256.ico</file>
+    <file>icon/isstopped.png</file>
+    <file>icon/loading.png</file>
+    <file>icon/minus.png</file>
+    <file>icon/move.png</file>
+    <file>icon/off.png</file>
+    <file>icon/offlinesim.png</file>
+    <file>icon/on.png</file>
+    <file>icon/plus.png</file>
+    <file>icon/realtimesim.png</file>
+    <file>icon/returnhome.png</file>
+    <file>icon/running.png</file>
+    <file>icon/skin.png</file>
+    <file>icon/skinblack.png</file>
+    <file>icon/skinwhite.png</file>
+    <file>icon/start.png</file>
+    <file>icon/stop.png</file>
+    <file>icon/waring.png</file>
+  </qresource>
+</RCC>
