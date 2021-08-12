@@ -3,23 +3,25 @@
 #include <QtCore>
 #include <QMessageBox>
 #include "PmacDeviceLib.h"
-class QPmacThread :public QObject
+#include "Global.h"
+
+class QPmac :public QObject
 {
 	Q_OBJECT
 public:
-	QPmacThread(QObject *parent = Q_NULLPTR);
-	virtual ~QPmacThread();
-
-	void startPmac();
+	QPmac(QObject *parent = Q_NULLPTR);
+	virtual ~QPmac();
+	
+	bool creatPmacSelect();//选择pmac
+	void initPmac();//初始化pmac
+	int getNegLimitState(int);//获取负限位状态
+	int getPosLimitState(int);//获取正限位状态
+	
 public slots:
-	bool creatPmacSelect();
-	double onGetMotorDisp();
+	void on_dataGatherTimer();
 public:
 	PCOMMSERVERLib::PmacDevice *Pmac0;
 	int pDeviceNumber;
-private:
-	
-	
 	bool pbSuccess_select;
 	bool pbSuccess_open;
 	bool pbSucess_download;

@@ -8,6 +8,21 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	qDebug() << "SixUpsUiAo 构造";
 
 	initIcon();
+	initQlab();
+
+
+	
+	/*Pmac数据采集定时器*/
+	dataGatherTimer = new QTimer(this);
+	dataGatherTimer->setInterval(100);
+	dataGatherTimer->setTimerType(Qt::CoarseTimer);
+
+	/*UI更新定时器*/
+	updateUiDataTimer = new QTimer(this);
+	updateUiDataTimer->setInterval(200);
+	updateUiDataTimer->setTimerType(Qt::CoarseTimer);
+	connect(updateUiDataTimer, &QTimer::timeout, this, &SixUpsUiAo::on_updateUiDataTimer);
+	
 
 }
 
@@ -15,6 +30,14 @@ SixUpsUiAo::~SixUpsUiAo()
 {
 	qDebug() << "SixUpsUiAo 析构";
 	//TODO pmac连接时直接关闭界面
+
+	if (GlobalSta::pmacIsConnected)
+	{
+		delete myPmac;
+		GlobalSta::pmacIsConnected = false;
+	}
+	qDebug() << "stop pamcQthread";
+	GlobalSta::pmacQthreadIsSarted = false;
 }
 
 
@@ -27,10 +50,27 @@ void SixUpsUiAo::initIcon()
 	//stopSimIcon.addFile(QString::fromUtf8(":/SixUPSCtrUI/icon/stop.png"), QSize(), QIcon::Normal);
 	onIcon = QPixmap(QString::fromUtf8(":/SixUpsUiAo/icon/on.png"));
 	offIcon = QPixmap(QString::fromUtf8(":/SixUpsUiAo/icon/off.png"));
-	//loadingIcon = QPixmap(QString::fromUtf8(":/SixUPSCtrUI/icon/loading.png"));
+	loadingIcon = QPixmap(QString::fromUtf8(":/SixUpsUiAo/icon/loading.png"));
 	//warningIcon = QPixmap(QString::fromUtf8(":/SixUPSCtrUI/icon/waring.png"));
 	//runingIcon.addFile(QString::fromUtf8(":/SixUPSCtrUI/icon/running.png"), QSize(), QIcon::Normal);
 	//isStopedIcon.addFile(QString::fromUtf8(":/SixUPSCtrUI/icon/isstopped.png"), QSize(), QIcon::Normal);
+}
+
+void SixUpsUiAo::initQlab()
+{
+	qlabNegLimit_group.append(ui.staNegLimit1);
+	qlabNegLimit_group.append(ui.staNegLimit2);
+	qlabNegLimit_group.append(ui.staNegLimit3);
+	qlabNegLimit_group.append(ui.staNegLimit4);
+	qlabNegLimit_group.append(ui.staNegLimit5);
+	qlabNegLimit_group.append(ui.staNegLimit6);
+
+	qlabPosLimit_group.append(ui.staPosLimit1);
+	qlabPosLimit_group.append(ui.staPosLimit2);
+	qlabPosLimit_group.append(ui.staPosLimit3);
+	qlabPosLimit_group.append(ui.staPosLimit4);
+	qlabPosLimit_group.append(ui.staPosLimit5);
+	qlabPosLimit_group.append(ui.staPosLimit6);
 }
 
 void SixUpsUiAo::switchPmacThread()
@@ -40,38 +80,20 @@ void SixUpsUiAo::switchPmacThread()
 		//关闭pmac0并delete指针
 		if (GlobalSta::pmacIsConnected)
 		{
-			myPmacThread->Pmac0->Close(myPmacThread->pDeviceNumber);
-			qDebug() << "Pmac0->Close";
+			delete myPmac;
 			GlobalSta::pmacIsConnected = false;
-			qDebug() << "GlobalSta::pmacIsConnected :" << GlobalSta::pmacIsConnected;
 		}
-		delete myPmacThread->Pmac0;//在此处delete而不在myPmacThread的析构中delete是因为析构中delete会卡死
-		myPmacThread->Pmac0 = nullptr;//由于Pmac0在主线程创建，经测试发现在子线程中delete主线程的Pmac0会卡死
-		//退出pmac线程			   //因此先释放Pmac0然后myPmacThread->deleteLater
-		pmacQthread->quit();
-		pmacQthread->wait();
 		qDebug() << "stop pamcQthread";
 		GlobalSta::pmacQthreadIsSarted = false;
-		qDebug() << "GlobalSta::pmacQthreadIsSarted:" << GlobalSta::pmacQthreadIsSarted;
 	}
 	else
 	{
-		//创建并开始pmac线程
-		myPmacThread = new QPmacThread();
-		pmacQthread = new QThread(this);
-		//先选择，选择设备会弹出界面，子线程中不能进行ui操作，因此在主线程选择设备
-		GlobalSta::pmacIsConnected = myPmacThread->creatPmacSelect();
-		qDebug() << "GlobalSta::pmacIsConnected :" << GlobalSta::pmacIsConnected;
-		myPmacThread->moveToThread(pmacQthread);
-		connect(pmacQthread, &QThread::started, myPmacThread, &QPmacThread::startPmac);
-		connect(pmacQthread, &QThread::finished, myPmacThread, &QObject::deleteLater);
-		connect(pmacQthread, &QThread::finished, pmacQthread, &QObject::deleteLater);
-
-		//测试代码
-		connect(this, &SixUpsUiAo::getMotorDisp, myPmacThread, &QPmacThread::onGetMotorDisp);
-
-		pmacQthread->start();
+		//PMAC 读取操作不能在子线程中
+		myPmac = new QPmac(this);
+		GlobalSta::pmacIsConnected = myPmac->creatPmacSelect();
 		GlobalSta::pmacQthreadIsSarted = true;
+
+		connect(dataGatherTimer, &QTimer::timeout, myPmac, &QPmac::on_dataGatherTimer);
 		qDebug() << "start pmacQthread";
 	}
 }
@@ -86,6 +108,35 @@ void SixUpsUiAo::on_paraCailbrate_triggered()
 }
 
 
+void SixUpsUiAo::on_updateUiDataTimer()
+{
+	qDebug() << "on_updateUiDataTimer";
+	for (int i = 0; i <= 5; i++)
+	{
+		//负限位
+		if (PmacData::negLimitState(i) == 1)
+		{
+			qlabNegLimit_group[i]->setPixmap(onIcon);
+		}
+		else
+		{
+			qlabNegLimit_group[i]->setPixmap(offIcon);
+		}
+
+		//正限位
+		if (PmacData::posLimitState(i) == 1)
+		{
+			qlabPosLimit_group[i]->setPixmap(onIcon);
+		}
+		else
+		{
+			qlabPosLimit_group[i]->setPixmap(offIcon);
+		}
+
+	}
+	
+}
+
 void SixUpsUiAo::on_connectPmacBtn_clicked()
 {
 	qDebug() << "pmacIsConnected = " << GlobalSta::pmacIsConnected;
@@ -96,6 +147,9 @@ void SixUpsUiAo::on_connectPmacBtn_clicked()
 
 		if (GlobalSta::pmacIsConnected)
 		{
+			dataGatherTimer->start(100);//数据采集开始
+			updateUiDataTimer->start(200);//开始更新UI
+
 			ui.pmacSta->setPixmap(onIcon);
 			ui.connectPmacBtn->setText("断开");
 		}
@@ -107,6 +161,15 @@ void SixUpsUiAo::on_connectPmacBtn_clicked()
 
 		if (!GlobalSta::pmacIsConnected)
 		{
+			dataGatherTimer->stop();//数据采集停止
+			updateUiDataTimer->stop();//停止更新UI
+			//让相关状态显示UI初始化
+			for (int i = 0; i <=5;i++)
+			{
+				qlabNegLimit_group[i]->setPixmap(offIcon);
+				qlabPosLimit_group[i]->setPixmap(offIcon);
+			}
+
 			ui.pmacSta->setPixmap(offIcon);
 			ui.connectPmacBtn->setText("连接");
 
@@ -119,4 +182,14 @@ void SixUpsUiAo::on_connectPmacBtn_clicked()
 
 void SixUpsUiAo::on_initPmacBtn_clicked()
 {
+	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
+	ui.pmacInitSta->setPixmap(loadingIcon);
+	//初始化pmac
+	myPmac->initPmac();
+	if (GlobalSta::pmacIsInitialed)
+	{
+		ui.pmacInitSta->setPixmap(onIcon);
+
+	}
+	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
 }

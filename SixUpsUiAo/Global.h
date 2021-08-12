@@ -1,5 +1,6 @@
 #pragma once
 #include <QtCore>
+#include <QReadWriteLock>
 #include "AlgorithmFor6UPS.h"
 
 class GlobalSta;
@@ -7,7 +8,9 @@ class PmacData;
 class LazerData;
 class UPSData;
 
-class GlobalSta //不好意思拼错了
+
+
+class GlobalSta 
 {
 public:
 	//皮肤路径
@@ -30,6 +33,9 @@ class PmacData
 {
 public:
 	static double multiSpeed;//多轴运动速度
+	static VectorXi negLimitState;//负限位状态
+	static VectorXi posLimitState;//正限位状态
+
 };
 
 class LazerData

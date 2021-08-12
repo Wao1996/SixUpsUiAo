@@ -21,7 +21,8 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
 
  /***********************PmacData ************************************************/
  double PmacData::multiSpeed = 0;//多轴运动速度
-
+ VectorXi PmacData::negLimitState = VectorXi::Zero(6);//负限位状态
+ VectorXi PmacData::posLimitState = VectorXi::Zero(6);//正限位状态
 
  /***********************UPSData start************************************************/
 //建立坐标系
@@ -64,8 +65,8 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
 
  //当前位姿杆长数据
  Matrix<double, 6, 1> UPSData::tarPosAndAngle = MatrixXd::Zero(6, 1);		//当前面板输入目标位姿 
- Matrix<double, 6, 1> UPSData::tarL_norm = MatrixXd::Zero(6, 1);				//当前面板输入目标位姿反解得的杆长
- Matrix<double, 6, 1> UPSData::curL_norm = MatrixXd::Zero(6, 1);				//由PMAC值换算得到的实时杆长
+ Matrix<double, 6, 1> UPSData::tarL_norm = MatrixXd::Zero(6, 1);			//当前面板输入目标位姿反解得的杆长
+ Matrix<double, 6, 1> UPSData::curL_norm = MatrixXd::Zero(6, 1);			//由PMAC值换算得到的实时杆长
  Matrix<double, 6, 1> UPSData::initPosAndAngle = MatrixXd::Zero(6, 1);		//正解初始位姿
  Matrix<double, 6, 1> UPSData::curPosAndAngle = MatrixXd::Zero(6, 1);		//正解实时位姿
  Matrix<double, 6, 1> UPSData::realPosAndAngleByQD = MatrixXd::Zero(6, 1);	//激光跟踪仪测量靶标点计算得到的实际位姿

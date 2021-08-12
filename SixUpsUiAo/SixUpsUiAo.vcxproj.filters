@@ -62,7 +62,7 @@
     <ClCompile Include="PmacDeviceLib.cpp">
       <Filter>PmacDeviceLib</Filter>
     </ClCompile>
-    <ClCompile Include="QPmacThread.cpp">
+    <ClCompile Include="QPmac.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -78,7 +78,7 @@
     <QtMoc Include="ParameterCalibrate.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="QPmacThread.h">
+    <QtMoc Include="QPmac.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

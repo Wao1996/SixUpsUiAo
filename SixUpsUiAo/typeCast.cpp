@@ -11,6 +11,7 @@ QByteArray int8ToByte(qint8 i, Endian endian = BigEndian)
 
 QByteArray int16ToByte(qint16 i,Endian endian = BigEndian)
 {
+
 	QByteArray result;
 	result.resize(2);
 	// Ð¡¶ËÄ£Ê½

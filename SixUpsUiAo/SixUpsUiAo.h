@@ -6,7 +6,7 @@
 #include "ui_SixUpsUiAo.h"
 #include "ParameterCalibrate.h"
 #include "Global.h"
-#include "QPmacThread.h"
+#include "QPmac.h"
 
 class SixUpsUiAo : public QMainWindow
 {
@@ -22,19 +22,31 @@ private:
 
 	QPixmap onIcon;
 	QPixmap offIcon;
-	void initIcon();
+	QPixmap loadingIcon;
 
-	//Pmac线程相关
-	QPmacThread *myPmacThread = nullptr;
+	//各支链限位状态图片列表  因为C++不能使用eval语句
+	QList<QLabel*> qlabNegLimit_group;
+	QList<QLabel*> qlabPosLimit_group;
+
+	void initIcon();
+	void initQlab();
+	/************定时器***********/
+	QTimer *dataGatherTimer;//数据收集定时器
+	QTimer *updateUiDataTimer;//刷新ui定时器
+	
+	/*********Pmac线程相关************/
+	QPmac *myPmac = nullptr;
 	QThread *pmacQthread = nullptr;
 	void switchPmacThread();//切换Pmac线程的开启与关闭
 signals:
 	void getMotorDisp();//获取电机位置
 private slots:
-	/*工具栏*/
+	/*********工具栏************/
 	void on_paraCailbrate_triggered();
-
-	/*******************PMAC*******************/
+	/*********定时器***********/
+	void on_updateUiDataTimer();//刷新界面数据定时器溢出
+	
+	/**********PMAC************/
 	void on_connectPmacBtn_clicked();
 	void on_initPmacBtn_clicked();
 };

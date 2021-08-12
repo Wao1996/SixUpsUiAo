@@ -105,7 +105,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="PmacDeviceLib.cpp" />
-    <ClCompile Include="QPmacThread.cpp" />
+    <ClCompile Include="QPmac.cpp" />
     <ClCompile Include="typeCast.cpp" />
     <QtRcc Include="SixUpsUiAo.qrc" />
     <QtUic Include="ParameterCalibrate.ui" />
@@ -124,7 +124,7 @@
     <ClInclude Include="AlgorithmFor6UPS.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="PmacDeviceLib.h" />
-    <QtMoc Include="QPmacThread.h" />
+    <QtMoc Include="QPmac.h" />
     <ClInclude Include="typeCast.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
