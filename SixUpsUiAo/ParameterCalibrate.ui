@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>936</width>
-    <height>613</height>
+    <width>1002</width>
+    <height>690</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,7 +33,7 @@
      <rect>
       <x>10</x>
       <y>22</y>
-      <width>421</width>
+      <width>420</width>
       <height>125</height>
      </rect>
     </property>
@@ -55,13 +55,19 @@
       <height>125</height>
      </size>
     </property>
+    <attribute name="horizontalHeaderStretchLastSection">
+     <bool>false</bool>
+    </attribute>
+    <attribute name="verticalHeaderStretchLastSection">
+     <bool>false</bool>
+    </attribute>
    </widget>
    <widget class="QTableWidget" name="tableCircleC">
     <property name="geometry">
      <rect>
-      <x>670</x>
+      <x>640</x>
       <y>20</y>
-      <width>81</width>
+      <width>120</width>
       <height>125</height>
      </rect>
     </property>
@@ -110,6 +116,107 @@
      <string>计算球心</string>
     </property>
    </widget>
+  </widget>
+  <widget class="QTableWidget" name="tableQ_DD_Struct">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>440</y>
+     <width>400</width>
+     <height>125</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>125</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>125</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="tableQ_SS_Struct">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>440</y>
+     <width>400</width>
+     <height>125</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>125</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>125</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="tableS_Struct">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>280</y>
+     <width>400</width>
+     <height>125</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>125</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>125</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="tableD_Struct">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>280</y>
+     <width>400</width>
+     <height>125</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>125</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>125</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="loadStructPara">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>600</y>
+     <width>121</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>导入动静平台参数</string>
+   </property>
   </widget>
  </widget>
  <resources/>

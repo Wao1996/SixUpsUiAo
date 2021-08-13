@@ -16,7 +16,7 @@ public:
 	void initPmac();//初始化pmac
 	int getNegLimitState(int);//获取负限位状态
 	int getPosLimitState(int);//获取正限位状态
-	
+	double getCurLengths(int);//获取支链长度
 public slots:
 	void on_dataGatherTimer();
 public:

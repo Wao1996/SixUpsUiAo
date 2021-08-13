@@ -49,7 +49,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link />
     <ClCompile>
-      <AdditionalIncludeDirectories>$(QTDIR)\include\ActiveQt;$(ProjectDir);../eigen-3.3.9;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(QTDIR)\include\ActiveQt;$(ProjectDir);../eigen-3.3.9;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>Qt5PrintSupportd.lib;Qt5AxContainerd.lib;Qt5AxBased.lib;Qt5AxContainer.lib;Qt5AxBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -107,6 +107,7 @@
     <ClCompile Include="PmacDeviceLib.cpp" />
     <ClCompile Include="QPmac.cpp" />
     <ClCompile Include="typeCast.cpp" />
+    <ClCompile Include="UpsCalculateThread.cpp" />
     <QtRcc Include="SixUpsUiAo.qrc" />
     <QtUic Include="ParameterCalibrate.ui" />
     <QtUic Include="SixUpsUiAo.ui" />
@@ -124,6 +125,7 @@
     <ClInclude Include="AlgorithmFor6UPS.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="PmacDeviceLib.h" />
+    <QtMoc Include="UpsCalculateThread.h" />
     <QtMoc Include="QPmac.h" />
     <ClInclude Include="typeCast.h" />
   </ItemGroup>

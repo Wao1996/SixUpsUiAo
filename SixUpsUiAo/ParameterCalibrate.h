@@ -31,4 +31,5 @@ private slots:
 
 	/*****************添加tablewidget右键菜单***********/
 	void addTableWidgetMenu();
+	void on_loadStructPara_clicked();//导入动静平台参数
 };

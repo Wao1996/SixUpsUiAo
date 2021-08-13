@@ -60,7 +60,7 @@ void QPmac::initPmac()
 int QPmac::getNegLimitState(int num)
 {
 	QString negLimitM = "M" + QString::number(num) + "32";
-	Pmac0->GetResponse(pDeviceNumber, negLimitM, pAnswer);//获取位移mm
+	Pmac0->GetResponse(pDeviceNumber, negLimitM, pAnswer);
 	int flag = pAnswer.left(pAnswer.length() - 1).toInt();
 	return flag;
 }
@@ -68,20 +68,29 @@ int QPmac::getNegLimitState(int num)
 int QPmac::getPosLimitState(int num)
 {
 	QString negLimitM = "M" + QString::number(num) + "31";
-	Pmac0->GetResponse(pDeviceNumber, negLimitM, pAnswer);//获取位移mm
+	Pmac0->GetResponse(pDeviceNumber, negLimitM, pAnswer);
 	int flag = pAnswer.left(pAnswer.length() - 1).toInt();
 	return flag;
+}
+
+double QPmac::getCurLengths(int num)
+{
+	QString negLimitM = "M" + QString::number(num) + "62";
+	Pmac0->GetResponse(pDeviceNumber, negLimitM, pAnswer);
+	double position = pAnswer.left(pAnswer.length() - 1).toDouble() / 3072 / 40960;
+	return position;
 }
 
 
 void QPmac::on_dataGatherTimer()
 {
-	qDebug() << "on_dataGatherTimer";
+	//qDebug() << "on_dataGatherTimer";
 
-	for (int i = 0; i <= 5; i++)
+	for (int i = 0; i < PmacData::numL; i++)
 	{
-		PmacData::negLimitState(i) = getNegLimitState(i+1);
-		PmacData::posLimitState(i) = getPosLimitState(i+1);
+		PmacData::negLimitState(i) = getNegLimitState(i + 1);
+		PmacData::posLimitState(i) = getPosLimitState(i + 1);
+		PmacData::curLengths(i) = getCurLengths(i + 1);
+		UPSData::curL_norm = PmacData::curLengths.head(6) + UPSData::initL_norm;
 	}
-
 }

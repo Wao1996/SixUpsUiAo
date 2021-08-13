@@ -568,6 +568,129 @@ void csvToTable(const QString &filePath, QTableWidget *tab)
 		}
 	}
 	structParaFile.close();
+
+
+}
+void csvToMatrixXd(const QString & filePath, Matrix<double, 6, 1>& mat)
+{
+	QFile structParaFile(filePath);
+	//获取csv文件的行列数
+	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		qDebug() << "未打开文件:" << filePath;
+		return;
+	}
+	QTextStream getCsvRowColCount(&structParaFile);
+	int csvRowCount = 0;
+	int csvColCount = 0;
+	while (!getCsvRowColCount.atEnd())
+	{
+		QString getRowCount = getCsvRowColCount.readLine();
+		QStringList getColCount = getRowCount.split(',');
+		csvColCount = getColCount.size();
+		csvRowCount++;
+	}
+	cout << "csvRowCount:" << csvRowCount << endl;
+	cout << "csvColCount:" << csvColCount << endl;
+	structParaFile.close();
+
+	//从csv文件读取数据
+	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text)) { return; }
+	QTextStream in(&structParaFile);
+	QString line;
+	QStringList fields;
+	for (int i = 0; i < csvRowCount; i++)
+	{
+		line = in.readLine();
+		fields = line.split(',');//按照,分割
+		for (int j = 0; j < csvColCount; j++)
+		{
+			mat(i, j) = fields[j].toDouble();
+			//qDebug() << fields[j];
+		}
+	}
+	structParaFile.close();
+}
+void csvToMatrixXd(const QString & filePath, Matrix<double, 3, 6>& mat)
+{
+	QFile structParaFile(filePath);
+	//获取csv文件的行列数
+	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		qDebug() << "未打开文件:" << filePath;
+		return;
+	}
+	QTextStream getCsvRowColCount(&structParaFile);
+	int csvRowCount = 0;
+	int csvColCount = 0;
+	while (!getCsvRowColCount.atEnd())
+	{
+		QString getRowCount = getCsvRowColCount.readLine();
+		QStringList getColCount = getRowCount.split(',');
+		csvColCount = getColCount.size();
+		csvRowCount++;
+	}
+	cout << "csvRowCount:" << csvRowCount << endl;
+	cout << "csvColCount:" << csvColCount << endl;
+	structParaFile.close();
+
+	//从csv文件读取数据
+	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text)) { return; }
+	QTextStream in(&structParaFile);
+	QString line;
+	QStringList fields;
+	for (int i = 0; i < csvRowCount; i++)
+	{
+		line = in.readLine();
+		fields = line.split(',');//按照,分割
+		for (int j = 0; j < csvColCount; j++)
+		{
+			mat(i, j) = fields[j].toDouble();
+			//qDebug() << fields[j];
+		}
+	}
+	structParaFile.close();
+}
+
+void csvToMatrixXd(const QString & filePath, MatrixXd & mat)
+{
+	QFile structParaFile(filePath);
+	//获取csv文件的行列数
+	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		qDebug() << "未打开文件:" << filePath;
+		return;
+	}
+	QTextStream getCsvRowColCount(&structParaFile);
+	int csvRowCount = 0;
+	int csvColCount = 0;
+	while (!getCsvRowColCount.atEnd())
+	{
+		QString getRowCount = getCsvRowColCount.readLine();
+		QStringList getColCount = getRowCount.split(',');
+		csvColCount = getColCount.size();
+		csvRowCount++;
+	}
+	cout << "csvRowCount:" << csvRowCount << endl;
+	cout << "csvColCount:" << csvColCount << endl;
+	structParaFile.close();
+
+	//从csv文件读取数据
+	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text)) { return; }
+	QTextStream in(&structParaFile);
+	QString line;
+	QStringList fields;
+	for (int i = 0; i < csvRowCount; i++)
+	{
+		line = in.readLine();
+		fields = line.split(',');//按照,分割
+		for (int j = 0; j < csvColCount; j++)
+		{
+			mat(i, j) = fields[j].toDouble();
+			//qDebug() << fields[j];
+		}
+	}
+	structParaFile.close();
 }
 
 void tableToCsv(const QTableWidget * tab, const QString & filePath)

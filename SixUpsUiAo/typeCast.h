@@ -46,5 +46,9 @@ void matrixXdToTable(const Matrix<double, 3, 6>&mat, QTableWidget* tab);
 void matrixXdToTable(const Matrix<double, 3, 1>&mat, QTableWidget* tab);
 //读取csv文件到表格
 void csvToTable(const QString &filePath, QTableWidget *tab);
+//读取csv文件到MatrixXd
+void csvToMatrixXd(const QString &filePath, Matrix<double, 3, 6> &mat);
+void csvToMatrixXd(const QString &filePath, Matrix<double, 6, 1> &mat);
+void csvToMatrixXd(const QString &filePath, MatrixXd &mat);
 //表格写入csv文件
 void tableToCsv(const QTableWidget *tab, const QString &filePath);

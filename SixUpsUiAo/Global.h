@@ -32,9 +32,11 @@ public:
 class PmacData
 {
 public:
+	static int numL;//一共有多少根支链
 	static double multiSpeed;//多轴运动速度
 	static VectorXi negLimitState;//负限位状态
 	static VectorXi posLimitState;//正限位状态
+	static VectorXd curLengths;//pmac中显示的杆长  (相对零位的杆长)
 
 };
 
@@ -81,14 +83,14 @@ public:
 	static Matrix<double, 3, 6> S;				//静平台铰链点在静坐标系下坐标
 	static int n_S_struct;						//静平台上靶标点个数
 	static MatrixXd Q_SS;						//3*n_S_struct 静平台靶标点在静系下坐标
-	static Matrix<double, 6, 1> initL_norm;		//初始杆长
+	static Matrix<double, 6, 1> initL_norm;		//并联机构各支链处于零位时 实际的杆长
 
 	//位姿杆长数据
 	static Matrix<double, 6, 1> tarPosAndAngle;		//当前面板输入目标位姿 xyzabc（按照该位姿执行运动）
 	static Matrix<double, 6, 1> tarL_norm;			//当前面板输入目标位姿反解得的杆长
 	static Matrix<double, 6, 1> curL_norm;			//由PMAC值换算得到的实时杆长
 	static Matrix<double, 6, 1> initPosAndAngle;		//正解初始位姿
-	static Matrix<double, 6, 1> curPosAndAngle;		//正解实时位姿
+	static Matrix<double, 6, 1> curPosAndAngle;		    //正解实时位姿
 	static Matrix<double, 6, 1> realPosAndAngleByQD;		//激光跟踪仪测量靶标点计算得到的实际位姿
 	static Matrix<double, 6, 1> realPosAndAngleByMPt;	//激光跟踪仪测量待测点计算得到的实际位姿
 	static Matrix<double, 6, 1> compTarPosAndAngleByQD; //通过靶标点实际位姿补偿后得到的新目标位姿

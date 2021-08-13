@@ -197,7 +197,7 @@ void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle, const Matrix<d
 	Matrix<double, 6, 1> initL_norm;
 	inverseSolution(initPosAndAngle, initL_norm, D, S);
 	//使用的参数
-	double delta_t = 1e-3; //t是0~1的数,表示杆长变化的步长百分比
+	double delta_t = 1e-1; //t是0~1的数,表示杆长变化的步长百分比
 	int k = int(1 / delta_t);//杆长变化次数
 	Matrix<double, 6, 1> delta_L = (targL_norm - initL_norm)*delta_t;
 	double delta = 1e-5; //求偏导时的微小变动量

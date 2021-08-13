@@ -8,8 +8,8 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	qDebug() << "SixUpsUiAo 构造";
 
 	initIcon();
-	initQlab();
-
+	initUIList();
+	initStructPara();
 
 	
 	/*Pmac数据采集定时器*/
@@ -22,7 +22,22 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	updateUiDataTimer->setInterval(200);
 	updateUiDataTimer->setTimerType(Qt::CoarseTimer);
 	connect(updateUiDataTimer, &QTimer::timeout, this, &SixUpsUiAo::on_updateUiDataTimer);
-	
+
+	/*正解计算定时器*/
+	upsCalculateTimer = new QTimer(this);
+	upsCalculateTimer->setInterval(200);
+	upsCalculateTimer->setTimerType(Qt::CoarseTimer);
+
+	/*计算线程*/
+	calculateQthread = new QThread(this);
+	myUpsCalculateThread = new UpsCalculateThread();
+	myUpsCalculateThread->moveToThread(calculateQthread);
+	//connect(calculateQthread, &QThread::started, myPmacThread, &QPmacThread::startPmac);
+	connect(calculateQthread, &QThread::finished, myUpsCalculateThread, &QObject::deleteLater);
+	connect(calculateQthread, &QThread::finished, calculateQthread, &QObject::deleteLater);
+
+	connect(upsCalculateTimer, &QTimer::timeout, myUpsCalculateThread, &UpsCalculateThread::on_upsCalculateTimer);
+	calculateQthread->start();
 
 }
 
@@ -38,6 +53,9 @@ SixUpsUiAo::~SixUpsUiAo()
 	}
 	qDebug() << "stop pamcQthread";
 	GlobalSta::pmacQthreadIsSarted = false;
+
+	calculateQthread->quit();
+	calculateQthread->wait();
 }
 
 
@@ -56,7 +74,7 @@ void SixUpsUiAo::initIcon()
 	//isStopedIcon.addFile(QString::fromUtf8(":/SixUPSCtrUI/icon/isstopped.png"), QSize(), QIcon::Normal);
 }
 
-void SixUpsUiAo::initQlab()
+void SixUpsUiAo::initUIList()
 {
 	qlabNegLimit_group.append(ui.staNegLimit1);
 	qlabNegLimit_group.append(ui.staNegLimit2);
@@ -71,6 +89,31 @@ void SixUpsUiAo::initQlab()
 	qlabPosLimit_group.append(ui.staPosLimit4);
 	qlabPosLimit_group.append(ui.staPosLimit5);
 	qlabPosLimit_group.append(ui.staPosLimit6);
+
+	realTimeLengths_group.append(ui.led_realTimeLength1);
+	realTimeLengths_group.append(ui.led_realTimeLength2);
+	realTimeLengths_group.append(ui.led_realTimeLength3);
+	realTimeLengths_group.append(ui.led_realTimeLength4);
+	realTimeLengths_group.append(ui.led_realTimeLength5);
+	realTimeLengths_group.append(ui.led_realTimeLength6);
+
+	realTimePos_group.append(ui.led_realTimeX);
+	realTimePos_group.append(ui.led_realTimeY);
+	realTimePos_group.append(ui.led_realTimeZ);
+	realTimePos_group.append(ui.led_realTimeRdeg);
+	realTimePos_group.append(ui.led_realTimePdeg);
+	realTimePos_group.append(ui.led_realTimeYdeg);
+
+
+}
+
+void SixUpsUiAo::initStructPara()
+{
+	//导入动静平台结构参数
+	csvToMatrixXd("./Data/D.csv", UPSData::D);
+	csvToMatrixXd("./Data/S.csv", UPSData::S);
+	csvToMatrixXd("./Data/initL.csv", UPSData::initL_norm);
+	UPSData::initPosAndAngle.col(0) << 0.0, 0.0, 550.0, 0, 0, 0;
 }
 
 void SixUpsUiAo::switchPmacThread()
@@ -110,9 +153,15 @@ void SixUpsUiAo::on_paraCailbrate_triggered()
 
 void SixUpsUiAo::on_updateUiDataTimer()
 {
-	qDebug() << "on_updateUiDataTimer";
-	for (int i = 0; i <= 5; i++)
+	//qDebug() << "on_updateUiDataTimer";
+	QString strLength;
+	for (int i = 0; i < PmacData::numL; i++)
 	{
+		/**********杆长***************/
+		strLength = QString::number(PmacData::curLengths(i), 'f', 3);
+		realTimeLengths_group[i]->setText(strLength);
+
+		/**********限位状态***************/
 		//负限位
 		if (PmacData::negLimitState(i) == 1)
 		{
@@ -134,6 +183,13 @@ void SixUpsUiAo::on_updateUiDataTimer()
 		}
 
 	}
+	/********实时位姿**********/
+	QString strPos;
+	for (int i = 0; i < 6; i++)
+	{
+		strPos = QString::number(UPSData::curPosAndAngle(i), 'f', 3);
+		realTimePos_group[i]->setText(strPos);
+	}
 	
 }
 
@@ -147,11 +203,9 @@ void SixUpsUiAo::on_connectPmacBtn_clicked()
 
 		if (GlobalSta::pmacIsConnected)
 		{
-			dataGatherTimer->start(100);//数据采集开始
-			updateUiDataTimer->start(200);//开始更新UI
-
 			ui.pmacSta->setPixmap(onIcon);
 			ui.connectPmacBtn->setText("断开");
+			ui.initPmacBtn->setEnabled(true);
 		}
 	}
 	else
@@ -161,18 +215,23 @@ void SixUpsUiAo::on_connectPmacBtn_clicked()
 
 		if (!GlobalSta::pmacIsConnected)
 		{
+			upsCalculateTimer->stop();//停止计算并联机构实时位姿
 			dataGatherTimer->stop();//数据采集停止
 			updateUiDataTimer->stop();//停止更新UI
+
 			//让相关状态显示UI初始化
-			for (int i = 0; i <=5;i++)
+			for (int i = 0; i < PmacData::numL ;i++)
 			{
 				qlabNegLimit_group[i]->setPixmap(offIcon);
 				qlabPosLimit_group[i]->setPixmap(offIcon);
+				realTimeLengths_group[i]->setText("");
+				realTimePos_group[i]->setText("");
 			}
 
 			ui.pmacSta->setPixmap(offIcon);
 			ui.connectPmacBtn->setText("连接");
-
+			
+			ui.initPmacBtn->setEnabled(false);
 			GlobalSta::pmacIsInitialed = false;
 			ui.pmacInitSta->setPixmap(offIcon);
 		}
@@ -188,8 +247,12 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 	myPmac->initPmac();
 	if (GlobalSta::pmacIsInitialed)
 	{
+		dataGatherTimer->start(100);//数据采集开始
+		upsCalculateTimer->start(150); //开始计算并联机构实时位姿
+		updateUiDataTimer->start(200);//开始更新UI
+		
 		ui.pmacInitSta->setPixmap(onIcon);
-
+		
 	}
 	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
 }

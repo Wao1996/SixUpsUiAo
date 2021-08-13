@@ -65,6 +65,9 @@
     <ClCompile Include="QPmac.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UpsCalculateThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="ParameterCalibrate.ui">
@@ -79,6 +82,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="QPmac.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="UpsCalculateThread.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
