@@ -81,6 +81,40 @@ double QPmac::getCurLengths(int num)
 	return position;
 }
 
+void QPmac::jogDisp(int num, double disp)
+{
+	//»»Ëã³ÉÂö³å
+	int jog_disp_cts = disp * 40960;//Î»ÒÆ×ªÎªÂö³å
+	QString strCts = QString::number(jog_disp_cts);
+	QString strNum = QString::number(num);
+	QString strCommand = "#"+ strNum+"j^" + strCts;
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+	qDebug() << "jogDisp:" << strCommand << ":" << pAnswer;
+}
+
+void QPmac::jogPosContinuously(int num)
+{
+	QString strNum = QString::number(num);
+	QString strCommand = "#" + strNum + "j+";
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+	qDebug() << "jogPosContinuously:"  << strCommand << ":" << pAnswer;
+}
+
+void QPmac::jogNegContinuously(int num)
+{
+	QString strNum = QString::number(num);
+	QString strCommand = "#" + strNum + "j-";
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+	qDebug() << "jogNegContinuously:" << strCommand << ":" << pAnswer;
+}
+
+void QPmac::jogStop()
+{
+	QString strCommand =  "j/";
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+	qDebug() << "jogStop:" << strCommand << ":" << pAnswer;
+}
+
 
 void QPmac::on_dataGatherTimer()
 {

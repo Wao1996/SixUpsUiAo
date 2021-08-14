@@ -14,9 +14,15 @@ public:
 	
 	bool creatPmacSelect();//选择pmac
 	void initPmac();//初始化pmac
+
 	int getNegLimitState(int);//获取负限位状态
 	int getPosLimitState(int);//获取正限位状态
 	double getCurLengths(int);//获取支链长度
+
+	void jogDisp(int num, double disp);//距离点动
+	void jogPosContinuously(int num);//持续+运动
+	void jogNegContinuously(int num);//持续-运动
+	void jogStop();//所有电机停止
 public slots:
 	void on_dataGatherTimer();
 public:

@@ -10,7 +10,7 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	initIcon();
 	initUIList();
 	initStructPara();
-
+	initConnect();
 	
 	/*Pmac数据采集定时器*/
 	dataGatherTimer = new QTimer(this);
@@ -104,7 +104,19 @@ void SixUpsUiAo::initUIList()
 	realTimePos_group.append(ui.led_realTimePdeg);
 	realTimePos_group.append(ui.led_realTimeYdeg);
 
-
+	jogInc_group.append(ui.led_jogInc1);
+	jogInc_group.append(ui.led_jogInc2);
+	jogInc_group.append(ui.led_jogInc3);
+	jogInc_group.append(ui.led_jogInc4);
+	jogInc_group.append(ui.led_jogInc5);
+	jogInc_group.append(ui.led_jogInc6);
+		
+	dipJog_group.append(ui.dipJog1);
+	dipJog_group.append(ui.dipJog2);
+	dipJog_group.append(ui.dipJog3);
+	dipJog_group.append(ui.dipJog4);
+	dipJog_group.append(ui.dipJog5);
+	dipJog_group.append(ui.dipJog6);
 }
 
 void SixUpsUiAo::initStructPara()
@@ -114,6 +126,15 @@ void SixUpsUiAo::initStructPara()
 	csvToMatrixXd("./Data/S.csv", UPSData::S);
 	csvToMatrixXd("./Data/initL.csv", UPSData::initL_norm);
 	UPSData::initPosAndAngle.col(0) << 0.0, 0.0, 550.0, 0, 0, 0;
+}
+
+void SixUpsUiAo::initConnect()
+{
+	for (int i = 0; i < PmacData::numL; i++)
+	{
+		connect(jogInc_group[i], QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SixUpsUiAo::on_led_jogInc_valuechanged);
+		connect(dipJog_group[i], &QToolButton::clicked, this, &SixUpsUiAo::on_dipJog_clicked);
+	}
 }
 
 void SixUpsUiAo::switchPmacThread()
@@ -256,3 +277,27 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 	}
 	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
 }
+
+void SixUpsUiAo::on_led_jogInc_valuechanged(double Inc)
+{
+	
+	QString btnName = QObject::sender()->objectName();
+	QString btnNamePrefix = "led_jogInc";
+	int axleNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//轴号
+	int index = axleNum - 1;//轴号减1才是索引号
+	SingleJogData::jogInc[index] = Inc;
+	qDebug() << "axleNum:" << axleNum << " jogInc:" << SingleJogData::jogInc[index];
+
+}
+
+void SixUpsUiAo::on_dipJog_clicked()
+{
+	QString btnName = QObject::sender()->objectName();
+	QString btnNamePrefix = "dipJog";
+	int axleNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//轴号
+	int index = axleNum - 1;//轴号减1才是索引号
+	//TODO 先设置速度
+	myPmac->jogDisp(axleNum, SingleJogData::jogInc[index]);
+}
+
+

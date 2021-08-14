@@ -7,7 +7,7 @@ class GlobalSta;
 class PmacData;
 class LazerData;
 class UPSData;
-
+class SingleJogData;
 
 
 class GlobalSta 
@@ -40,6 +40,14 @@ public:
 
 };
 
+class SingleJogData
+{
+public:
+	static double jogSpeed;//点动速度
+	static VectorXd jogInc;//点动距离向量
+
+
+};
 class LazerData
 {
 public:

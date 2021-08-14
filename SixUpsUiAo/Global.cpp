@@ -25,6 +25,11 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  VectorXi PmacData::negLimitState = VectorXi::Zero(6);//负限位状态
  VectorXi PmacData::posLimitState = VectorXi::Zero(6);//正限位状态
  VectorXd PmacData::curLengths = VectorXd::Zero(6);//杆长
+
+  /***********************SingleJogData ************************************************/
+ double SingleJogData::jogSpeed=0;//点动速度
+ VectorXd SingleJogData::jogInc = VectorXd::Zero(6);//点动距离向量
+
  /***********************UPSData start************************************************/
 //建立坐标系
  MatrixXd UPSData::circlePt;//3*n(圆心拟合数据点个数) 

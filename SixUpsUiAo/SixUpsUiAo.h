@@ -28,9 +28,10 @@ private:
 	//各支链限位状态图片列表  因为C++不能使用eval语句
 	QList<QLabel*> qlabNegLimit_group;
 	QList<QLabel*> qlabPosLimit_group;
-	QList<QLineEdit *> realTimeLengths_group;
-	QList<QLineEdit *> realTimePos_group;
-
+	QList<QLineEdit *> realTimeLengths_group;//杆长显示
+	QList<QLineEdit *> realTimePos_group;//位姿显示
+	QList<QDoubleSpinBox *> jogInc_group;//单轴运动 距离点动增量
+	QList<QToolButton *> dipJog_group;//单轴运动 距离点动按钮
 	/************定时器***********/
 	QTimer *dataGatherTimer;//数据收集定时器
 	QTimer *updateUiDataTimer;//刷新ui定时器
@@ -44,9 +45,11 @@ private:
 	void initIcon();
 	void initUIList();
 	void initStructPara();
+	void initConnect();
 	/*********Pmac相关************/
 	QPmac *myPmac = nullptr;
 	void switchPmacThread();//切换Pmac线程的开启与关闭
+
 
 signals:
 
@@ -59,5 +62,10 @@ private slots:
 	/**********PMAC************/
 	void on_connectPmacBtn_clicked();
 	void on_initPmacBtn_clicked();
+
+	/*单轴运动*/
+	void on_led_jogInc_valuechanged(double);
+	void on_dipJog_clicked();
+
 
 };
