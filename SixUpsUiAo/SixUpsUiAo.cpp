@@ -117,6 +117,27 @@ void SixUpsUiAo::initUIList()
 	dipJog_group.append(ui.dipJog4);
 	dipJog_group.append(ui.dipJog5);
 	dipJog_group.append(ui.dipJog6);
+
+	prsJogPos_group.append(ui.prsJogPos1);
+	prsJogPos_group.append(ui.prsJogPos2);
+	prsJogPos_group.append(ui.prsJogPos3);
+	prsJogPos_group.append(ui.prsJogPos4);
+	prsJogPos_group.append(ui.prsJogPos5);
+	prsJogPos_group.append(ui.prsJogPos6);
+
+	prsJogNeg_group.append(ui.prsJogNeg1);
+	prsJogNeg_group.append(ui.prsJogNeg2);
+	prsJogNeg_group.append(ui.prsJogNeg3);
+	prsJogNeg_group.append(ui.prsJogNeg4);
+	prsJogNeg_group.append(ui.prsJogNeg5);
+	prsJogNeg_group.append(ui.prsJogNeg6);
+
+	AbsTarPos_group.append(ui.xAbsTarPos1);
+	AbsTarPos_group.append(ui.yAbsTarPos2);
+	AbsTarPos_group.append(ui.zAbsTarPos3);
+	AbsTarPos_group.append(ui.aAbsTarPos4);
+	AbsTarPos_group.append(ui.bAbsTarPos5);
+	AbsTarPos_group.append(ui.cAbsTarPos6);
 }
 
 void SixUpsUiAo::initStructPara()
@@ -132,9 +153,23 @@ void SixUpsUiAo::initConnect()
 {
 	for (int i = 0; i < PmacData::numL; i++)
 	{
-		connect(jogInc_group[i], QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SixUpsUiAo::on_led_jogInc_valuechanged);
-		connect(dipJog_group[i], &QToolButton::clicked, this, &SixUpsUiAo::on_dipJog_clicked);
+		/**************************多轴运动**************************/
+		connect(AbsTarPos_group[i], QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SixUpsUiAo::absTarPos_group_valueChange);
+		/**************************单轴运动**************************/
+		//距离点动 输入框 信号槽
+		connect(jogInc_group[i], QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SixUpsUiAo::led_jogInc_valueChanged);
+		//距离电动 按钮点击 信号槽
+		connect(dipJog_group[i], &QToolButton::clicked, this, &SixUpsUiAo::dipJog_Clicked);
+		//长按点动 正方向按钮按下 信号槽
+		connect(prsJogPos_group[i], &QToolButton::pressed, this, &SixUpsUiAo::prsJogPos_pressed);
+		//长按点动 正方向按钮松开 信号槽
+		connect(prsJogPos_group[i], &QToolButton::released, this, &SixUpsUiAo::prsJogPos_released);
+		//长按点动 负方向按钮按下 信号槽
+		connect(prsJogNeg_group[i], &QToolButton::pressed, this, &SixUpsUiAo::prsJogNeg_pressed);
+		//长按点动 正方向按钮松开 信号槽
+		connect(prsJogNeg_group[i], &QToolButton::released, this, &SixUpsUiAo::prsJogNeg_released);
 	}
+	
 }
 
 void SixUpsUiAo::switchPmacThread()
@@ -164,7 +199,7 @@ void SixUpsUiAo::switchPmacThread()
 
 void SixUpsUiAo::on_paraCailbrate_triggered()
 {
-	qDebug() << "mu clicked";
+	qDebug() << "on_paraCailbrate_triggered";
 	//显示子窗体，必须用new关键字创建子窗体对象，否则此函数执行完毕后对象会被销毁。
 	ParameterCalibrateUI = new ParameterCalibrate();
 	ParameterCalibrateUI->setWindowModality(Qt::ApplicationModal);//设置窗体模态，要求该窗体没有父类，否则无效
@@ -255,6 +290,9 @@ void SixUpsUiAo::on_connectPmacBtn_clicked()
 			ui.initPmacBtn->setEnabled(false);
 			GlobalSta::pmacIsInitialed = false;
 			ui.pmacInitSta->setPixmap(offIcon);
+
+			ui.servoOnBtn->setEnabled(false);
+			ui.servoOffBtn->setEnabled(false);
 		}
 	}
 	qDebug() << "pmacIsConnected = " << GlobalSta::pmacIsConnected;
@@ -273,12 +311,58 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 		updateUiDataTimer->start(200);//开始更新UI
 		
 		ui.pmacInitSta->setPixmap(onIcon);
-		
+		ui.servoOnBtn->setEnabled(true);
+		ui.servoOffBtn->setEnabled(true);
 	}
 	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
 }
 
-void SixUpsUiAo::on_led_jogInc_valuechanged(double Inc)
+void SixUpsUiAo::on_servoOnBtn_clicked()
+{
+	myPmac->jogStop();
+}
+
+void SixUpsUiAo::on_servoOffBtn_clicked()
+{
+	myPmac->setServoOff();
+}
+
+
+void SixUpsUiAo::on_getRealTimePosBtn_clicked()
+{
+	QString strPos;
+	for (int i = 0; i < 6; i++)
+	{
+		AbsTarPos_group[i]->setValue(UPSData::curPosAndAngle(i));
+	}
+	qDebug() << "on_getRealTimePosBtn_clicked";
+}
+
+
+void SixUpsUiAo::absTarPos_group_valueChange(double data)
+{
+	QString btnName = QObject::sender()->objectName();
+	QString btnNamePrefix = "xAbsTarPos";
+	int posNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//绝对位姿 x y z a b c的顺序号
+	int index = posNum - 1;//轴号减1才是索引号
+	UPSData::tarPosAndAngle[index] = data;
+	qDebug() << "posNum:" << posNum << " tarPosAndAngle:" << UPSData::tarPosAndAngle[index];
+}
+
+
+void SixUpsUiAo::on_led_jogSpeed_valueChanged(double speed)
+{
+	SingleJogData::jogSpeed = speed;
+	qDebug() << "on_led_jogSpeed_valueChanged_valuechanged :" << SingleJogData::jogSpeed;
+}
+
+void SixUpsUiAo::on_jogStopBtn_clicked()
+{
+	myPmac->jogStop();
+}
+
+
+void SixUpsUiAo::led_jogInc_valueChanged(double Inc)
 {
 	
 	QString btnName = QObject::sender()->objectName();
@@ -290,14 +374,53 @@ void SixUpsUiAo::on_led_jogInc_valuechanged(double Inc)
 
 }
 
-void SixUpsUiAo::on_dipJog_clicked()
+void SixUpsUiAo::dipJog_Clicked()
 {
 	QString btnName = QObject::sender()->objectName();
 	QString btnNamePrefix = "dipJog";
 	int axleNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//轴号
 	int index = axleNum - 1;//轴号减1才是索引号
-	//TODO 先设置速度
-	myPmac->jogDisp(axleNum, SingleJogData::jogInc[index]);
+	
+	myPmac->setJogSpeed(axleNum, SingleJogData::jogSpeed);//先设置运动速度
+	myPmac->jogDisp(axleNum, SingleJogData::jogInc[index]);//再距离点动
 }
 
+void SixUpsUiAo::prsJogPos_pressed()
+{
+	QString btnName = QObject::sender()->objectName();
+	QString btnNamePrefix = "prsJogPos";
+	int axleNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//轴号
+	qDebug() << "axleNum:" << axleNum << " prsJogPos_pressed";
+	myPmac->setJogSpeed(axleNum, SingleJogData::jogSpeed);//先设置运动速度
+	myPmac->jogPosContinuously(axleNum);
+
+}
+
+void SixUpsUiAo::prsJogPos_released()
+{
+	QString btnName = QObject::sender()->objectName();
+	QString btnNamePrefix = "prsJogPos";
+	int axleNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//轴号
+	myPmac->jogStop(axleNum);
+	qDebug() << "axleNum:" << axleNum << " prsJogPos_released";
+}
+
+void SixUpsUiAo::prsJogNeg_pressed()
+{
+	QString btnName = QObject::sender()->objectName();
+	QString btnNamePrefix = "prsJogNeg";
+	int axleNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//轴号
+	qDebug() << "axleNum:" << axleNum << " prsJogNeg_pressed";
+	myPmac->setJogSpeed(axleNum, SingleJogData::jogSpeed);//先设置运动速度
+	myPmac->jogNegContinuously(axleNum);
+}
+
+void SixUpsUiAo::prsJogNeg_released()
+{
+	QString btnName = QObject::sender()->objectName();
+	QString btnNamePrefix = "prsJogNeg";
+	int axleNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//轴号
+	myPmac->jogStop(axleNum);
+	qDebug() << "axleNum:" << axleNum << " prsJogNeg_released";
+}
 

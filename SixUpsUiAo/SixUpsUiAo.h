@@ -30,8 +30,15 @@ private:
 	QList<QLabel*> qlabPosLimit_group;
 	QList<QLineEdit *> realTimeLengths_group;//杆长显示
 	QList<QLineEdit *> realTimePos_group;//位姿显示
+
+
+	QList<QDoubleSpinBox *> AbsTarPos_group;//多轴运动 绝对位置输入框
+
 	QList<QDoubleSpinBox *> jogInc_group;//单轴运动 距离点动增量
 	QList<QToolButton *> dipJog_group;//单轴运动 距离点动按钮
+	QList<QToolButton *> prsJogPos_group;//单轴运动 长按正向运动
+	QList<QToolButton *> prsJogNeg_group;//单轴运动 长按负向运动
+
 	/************定时器***********/
 	QTimer *dataGatherTimer;//数据收集定时器
 	QTimer *updateUiDataTimer;//刷新ui定时器
@@ -63,9 +70,20 @@ private slots:
 	void on_connectPmacBtn_clicked();
 	void on_initPmacBtn_clicked();
 
-	/*单轴运动*/
-	void on_led_jogInc_valuechanged(double);
-	void on_dipJog_clicked();
-
+	/**************电机使能************/
+	void on_servoOnBtn_clicked();
+	void on_servoOffBtn_clicked();
+	/***********多轴运动***************/
+	void on_getRealTimePosBtn_clicked();//
+	void absTarPos_group_valueChange(double);
+	/***********单轴运动***************/
+	void on_led_jogSpeed_valueChanged(double);//单轴运动速度改变
+	void on_jogStopBtn_clicked();//所有电机停止
+	void led_jogInc_valueChanged(double);//距离点动 输入框 信号槽
+	void dipJog_Clicked();//距离电动 按钮点击 信号槽
+	void prsJogPos_pressed();//长按点动 正方向按钮按下 信号槽
+	void prsJogPos_released();//长按点动 正方向按钮松开 信号槽
+	void prsJogNeg_pressed();//长按点动 负方向按钮按下 信号槽
+	void prsJogNeg_released();//长按点动 正方向按钮松开 信号槽
 
 };

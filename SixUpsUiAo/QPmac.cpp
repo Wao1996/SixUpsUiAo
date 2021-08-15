@@ -115,6 +115,30 @@ void QPmac::jogStop()
 	qDebug() << "jogStop:" << strCommand << ":" << pAnswer;
 }
 
+void QPmac::jogStop(int num)
+{
+	QString strNum = QString::number(num);
+	QString strCommand = "#"+ strNum+"j/";
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+	qDebug() << "jogStop:" << strCommand << ":" << pAnswer;
+}
+
+void QPmac::setJogSpeed(int num, double speed)
+{
+	QString strNum = QString::number(num);
+	QString strVel = QString::number( speed / 1000 * 40960, 'f', 4);//速度参数换算
+	QString strCommand = "I" + strNum + "22=" + strVel;
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+	qDebug() << "setJogSpeed:" << strCommand << ":" << pAnswer;
+}
+
+void QPmac::setServoOff()
+{
+	QString strCommand =  "K";
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+	qDebug() << "setServoOff:" << strCommand << ":" << pAnswer;
+}
+
 
 void QPmac::on_dataGatherTimer()
 {

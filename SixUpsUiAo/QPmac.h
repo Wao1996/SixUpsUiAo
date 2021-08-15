@@ -22,7 +22,10 @@ public:
 	void jogDisp(int num, double disp);//距离点动
 	void jogPosContinuously(int num);//持续+运动
 	void jogNegContinuously(int num);//持续-运动
-	void jogStop();//所有电机停止
+	void jogStop();//所有轴电机停止 同时也是开启使能
+	void jogStop(int num);//某轴电机停止
+	void setJogSpeed(int num, double speed);//设置手动运动速度
+	void setServoOff();//所有电机失去使能
 public slots:
 	void on_dataGatherTimer();
 public:
