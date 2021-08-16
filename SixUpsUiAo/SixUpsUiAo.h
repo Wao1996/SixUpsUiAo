@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "ui_SixUpsUiAo.h"
 #include "ParameterCalibrate.h"
+#include "WaitWindow.h"
 #include "Global.h"
 #include "QPmac.h"
 #include "UpsCalculateThread.h"
@@ -18,6 +19,7 @@ public:
 	~SixUpsUiAo();
 
 	ParameterCalibrate * ParameterCalibrateUI;
+	WaitWindow *WaitWindowUI;
 private:
     Ui::SixUpsUiAoClass ui;
 
@@ -30,10 +32,7 @@ private:
 	QList<QLabel*> qlabPosLimit_group;
 	QList<QLineEdit *> realTimeLengths_group;//杆长显示
 	QList<QLineEdit *> realTimePos_group;//位姿显示
-
-
 	QList<QDoubleSpinBox *> AbsTarPos_group;//多轴运动 绝对位置输入框
-
 	QList<QDoubleSpinBox *> jogInc_group;//单轴运动 距离点动增量
 	QList<QToolButton *> dipJog_group;//单轴运动 距离点动按钮
 	QList<QToolButton *> prsJogPos_group;//单轴运动 长按正向运动
@@ -43,7 +42,7 @@ private:
 	QTimer *dataGatherTimer;//数据收集定时器
 	QTimer *updateUiDataTimer;//刷新ui定时器
 	QTimer *upsCalculateTimer;//并联机构计算定时器
-
+	QTimer *upsHomeCompleteTimer;//并联机构归零判断定时器
 	/***********并联机构计算线程**********/
 	QThread *calculateQthread = nullptr;
 	UpsCalculateThread *myUpsCalculateThread = nullptr;
@@ -57,24 +56,28 @@ private:
 	QPmac *myPmac = nullptr;
 	void switchPmacThread();//切换Pmac线程的开启与关闭
 
-
+	/************平台相关*************/
+	bool QMesBoxWhetherHome();//平台是否回归零位对话框
 signals:
-
+	void upsHome_signal();
 private slots:
+	
+	void upsHome_slot();//并联机构回零信号槽
 	/*********工具栏************/
 	void on_paraCailbrate_triggered();
 	/*********定时器***********/
 	void on_updateUiDataTimer();//刷新界面数据定时器溢出
-	
-	/**********PMAC************/
+	void on_upsHomeCompleteTimer();//各轴回零完成状态判断
+	/**********PMAC按钮************/
 	void on_connectPmacBtn_clicked();
 	void on_initPmacBtn_clicked();
 
-	/**************电机使能************/
+	/**************电机使能按钮************/
 	void on_servoOnBtn_clicked();
 	void on_servoOffBtn_clicked();
 	/***********多轴运动***************/
-	void on_getRealTimePosBtn_clicked();//
+	void on_getRealTimePosBtn_clicked();//获取当前位姿
+	void on_startMoveBtn_clicked();//开始运动
 	void absTarPos_group_valueChange(double);
 	/***********单轴运动***************/
 	void on_led_jogSpeed_valueChanged(double);//单轴运动速度改变

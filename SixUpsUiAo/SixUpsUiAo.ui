@@ -232,19 +232,19 @@
      <rect>
       <x>20</x>
       <y>290</y>
-      <width>170</width>
+      <width>180</width>
       <height>200</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>170</width>
+      <width>180</width>
       <height>200</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>170</width>
+      <width>180</width>
       <height>200</height>
      </size>
     </property>
@@ -259,13 +259,13 @@
       <widget class="QLabel" name="label_11">
        <property name="minimumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
@@ -336,13 +336,13 @@
       <widget class="QLabel" name="label_12">
        <property name="minimumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
@@ -407,13 +407,13 @@
       <widget class="QLabel" name="label_10">
        <property name="minimumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
@@ -478,13 +478,13 @@
       <widget class="QLabel" name="label_13">
        <property name="minimumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
@@ -549,13 +549,13 @@
       <widget class="QLabel" name="label_14">
        <property name="minimumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
@@ -620,13 +620,13 @@
       <widget class="QLabel" name="label_15">
        <property name="minimumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>50</width>
+         <width>55</width>
          <height>20</height>
         </size>
        </property>
@@ -694,8 +694,8 @@
      <rect>
       <x>10</x>
       <y>520</y>
-      <width>210</width>
-      <height>211</height>
+      <width>222</width>
+      <height>221</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -778,13 +778,13 @@
       <widget class="QLabel" name="label_2">
        <property name="minimumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
@@ -911,13 +911,13 @@
       <widget class="QLabel" name="label_3">
        <property name="minimumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
@@ -1038,13 +1038,13 @@
       <widget class="QLabel" name="label_4">
        <property name="minimumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
@@ -1165,13 +1165,13 @@
       <widget class="QLabel" name="label_5">
        <property name="minimumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
@@ -1292,13 +1292,13 @@
       <widget class="QLabel" name="label_6">
        <property name="minimumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
@@ -1419,13 +1419,13 @@
       <widget class="QLabel" name="label_7">
        <property name="minimumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>35</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
@@ -1547,7 +1547,7 @@
    <widget class="QGroupBox" name="poseMargin">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>210</x>
       <y>290</y>
       <width>244</width>
       <height>200</height>
@@ -2276,8 +2276,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>530</y>
+      <x>240</x>
+      <y>540</y>
       <width>116</width>
       <height>200</height>
      </rect>
@@ -2585,14 +2585,14 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>470</x>
       <y>80</y>
       <width>471</width>
       <height>531</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_setOrigin">
      <attribute name="title">
@@ -3264,7 +3264,7 @@
        <rect>
         <x>80</x>
         <y>280</y>
-        <width>84</width>
+        <width>100</width>
         <height>30</height>
        </rect>
       </property>
@@ -4311,7 +4311,7 @@
      <rect>
       <x>50</x>
       <y>160</y>
-      <width>84</width>
+      <width>90</width>
       <height>30</height>
      </rect>
     </property>
@@ -4339,7 +4339,7 @@
      <rect>
       <x>50</x>
       <y>200</y>
-      <width>84</width>
+      <width>90</width>
       <height>30</height>
      </rect>
     </property>
@@ -4359,6 +4359,34 @@
      <string>电机伺服OFF</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="upsHomeBtn">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>170</y>
+      <width>90</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>30</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>30</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>平台回零</string>
+    </property>
+   </widget>
    <zorder>realTimeLengths</zorder>
    <zorder>HMI</zorder>
    <zorder>PMAC</zorder>
@@ -4368,6 +4396,7 @@
    <zorder>tabWidget</zorder>
    <zorder>servoOnBtn</zorder>
    <zorder>servoOffBtn</zorder>
+   <zorder>upsHomeBtn</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -4375,7 +4404,7 @@
      <x>0</x>
      <y>0</y>
      <width>1160</width>
-     <height>23</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
@@ -4401,6 +4430,7 @@
  <layoutdefault spacing="6" margin="11"/>
  <resources>
   <include location="SixUpsUiAo.qrc"/>
+  <include location="C:/Users/AO/.designer/backup/SixUpsUiAo.qrc"/>
  </resources>
  <connections/>
 </ui>

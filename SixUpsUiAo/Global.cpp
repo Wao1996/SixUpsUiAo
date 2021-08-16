@@ -7,6 +7,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
 //"./other/qss/lightblue.css"//蓝
  bool GlobalSta::pmacIsConnected = false;
  bool GlobalSta::pmacIsInitialed = false;
+ bool GlobalSta::upsIsHome = false;
 
  bool GlobalSta::handWheelIsOpened = false;
  bool GlobalSta::clinometerIsConnected = false;
@@ -24,6 +25,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  double PmacData::multiSpeed = 0;//多轴运动速度
  VectorXi PmacData::negLimitState = VectorXi::Zero(6);//负限位状态
  VectorXi PmacData::posLimitState = VectorXi::Zero(6);//正限位状态
+ VectorXi PmacData::axleHomeCompleteState = VectorXi::Zero(6);//pmac中 各轴回零状态
  VectorXd PmacData::curLengths = VectorXd::Zero(6);//杆长
 
   /***********************SingleJogData ************************************************/

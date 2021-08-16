@@ -108,6 +108,7 @@
     <ClCompile Include="QPmac.cpp" />
     <ClCompile Include="typeCast.cpp" />
     <ClCompile Include="UpsCalculateThread.cpp" />
+    <ClCompile Include="WaitWindow.cpp" />
     <QtRcc Include="SixUpsUiAo.qrc" />
     <QtUic Include="ParameterCalibrate.ui" />
     <QtUic Include="SixUpsUiAo.ui" />
@@ -117,6 +118,7 @@
     <ClCompile Include="ParameterCalibrate.cpp" />
     <ClCompile Include="SixUpsUiAo.cpp" />
     <ClCompile Include="main.cpp" />
+    <QtUic Include="WaitWindow.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ParameterCalibrate.h" />
@@ -125,6 +127,7 @@
     <ClInclude Include="AlgorithmFor6UPS.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="PmacDeviceLib.h" />
+    <QtMoc Include="WaitWindow.h" />
     <QtMoc Include="UpsCalculateThread.h" />
     <QtMoc Include="QPmac.h" />
     <ClInclude Include="typeCast.h" />

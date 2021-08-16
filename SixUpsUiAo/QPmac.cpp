@@ -57,6 +57,18 @@ void QPmac::initPmac()
 
 }
 
+bool QPmac::downloadFile(QString strFile)
+{
+	pbSucess_download = false;
+	Pmac0->Download(pDeviceNumber, strFile, true, true, true, true, pbSucess_download);
+	if (pbSucess_download)
+	{
+		qDebug() << "下载文件:" << strFile << "成功";
+		//经过过查阅手册，只是成功开始现在线程，不代表下载成功，需查看日志文件
+	}
+	return pbSucess_download;
+}
+
 int QPmac::getNegLimitState(int num)
 {
 	QString negLimitM = "M" + QString::number(num) + "32";
@@ -67,8 +79,16 @@ int QPmac::getNegLimitState(int num)
 
 int QPmac::getPosLimitState(int num)
 {
-	QString negLimitM = "M" + QString::number(num) + "31";
-	Pmac0->GetResponse(pDeviceNumber, negLimitM, pAnswer);
+	QString posLimitM = "M" + QString::number(num) + "31";
+	Pmac0->GetResponse(pDeviceNumber, posLimitM, pAnswer);
+	int flag = pAnswer.left(pAnswer.length() - 1).toInt();
+	return flag;
+}
+
+int QPmac::getHomeCompleteState(int num)
+{
+	QString homeCompleteM = "M" + QString::number(num) + "45";
+	Pmac0->GetResponse(pDeviceNumber, homeCompleteM, pAnswer);
 	int flag = pAnswer.left(pAnswer.length() - 1).toInt();
 	return flag;
 }
@@ -77,14 +97,14 @@ double QPmac::getCurLengths(int num)
 {
 	QString negLimitM = "M" + QString::number(num) + "62";
 	Pmac0->GetResponse(pDeviceNumber, negLimitM, pAnswer);
-	double position = pAnswer.left(pAnswer.length() - 1).toDouble() / 3072 / 40960;
+	double position = pAnswer.left(pAnswer.length() - 1).toDouble() / 3072 / 20480;
 	return position;
 }
 
 void QPmac::jogDisp(int num, double disp)
 {
 	//换算成脉冲
-	int jog_disp_cts = disp * 40960;//位移转为脉冲
+	int jog_disp_cts = disp * 20480;//位移转为脉冲
 	QString strCts = QString::number(jog_disp_cts);
 	QString strNum = QString::number(num);
 	QString strCommand = "#"+ strNum+"j^" + strCts;
@@ -126,7 +146,7 @@ void QPmac::jogStop(int num)
 void QPmac::setJogSpeed(int num, double speed)
 {
 	QString strNum = QString::number(num);
-	QString strVel = QString::number( speed / 1000 * 40960, 'f', 4);//速度参数换算
+	QString strVel = QString::number( speed / 1000 * 20480, 'f', 4);//速度参数换算
 	QString strCommand = "I" + strNum + "22=" + strVel;
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
 	qDebug() << "setJogSpeed:" << strCommand << ":" << pAnswer;
@@ -139,6 +159,37 @@ void QPmac::setServoOff()
 	qDebug() << "setServoOff:" << strCommand << ":" << pAnswer;
 }
 
+void QPmac::setAllAxleHome()
+{
+}
+
+void QPmac::setALLaxleHomez()
+{
+}
+
+void QPmac::upsAbsMove(Matrix<double, 6, 1> absL)
+{
+	QDir temDir("./pmacProgram");
+	QString filePath = temDir.absolutePath();
+	QString strUpsAbsMove = filePath + "/upsAbsMove.pmc";
+	qDebug() << filePath;
+	QFile file(strUpsAbsMove);
+	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		QTextStream pmacOutput(&file);
+		QString content = "123";
+		pmacOutput << content << endl;
+		pmacOutput << content << endl;
+		//stream << write_txt << "\n";
+		file.close();
+		qDebug() << " write_txt";
+	}
+}
+
+void QPmac::upsIncMove(Matrix<double, 6, 1> incL)
+{
+}
+
 
 void QPmac::on_dataGatherTimer()
 {
@@ -149,6 +200,8 @@ void QPmac::on_dataGatherTimer()
 		PmacData::negLimitState(i) = getNegLimitState(i + 1);
 		PmacData::posLimitState(i) = getPosLimitState(i + 1);
 		PmacData::curLengths(i) = getCurLengths(i + 1);
+		PmacData::axleHomeCompleteState(i) = getHomeCompleteState(i + 1);
 		UPSData::curL_norm = PmacData::curLengths.head(6) + UPSData::initL_norm;
 	}
+	
 }

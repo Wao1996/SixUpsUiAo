@@ -11,7 +11,9 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	initUIList();
 	initStructPara();
 	initConnect();
-	
+
+
+
 	/*Pmac数据采集定时器*/
 	dataGatherTimer = new QTimer(this);
 	dataGatherTimer->setInterval(100);
@@ -23,10 +25,17 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	updateUiDataTimer->setTimerType(Qt::CoarseTimer);
 	connect(updateUiDataTimer, &QTimer::timeout, this, &SixUpsUiAo::on_updateUiDataTimer);
 
-	/*正解计算定时器*/
+	/*并联机构回零判断定时器*/
+	upsHomeCompleteTimer = new QTimer(this);
+	upsHomeCompleteTimer->setInterval(200);
+	upsHomeCompleteTimer->setTimerType(Qt::CoarseTimer);
+	connect(upsHomeCompleteTimer, &QTimer::timeout, this, &SixUpsUiAo::on_upsHomeCompleteTimer);
+
+	/*并联机构计算定时器*/
 	upsCalculateTimer = new QTimer(this);
 	upsCalculateTimer->setInterval(200);
 	upsCalculateTimer->setTimerType(Qt::CoarseTimer);
+
 
 	/*计算线程*/
 	calculateQthread = new QThread(this);
@@ -151,6 +160,9 @@ void SixUpsUiAo::initStructPara()
 
 void SixUpsUiAo::initConnect()
 {
+	//平台回零按钮
+	connect(ui.upsHomeBtn, &QPushButton::clicked, this, &SixUpsUiAo::upsHome_slot);
+	connect(this, &SixUpsUiAo::upsHome_signal, this, &SixUpsUiAo::upsHome_slot);//平台回零
 	for (int i = 0; i < PmacData::numL; i++)
 	{
 		/**************************多轴运动**************************/
@@ -169,6 +181,7 @@ void SixUpsUiAo::initConnect()
 		//长按点动 正方向按钮松开 信号槽
 		connect(prsJogNeg_group[i], &QToolButton::released, this, &SixUpsUiAo::prsJogNeg_released);
 	}
+	
 	
 }
 
@@ -196,6 +209,35 @@ void SixUpsUiAo::switchPmacThread()
 		qDebug() << "start pmacQthread";
 	}
 }
+
+bool SixUpsUiAo::QMesBoxWhetherHome()
+{
+	int questionResult = QMessageBox::question(NULL, "提示", "是否恢复零位", QMessageBox::Yes | QMessageBox::No);
+	if (questionResult = QMessageBox::Yes)
+	{
+		qDebug() << "平台归零 yes";
+		return true;
+	}
+	else
+	{
+		qDebug() << "平台以当前位姿运动 no";
+		return false;
+	}
+}
+
+void SixUpsUiAo::upsHome_slot()
+{
+	qDebug() << "upsHome_slot ";
+	/******弹出等待窗口*****/
+	WaitWindowUI = new WaitWindow();
+	WaitWindowUI->setWindowModality(Qt::ApplicationModal);//设置窗体模态，要求该窗体没有父类，否则无效
+	WaitWindowUI->show();
+	/******检测各轴是否归零计时器开始计时*****/
+	upsHomeCompleteTimer->start(50);
+	/******各轴开始回零*****/
+	myPmac->setAllAxleHome();	
+}
+
 
 void SixUpsUiAo::on_paraCailbrate_triggered()
 {
@@ -247,6 +289,22 @@ void SixUpsUiAo::on_updateUiDataTimer()
 		realTimePos_group[i]->setText(strPos);
 	}
 	
+}
+
+void SixUpsUiAo::on_upsHomeCompleteTimer()
+{
+	qDebug() << "on_upsHomeCompleteTimer  ";
+	/*********各轴归零完成，平台未归零*******/
+	if (PmacData::axleHomeCompleteState.head(6).sum() == 6 && GlobalSta::upsIsHome == false)
+	{
+		//TODO 平台根据当前位姿 变化到平台零位 即二次归零
+	}
+	//if ()
+	//{
+	//	GlobalSta::upsIsHome = true;
+	//	upsHomeCompleteTimer->stop();
+	//	WaitWindowUI->close();//关闭等待对话框
+	//}
 }
 
 void SixUpsUiAo::on_connectPmacBtn_clicked()
@@ -302,18 +360,38 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 {
 	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
 	ui.pmacInitSta->setPixmap(loadingIcon);
-	//初始化pmac
-	myPmac->initPmac();
+	myPmac->initPmac();//初始化pmac
+	bool ifHome = QMesBoxWhetherHome();//平台时候归零
+	qDebug() << "你好：";
 	if (GlobalSta::pmacIsInitialed)
 	{
 		dataGatherTimer->start(100);//数据采集开始
 		upsCalculateTimer->start(150); //开始计算并联机构实时位姿
 		updateUiDataTimer->start(200);//开始更新UI
-		
+	}
+
+	if (ifHome == true)
+	{
+		emit upsHome_signal();
+		//TODO 
+		//1.运行回零程序
+		//2.待各轴回零结束后 提示初始化完成
+	} 
+	else
+	{
+		//TODO
+		//1.从文件中读取上一次正常结束程序时的PMAC杆长
+		//2.将上一次的PMAC杆长赋值给PMAC
+		//3.提示初始化完成
+	}
+
+	if (GlobalSta::upsIsHome)
+	{
 		ui.pmacInitSta->setPixmap(onIcon);
 		ui.servoOnBtn->setEnabled(true);
 		ui.servoOffBtn->setEnabled(true);
 	}
+
 	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
 }
 
@@ -336,6 +414,11 @@ void SixUpsUiAo::on_getRealTimePosBtn_clicked()
 		AbsTarPos_group[i]->setValue(UPSData::curPosAndAngle(i));
 	}
 	qDebug() << "on_getRealTimePosBtn_clicked";
+}
+
+void SixUpsUiAo::on_startMoveBtn_clicked()
+{
+	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);//反解
 }
 
 

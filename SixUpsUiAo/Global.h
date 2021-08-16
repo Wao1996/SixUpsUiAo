@@ -18,6 +18,7 @@ public:
 	//设备状态
 	static bool pmacIsConnected;//PMAC
 	static bool pmacIsInitialed;
+	static bool upsIsHome;//并联机构可以运行
 
 	static bool handWheelIsOpened;//手轮
 	static bool clinometerIsConnected;//倾角仪
@@ -36,8 +37,9 @@ public:
 	static double multiSpeed;//多轴运动速度
 	static VectorXi negLimitState;//负限位状态
 	static VectorXi posLimitState;//正限位状态
+	static VectorXi axleHomeCompleteState;//pmac中 各轴回零状态
 	static VectorXd curLengths;//pmac中显示的杆长  (相对零位的杆长)
-
+	
 };
 
 class SingleJogData
@@ -45,7 +47,6 @@ class SingleJogData
 public:
 	static double jogSpeed;//点动速度
 	static VectorXd jogInc;//点动距离向量
-
 
 };
 class LazerData

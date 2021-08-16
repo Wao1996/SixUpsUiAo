@@ -68,12 +68,18 @@
     <ClCompile Include="UpsCalculateThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WaitWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="ParameterCalibrate.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="SixUpsUiAo.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="WaitWindow.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
@@ -85,6 +91,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="UpsCalculateThread.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="WaitWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
