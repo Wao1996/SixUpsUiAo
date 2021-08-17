@@ -14,13 +14,17 @@ public:
 	
 	bool creatPmacSelect();//选择pmac
 	void initPmac();//初始化pmac
-	bool downloadFile(QString strFile);
+	bool downloadFile(QString strFile);//下载程序
 
 	/*获取状态*/
-	int getNegLimitState(int);//获取负限位状态
-	int getPosLimitState(int);//获取正限位状态
-	int getHomeCompleteState(int);//获取电机回零状态
-	double getCurLengths(int);//获取支链长度
+	int getNegLimitState(int);//获取某一个轴的负限位状态
+	void getNegLimitState(VectorXi & negLimitState);//直接获取所有轴的负限位状态
+	int getPosLimitState(int);//获取某一个轴的正限位状态
+	void getPosLimitState(VectorXi & posLimitState);//直接获取所有轴的正限位状态
+	int getHomeCompleteState(int);//获取某一个轴的回零状态
+	void getHomeCompleteState(VectorXi &axleHomeCompleteState);//直接获取所有轴的电机回零
+	double getCurLengths(int);//获取某一个轴的当前支链长度
+	void getCurLengths(VectorXd &curLengths);//直接获取所有轴的当前支链长度
 	
 	/*单轴运动控制*/
 	void jogDisp(int num, double disp);//距离点动

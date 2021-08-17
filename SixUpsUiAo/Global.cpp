@@ -28,6 +28,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  VectorXi PmacData::axleHomeCompleteState = VectorXi::Zero(6);//pmac中 各轴回零状态
  VectorXd PmacData::curLengths = VectorXd::Zero(6);//杆长
 
+
   /***********************SingleJogData ************************************************/
  double SingleJogData::jogSpeed=0;//点动速度
  VectorXd SingleJogData::jogInc = VectorXd::Zero(6);//点动距离向量
@@ -72,9 +73,12 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  Matrix<double, 6, 1> UPSData::initL_norm = MatrixXd::Zero(6, 1);	//初始杆长
 
  //当前位姿杆长数据
- Matrix<double, 6, 1> UPSData::tarPosAndAngle = MatrixXd::Zero(6, 1);		//当前面板输入目标位姿 
- Matrix<double, 6, 1> UPSData::tarL_norm = MatrixXd::Zero(6, 1);			//当前面板输入目标位姿反解得的杆长
- Matrix<double, 6, 1> UPSData::curL_norm = MatrixXd::Zero(6, 1);			//由PMAC值换算得到的实时杆长
+ 
+ Matrix<double, 6, 1> UPSData::homePosAndAngle = MatrixXd::Zero(6, 1);		//并联机构 平台零位位姿  单位 mm °
+ Matrix<double, 6, 1> UPSData::tarPosAndAngle = MatrixXd::Zero(6, 1);		//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
+ Matrix<double, 6, 1> UPSData::tarL_norm = MatrixXd::Zero(6, 1);			//有目标位姿反解得到的目标杆长 单位mm
+ Matrix<double, 6, 1> UPSData::tarLengths = MatrixXd::Zero(6, 1);           //得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
+ Matrix<double, 6, 1> UPSData::curL_norm = MatrixXd::Zero(6, 1);			//由PMAC值换算得到的实时杆长 单位mm
  Matrix<double, 6, 1> UPSData::initPosAndAngle = MatrixXd::Zero(6, 1);		//正解初始位姿
  Matrix<double, 6, 1> UPSData::curPosAndAngle = MatrixXd::Zero(6, 1);		//正解实时位姿
  Matrix<double, 6, 1> UPSData::realPosAndAngleByQD = MatrixXd::Zero(6, 1);	//激光跟踪仪测量靶标点计算得到的实际位姿

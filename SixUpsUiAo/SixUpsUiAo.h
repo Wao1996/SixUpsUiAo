@@ -60,9 +60,11 @@ private:
 	bool QMesBoxWhetherHome();//平台是否回归零位对话框
 signals:
 	void upsHome_signal();
+	void platformDHome_signal();//动平台回初始零位
 private slots:
 	
 	void upsHome_slot();//并联机构回零信号槽
+	void platformDHome_slot();//动平台回初始零位信号槽
 	/*********工具栏************/
 	void on_paraCailbrate_triggered();
 	/*********定时器***********/

@@ -14,9 +14,11 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 
 
 
+
+
 	/*Pmac数据采集定时器*/
 	dataGatherTimer = new QTimer(this);
-	dataGatherTimer->setInterval(100);
+	dataGatherTimer->setInterval(200);
 	dataGatherTimer->setTimerType(Qt::CoarseTimer);
 
 	/*UI更新定时器*/
@@ -27,7 +29,7 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 
 	/*并联机构回零判断定时器*/
 	upsHomeCompleteTimer = new QTimer(this);
-	upsHomeCompleteTimer->setInterval(200);
+	upsHomeCompleteTimer->setInterval(500);
 	upsHomeCompleteTimer->setTimerType(Qt::CoarseTimer);
 	connect(upsHomeCompleteTimer, &QTimer::timeout, this, &SixUpsUiAo::on_upsHomeCompleteTimer);
 
@@ -154,8 +156,9 @@ void SixUpsUiAo::initStructPara()
 	//导入动静平台结构参数
 	csvToMatrixXd("./Data/D.csv", UPSData::D);
 	csvToMatrixXd("./Data/S.csv", UPSData::S);
-	csvToMatrixXd("./Data/initL.csv", UPSData::initL_norm);
-	UPSData::initPosAndAngle.col(0) << 0.0, 0.0, 550.0, 0, 0, 0;
+	csvToMatrixXd("./Data/initL.csv", UPSData::initL_norm); 
+	csvToMatrixXd("./Data/homePosAndAngle.csv", UPSData::homePosAndAngle);
+	UPSData::initPosAndAngle = UPSData::homePosAndAngle;
 }
 
 void SixUpsUiAo::initConnect()
@@ -182,7 +185,7 @@ void SixUpsUiAo::initConnect()
 		connect(prsJogNeg_group[i], &QToolButton::released, this, &SixUpsUiAo::prsJogNeg_released);
 	}
 	
-	
+	connect(this, &SixUpsUiAo::platformDHome_signal, this, &SixUpsUiAo::platformDHome_slot);
 }
 
 void SixUpsUiAo::switchPmacThread()
@@ -213,7 +216,7 @@ void SixUpsUiAo::switchPmacThread()
 bool SixUpsUiAo::QMesBoxWhetherHome()
 {
 	int questionResult = QMessageBox::question(NULL, "提示", "是否恢复零位", QMessageBox::Yes | QMessageBox::No);
-	if (questionResult = QMessageBox::Yes)
+	if (questionResult == QMessageBox::Yes)
 	{
 		qDebug() << "平台归零 yes";
 		return true;
@@ -238,6 +241,13 @@ void SixUpsUiAo::upsHome_slot()
 	myPmac->setAllAxleHome();	
 }
 
+
+void SixUpsUiAo::platformDHome_slot()
+{
+	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
+	myPmac->upsAbsMove(UPSData::tarLengths);
+}
 
 void SixUpsUiAo::on_paraCailbrate_triggered()
 {
@@ -293,11 +303,13 @@ void SixUpsUiAo::on_updateUiDataTimer()
 
 void SixUpsUiAo::on_upsHomeCompleteTimer()
 {
-	qDebug() << "on_upsHomeCompleteTimer  ";
+	//qDebug() << "on_upsHomeCompleteTimer  ";
 	/*********各轴归零完成，平台未归零*******/
 	if (PmacData::axleHomeCompleteState.head(6).sum() == 6 && GlobalSta::upsIsHome == false)
 	{
-		//TODO 平台根据当前位姿 变化到平台零位 即二次归零
+		// 平台根据当前位姿 让动平台回归初始零位 即二次归零
+		emit platformDHome_signal();
+		qDebug() << "emit platformDHome_signal()  ";
 	}
 	//if ()
 	//{
@@ -365,6 +377,7 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 	qDebug() << "你好：";
 	if (GlobalSta::pmacIsInitialed)
 	{
+
 		dataGatherTimer->start(100);//数据采集开始
 		upsCalculateTimer->start(150); //开始计算并联机构实时位姿
 		updateUiDataTimer->start(200);//开始更新UI
@@ -372,7 +385,7 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 
 	if (ifHome == true)
 	{
-		emit upsHome_signal();
+		//emit upsHome_signal();
 		//TODO 
 		//1.运行回零程序
 		//2.待各轴回零结束后 提示初始化完成
@@ -383,6 +396,7 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 		//1.从文件中读取上一次正常结束程序时的PMAC杆长
 		//2.将上一次的PMAC杆长赋值给PMAC
 		//3.提示初始化完成
+
 	}
 
 	if (GlobalSta::upsIsHome)
