@@ -7,6 +7,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
 //"./other/qss/lightblue.css"//蓝
  bool GlobalSta::pmacIsConnected = false;
  bool GlobalSta::pmacIsInitialed = false;
+ bool GlobalSta::axlesIshome = false;
  bool GlobalSta::upsIsHome = false;
 
  bool GlobalSta::handWheelIsOpened = false;
@@ -23,12 +24,12 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  /***********************PmacData ************************************************/
  int PmacData::numL = 6;
  double PmacData::multiSpeed = 0;//多轴运动速度
- VectorXi PmacData::negLimitState = VectorXi::Zero(6);//负限位状态
- VectorXi PmacData::posLimitState = VectorXi::Zero(6);//正限位状态
- VectorXi PmacData::axleHomeCompleteState = VectorXi::Zero(6);//pmac中 各轴回零状态
+ VectorXd PmacData::negLimitState = VectorXd::Zero(6);//负限位状态
+ VectorXd PmacData::posLimitState = VectorXd::Zero(6);//正限位状态
+ VectorXd PmacData::axleHomeCompleteState = VectorXd::Zero(6);//pmac中 各轴回零状态
  VectorXd PmacData::curLengths = VectorXd::Zero(6);//杆长
-
-
+ VectorXd PmacData::pVariable = VectorXd::Zero(20);//P变量
+ 
   /***********************SingleJogData ************************************************/
  double SingleJogData::jogSpeed=0;//点动速度
  VectorXd SingleJogData::jogInc = VectorXd::Zero(6);//点动距离向量

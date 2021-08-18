@@ -234,7 +234,7 @@ void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle, const Matrix<d
 			newtonNum = newtonNum + 1;
 			if (newtonNum > 30)
 			{
-				cout << "牛顿迭代不收敛！" << endl;
+				cout << "forwardSolution error 牛顿迭代不收敛！" << endl;
 				newtonFialed = true;
 				break;//跳出while
 			}

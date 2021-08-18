@@ -9,6 +9,15 @@ class LazerData;
 class UPSData;
 class SingleJogData;
 
+enum PmacVariable
+{
+	NEGLIMITSTATE = 86,         //ascii V
+	POSLIMITSTATE = 118,           //ascii v
+	AXLEHOMECOMPLETESTATE = 77,                     //ascii M
+	CURLENGTHS = 85,                     //ascii U
+	PVARIABLE = 79,    //ascii O
+
+};
 
 class GlobalSta 
 {
@@ -18,7 +27,8 @@ public:
 	//设备状态
 	static bool pmacIsConnected;//PMAC
 	static bool pmacIsInitialed;
-	static bool upsIsHome;//并联机构可以运行
+	static bool axlesIshome;//所有轴已经回零位
+	static bool upsIsHome;//并联机构动平台回零位
 
 	static bool handWheelIsOpened;//手轮
 	static bool clinometerIsConnected;//倾角仪
@@ -35,11 +45,11 @@ class PmacData
 public:
 	static int numL;//一共有多少根支链
 	static double multiSpeed;//多轴运动速度
-	static VectorXi negLimitState;//负限位状态
-	static VectorXi posLimitState;//正限位状态
-	static VectorXi axleHomeCompleteState;//pmac中 各轴回零状态
+	static VectorXd negLimitState;//负限位状态
+	static VectorXd posLimitState;//正限位状态
+	static VectorXd axleHomeCompleteState;//pmac中 各轴回零状态
 	static VectorXd curLengths;//pmac中显示的杆长  (相对零位的杆长)
-
+	static VectorXd pVariable;//P变量列表
 	
 };
 

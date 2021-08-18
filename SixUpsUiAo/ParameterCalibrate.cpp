@@ -189,7 +189,7 @@ void ParameterCalibrate::on_calCircleC_clicked()
 	}
 	else
 	{
-		qDebug() << "无数据";
+		qDebug() << "on_calCircleC_clicked 无数据";
 	}
 }
 void ParameterCalibrate::on_calCircleS_clicked()
@@ -204,7 +204,7 @@ void ParameterCalibrate::on_calCircleS_clicked()
 	}
 	else
 	{
-		qDebug() << "无数据";
+		qDebug() << "on_calCircleS_clicked 无数据";
 	}
 }
 

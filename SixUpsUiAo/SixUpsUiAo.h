@@ -20,6 +20,7 @@ public:
 
 	ParameterCalibrate * ParameterCalibrateUI;
 	WaitWindow *WaitWindowUI;
+	bool upsHomeSignalEmited = false;//并联机构回零程序发送标志
 private:
     Ui::SixUpsUiAoClass ui;
 
@@ -64,12 +65,13 @@ signals:
 private slots:
 	
 	void upsHome_slot();//并联机构回零信号槽
-	void platformDHome_slot();//动平台回初始零位信号槽
+	void platformDHome_slot();//动平台回初始零位 信号槽
 	/*********工具栏************/
 	void on_paraCailbrate_triggered();
 	/*********定时器***********/
 	void on_updateUiDataTimer();//刷新界面数据定时器溢出
 	void on_upsHomeCompleteTimer();//各轴回零完成状态判断
+
 	/**********PMAC按钮************/
 	void on_connectPmacBtn_clicked();
 	void on_initPmacBtn_clicked();

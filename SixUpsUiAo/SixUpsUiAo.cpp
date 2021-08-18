@@ -12,10 +12,6 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	initStructPara();
 	initConnect();
 
-
-
-
-
 	/*Pmac数据采集定时器*/
 	dataGatherTimer = new QTimer(this);
 	dataGatherTimer->setInterval(200);
@@ -29,13 +25,13 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 
 	/*并联机构回零判断定时器*/
 	upsHomeCompleteTimer = new QTimer(this);
-	upsHomeCompleteTimer->setInterval(500);
+	upsHomeCompleteTimer->setInterval(200);
 	upsHomeCompleteTimer->setTimerType(Qt::CoarseTimer);
 	connect(upsHomeCompleteTimer, &QTimer::timeout, this, &SixUpsUiAo::on_upsHomeCompleteTimer);
 
 	/*并联机构计算定时器*/
 	upsCalculateTimer = new QTimer(this);
-	upsCalculateTimer->setInterval(200);
+	upsCalculateTimer->setInterval(250);
 	upsCalculateTimer->setTimerType(Qt::CoarseTimer);
 
 
@@ -235,18 +231,19 @@ void SixUpsUiAo::upsHome_slot()
 	WaitWindowUI = new WaitWindow();
 	WaitWindowUI->setWindowModality(Qt::ApplicationModal);//设置窗体模态，要求该窗体没有父类，否则无效
 	WaitWindowUI->show();
-	/******检测各轴是否归零计时器开始计时*****/
-	upsHomeCompleteTimer->start(50);
 	/******各轴开始回零*****/
-	myPmac->setAllAxleHome();	
+	myPmac->setAllAxleHome();
+	/******检测各轴是否归零计时器开始计时*****/
+	upsHomeCompleteTimer->start();
+	
 }
 
 
 void SixUpsUiAo::platformDHome_slot()
 {
-	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	inverseSolution(UPSData::homePosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
-	myPmac->upsAbsMove(UPSData::tarLengths);
+	myPmac->upsHomeMove(UPSData::tarLengths);
 }
 
 void SixUpsUiAo::on_paraCailbrate_triggered()
@@ -303,20 +300,36 @@ void SixUpsUiAo::on_updateUiDataTimer()
 
 void SixUpsUiAo::on_upsHomeCompleteTimer()
 {
-	//qDebug() << "on_upsHomeCompleteTimer  ";
-	/*********各轴归零完成，平台未归零*******/
-	if (PmacData::axleHomeCompleteState.head(6).sum() == 6 && GlobalSta::upsIsHome == false)
+	//qDebug() << "on_upsHomeCompleteTimer ";
+
+	if (PmacData::axleHomeCompleteState.head(6).sum() == 6)
 	{
-		// 平台根据当前位姿 让动平台回归初始零位 即二次归零
-		emit platformDHome_signal();
-		qDebug() << "emit platformDHome_signal()  ";
+		GlobalSta::axlesIshome = true;//表示所有轴已经回零位
 	}
-	//if ()
-	//{
-	//	GlobalSta::upsIsHome = true;
-	//	upsHomeCompleteTimer->stop();
-	//	WaitWindowUI->close();//关闭等待对话框
-	//}
+	if (PmacData::pVariable(2 - 1) == 1)
+	{
+		GlobalSta::upsIsHome = true;
+	}
+	/*********各轴归零完成，平台未归零*******/
+	if (  GlobalSta::axlesIshome == true && GlobalSta::upsIsHome == false && upsHomeSignalEmited == false)
+	{
+		
+		emit platformDHome_signal();  // 平台根据当前位姿 让动平台回归初始零位 即二次归零
+		upsHomeSignalEmited = true;//这个标志位的作用是保证 platformDHome_signal只发送一次
+		qDebug() << "emit platformDHome_signal()  ";
+		
+	}
+	if (GlobalSta::axlesIshome == true && GlobalSta::upsIsHome == true)
+	{
+		GlobalSta::upsIsHome = false;
+		GlobalSta::axlesIshome = false;
+		upsHomeSignalEmited = false;
+		WaitWindowUI->close();//关闭等待对话框
+		//TODO 将P2置0
+		myPmac->setPvariable(2, 0);
+		upsHomeCompleteTimer->stop();
+		qDebug() << "WaitWindowUI->close() ";
+	}
 }
 
 void SixUpsUiAo::on_connectPmacBtn_clicked()
@@ -374,18 +387,17 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 	ui.pmacInitSta->setPixmap(loadingIcon);
 	myPmac->initPmac();//初始化pmac
 	bool ifHome = QMesBoxWhetherHome();//平台时候归零
-	qDebug() << "你好：";
+	qDebug() << "on_initPmacBtn_clicked";
 	if (GlobalSta::pmacIsInitialed)
 	{
-
-		dataGatherTimer->start(100);//数据采集开始
-		upsCalculateTimer->start(150); //开始计算并联机构实时位姿
-		updateUiDataTimer->start(200);//开始更新UI
+		dataGatherTimer->start();//数据采集开始
+		upsCalculateTimer->start(); //开始计算并联机构实时位姿
+		updateUiDataTimer->start();//开始更新UI
 	}
 
 	if (ifHome == true)
 	{
-		//emit upsHome_signal();
+		emit upsHome_signal();
 		//TODO 
 		//1.运行回零程序
 		//2.待各轴回零结束后 提示初始化完成

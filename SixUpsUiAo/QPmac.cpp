@@ -14,6 +14,18 @@ QPmac::QPmac(QObject *parent):QObject(parent)
 	this->bAddLF = true;
 	this->pstatus = 0;
 	qDebug() << "QPmac";
+
+	pmacVariableRecipe.append(NEGLIMITSTATE);
+	pmacVariableRecipe.append(POSLIMITSTATE);
+	pmacVariableRecipe.append(AXLEHOMECOMPLETESTATE);
+	pmacVariableRecipe.append(CURLENGTHS);
+	pmacVariableRecipe.append(PVARIABLE);
+
+	pmacVariableList.append(&PmacData::negLimitState);
+	pmacVariableList.append(&PmacData::posLimitState);
+	pmacVariableList.append(&PmacData::axleHomeCompleteState);
+	pmacVariableList.append(&PmacData::curLengths);
+	pmacVariableList.append(&PmacData::pVariable);
 }
 
 QPmac::~QPmac()
@@ -63,7 +75,7 @@ bool QPmac::downloadFile(QString strFile)
 	Pmac0->Download(pDeviceNumber, strFile, true, true, true, true, pbSucess_download);
 	if (pbSucess_download)
 	{
-		qDebug() << "下载文件:" << strFile << "成功";
+		qDebug() << "downloadFile:" << strFile << "success";
 		//经过过查阅手册，只是成功开始现在线程，不代表下载成功，需查看日志文件
 	}
 	return pbSucess_download;
@@ -77,7 +89,7 @@ int QPmac::getNegLimitState(int num)
 	return flag;
 }
 
-void QPmac::getNegLimitState(VectorXi & negLimitState)
+void QPmac::getNegLimitState(VectorXd & negLimitState)
 {
 	int nums = negLimitState.size();//共有多少个轴
 	QString strCommand;
@@ -91,7 +103,7 @@ void QPmac::getNegLimitState(VectorXi & negLimitState)
 	QStringList res = pAnswer.left(pAnswer.length() - 1).split("\r");
 	for (int i = 0; i < nums; i++)
 	{
-		negLimitState(i) = res.at(i).toInt();
+		negLimitState(i) = res.at(i).toDouble();
 	}
 }
 
@@ -103,7 +115,7 @@ int QPmac::getPosLimitState(int num)
 	return flag;
 }
 
-void QPmac::getPosLimitState(VectorXi & posLimitState)
+void QPmac::getPosLimitState(VectorXd & posLimitState)
 {
 	int nums = posLimitState.size();//共有多少个轴
 	QString strCommand;
@@ -117,7 +129,7 @@ void QPmac::getPosLimitState(VectorXi & posLimitState)
 	QStringList res = pAnswer.left(pAnswer.length() - 1).split("\r");
 	for (int i = 0; i < nums; i++)
 	{
-		posLimitState(i) = res.at(i).toInt();
+		posLimitState(i) = res.at(i).toDouble();
 	}
 }
 
@@ -129,7 +141,7 @@ int QPmac::getHomeCompleteState(int num)
 	return flag;
 }
 
-void QPmac::getHomeCompleteState(VectorXi & axleHomeCompleteState)
+void QPmac::getHomeCompleteState(VectorXd & axleHomeCompleteState)
 {
 	int nums = axleHomeCompleteState.size();//共有多少个轴
 	QString strCommand;
@@ -143,7 +155,7 @@ void QPmac::getHomeCompleteState(VectorXi & axleHomeCompleteState)
 	QStringList res = pAnswer.left(pAnswer.length() - 1).split("\r");
 	for (int i = 0; i < nums; i++)
 	{
-		axleHomeCompleteState(i) = res.at(i).toInt();
+		axleHomeCompleteState(i) = res.at(i).toDouble();
 	}
 }
 
@@ -171,6 +183,136 @@ void QPmac::getCurLengths(VectorXd & curLengths)
 	{
 		curLengths(i) = res.at(i).toDouble() / 3072 / 20480;
 	}
+}
+
+void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<VectorXd*>  pmacVariableList)
+{
+	/*分析需要采集哪些数据 并按顺序生成字符串*/
+	int numRecipe = pmacVariableRecipe.size();
+	int numTemp = 0;
+	QString strCommand;
+	for (int i = 0; i < numRecipe; i++)
+	{
+		switch (pmacVariableRecipe.at(i))
+		{
+		case NEGLIMITSTATE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 1; j <= numTemp; j++)
+			{
+				strCommand.append("M" + QString::number(j) + "32");
+			}
+			break;
+		case POSLIMITSTATE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 1; j <= numTemp; j++)
+			{
+				strCommand.append("M" + QString::number(j) + "31");
+			}
+			break;
+		case AXLEHOMECOMPLETESTATE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 1; j <= numTemp; j++)
+			{
+				strCommand.append("M" + QString::number(j) + "45");
+			}
+			break;
+		case CURLENGTHS:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 1; j <= numTemp; j++)
+			{
+				strCommand.append("#" + QString::number(j) + "P");
+			}
+			break;
+		case PVARIABLE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 1; j <= numTemp; j++)
+			{
+				strCommand.append("P" + QString::number(j));
+			}
+			break;
+		default:
+			qDebug() << "getMotorsState solve pmacVariableRecipe ERROR!";
+			break;
+		}
+	}
+	/*将命令发送给PMAC 解析结果*/
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+	//将返回值拆解
+	QStringList res = pAnswer.left(pAnswer.length() - 1).split("\r");
+	for (int i = 0; i < numRecipe; i++)
+	{
+		switch (pmacVariableRecipe.at(i))
+		{
+		case NEGLIMITSTATE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 0; j < numTemp; j++)
+			{
+				(*pmacVariableList.at(i))(j)= res.at(0).toDouble();
+				res.removeFirst();
+			}
+			break;
+		case POSLIMITSTATE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 0; j < numTemp; j++)
+			{
+				(*pmacVariableList.at(i))(j) = res.at(0).toDouble();
+				res.removeFirst();
+			}
+			break;
+		case AXLEHOMECOMPLETESTATE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 0; j < numTemp; j++)
+			{
+				(*pmacVariableList.at(i))(j) = res.at(0).toDouble();
+				res.removeFirst();
+			}
+			break;
+		case CURLENGTHS:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 0; j < numTemp; j++)
+			{
+				(*pmacVariableList.at(i))(j) = res.at(0).toDouble() / 204800;
+				res.removeFirst();
+			}
+			break;
+		case PVARIABLE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 0; j < numTemp; j++)
+			{
+				(*pmacVariableList.at(i))(j) = res.at(0).toDouble();
+				res.removeFirst();
+			}
+			break;
+		default:
+			qDebug() << "getMotorsState solve pmacVariableRecipe ERROR!";
+			break;
+		}
+	}
+}
+
+
+void QPmac::getPVariableList(VectorXd &pVariable)
+{
+	int nums = pVariable.size();//共有多少个轴
+	QString strCommand;
+	//命令拼接
+	for (int i = 1; i <= nums; i++)
+	{
+		strCommand.append("P" + QString::number(i));
+	}
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+	//将返回值拆解
+	QStringList res = pAnswer.left(pAnswer.length() - 1).split("\r");
+	for (int i = 0; i < nums; i++)
+	{
+		pVariable(i) = res.at(i).toDouble();
+	}
+}
+
+void QPmac::setPvariable(int p, double data)
+{
+	QString strCommand = "P" + QString::number(p) + "=" + QString::number(data);
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
 }
 
 void QPmac::jogDisp(int num, double disp)
@@ -258,7 +400,7 @@ void QPmac::upsAbsMove(Matrix<double, 6, 1> absL)
 		content.sprintf("X%.4f Y%.4f Z%.4f A%.4f B%.4f C%.4f\nCLOSE\n", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5));
 		pmacOutput << Head << content << endl;
 		file.close();
-		qDebug() << strUpsAbsMove << "write success";
+		qDebug() << strUpsAbsMove << "writeFile success";
 	}
 	bool downloadFileState= downloadFile(strUpsAbsMove);
 	if (downloadFileState == true)
@@ -274,13 +416,47 @@ void QPmac::upsIncMove(Matrix<double, 6, 1> incL)
 {
 }
 
+void QPmac::upsHomeMove(Matrix<double, 6, 1> absL)
+{
+	QDir temDir("./pmacProgram");
+	QString filePath = temDir.absolutePath();
+	QString strUpsHomeMove = filePath + "/upsHomeMove.pmc";
+	QFile file(strUpsHomeMove);
+	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		QTextStream pmacOutput(&file);
+		QString Head;
+		QString content;
+		char cmdP2Start[] = "CMD\"P2=0\"";
+		char cmdP2End[] = "CMD\"P2=1\"";
+		double vel = 1;//进给速度
+		Head.sprintf("A\nOPEN PROG1 CLEAR\n%s\nABS\nLINEAR\nFRAX(X,Y,Z,A,B,C)\nF%.4f\n", cmdP2Start, vel);
+		content.sprintf("X%.4f Y%.4f Z%.4f A%.4f B%.4f C%.4f\nDWELL10\n%s\nCLOSE\n", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5), cmdP2End);
+		pmacOutput << Head << content << endl;
+		file.close();
+		qDebug() << strUpsHomeMove << "writeFile success";
+	}
+	bool downloadFileState = downloadFile(strUpsHomeMove);
+	if (downloadFileState == true)
+	{
+		//Pmac0->GetResponse(pDeviceNumber, "&1b1r", pAnswer);
+	}
+	else
+	{
+	}
+}
+
+
+
 
 void QPmac::on_dataGatherTimer()
 {
 	//qDebug() << "on_dataGatherTimer";	
-	getNegLimitState(PmacData::negLimitState);
+	/*getNegLimitState(PmacData::negLimitState);
 	getPosLimitState(PmacData::posLimitState);
 	getCurLengths(PmacData::curLengths);
 	getHomeCompleteState(PmacData::axleHomeCompleteState);
+	getPVariableList(PmacData::pVariable);*/
+	getMotorsState( pmacVariableRecipe,  pmacVariableList);
 	UPSData::curL_norm = PmacData::curLengths.head(6) + UPSData::initL_norm;	
 }
