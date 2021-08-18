@@ -2,9 +2,9 @@
 
 
 SixUpsUiAo::SixUpsUiAo(QWidget *parent)
-    : QMainWindow(parent)
+	: QMainWindow(parent)
 {
-    ui.setupUi(this);
+	ui.setupUi(this);
 	qDebug() << "SixUpsUiAo 构造";
 
 	initIcon();
@@ -97,6 +97,13 @@ void SixUpsUiAo::initUIList()
 	qlabPosLimit_group.append(ui.staPosLimit5);
 	qlabPosLimit_group.append(ui.staPosLimit6);
 
+	qlabOrigin_group.append(ui.staOrigin1);
+	qlabOrigin_group.append(ui.staOrigin2);
+	qlabOrigin_group.append(ui.staOrigin3);
+	qlabOrigin_group.append(ui.staOrigin4);
+	qlabOrigin_group.append(ui.staOrigin5);
+	qlabOrigin_group.append(ui.staOrigin6);
+
 	realTimeLengths_group.append(ui.led_realTimeLength1);
 	realTimeLengths_group.append(ui.led_realTimeLength2);
 	realTimeLengths_group.append(ui.led_realTimeLength3);
@@ -117,7 +124,7 @@ void SixUpsUiAo::initUIList()
 	jogInc_group.append(ui.led_jogInc4);
 	jogInc_group.append(ui.led_jogInc5);
 	jogInc_group.append(ui.led_jogInc6);
-		
+
 	dipJog_group.append(ui.dipJog1);
 	dipJog_group.append(ui.dipJog2);
 	dipJog_group.append(ui.dipJog3);
@@ -152,7 +159,7 @@ void SixUpsUiAo::initStructPara()
 	//导入动静平台结构参数
 	csvToMatrixXd("./Data/D.csv", UPSData::D);
 	csvToMatrixXd("./Data/S.csv", UPSData::S);
-	csvToMatrixXd("./Data/initL.csv", UPSData::initL_norm); 
+	csvToMatrixXd("./Data/initL.csv", UPSData::initL_norm);
 	csvToMatrixXd("./Data/homePosAndAngle.csv", UPSData::homePosAndAngle);
 	UPSData::initPosAndAngle = UPSData::homePosAndAngle;
 }
@@ -180,7 +187,7 @@ void SixUpsUiAo::initConnect()
 		//长按点动 正方向按钮松开 信号槽
 		connect(prsJogNeg_group[i], &QToolButton::released, this, &SixUpsUiAo::prsJogNeg_released);
 	}
-	
+
 	connect(this, &SixUpsUiAo::platformDHome_signal, this, &SixUpsUiAo::platformDHome_slot);
 }
 
@@ -232,10 +239,11 @@ void SixUpsUiAo::upsHome_slot()
 	WaitWindowUI->setWindowModality(Qt::ApplicationModal);//设置窗体模态，要求该窗体没有父类，否则无效
 	WaitWindowUI->show();
 	/******各轴开始回零*****/
-	myPmac->setAllAxleHome();
+	myPmac->setHomeCompleteZero();
+	myPmac->axlesHomeMove();
 	/******检测各轴是否归零计时器开始计时*****/
 	upsHomeCompleteTimer->start();
-	
+
 }
 
 
@@ -243,7 +251,7 @@ void SixUpsUiAo::platformDHome_slot()
 {
 	inverseSolution(UPSData::homePosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
-	myPmac->upsHomeMove(UPSData::tarLengths);
+	myPmac->upsHomeMove(UPSData::tarLengths, PmacData::multiSpeed);
 }
 
 void SixUpsUiAo::on_paraCailbrate_triggered()
@@ -263,10 +271,10 @@ void SixUpsUiAo::on_updateUiDataTimer()
 	for (int i = 0; i < PmacData::numL; i++)
 	{
 		/**********杆长***************/
-		strLength = QString::number(PmacData::curLengths(i), 'f', 3);
+		strLength = QString::number(PmacData::curLengthsMM(i), 'f', 3);
 		realTimeLengths_group[i]->setText(strLength);
 
-		/**********限位状态***************/
+		/**********开关状态***************/
 		//负限位
 		if (PmacData::negLimitState(i) == 1)
 		{
@@ -287,6 +295,16 @@ void SixUpsUiAo::on_updateUiDataTimer()
 			qlabPosLimit_group[i]->setPixmap(offIcon);
 		}
 
+		//原点
+		if (PmacData::originState(i) == 1)
+		{
+			qlabOrigin_group[i]->setPixmap(onIcon);
+		}
+		else
+		{
+			qlabOrigin_group[i]->setPixmap(offIcon);
+		}
+
 	}
 	/********实时位姿**********/
 	QString strPos;
@@ -295,29 +313,29 @@ void SixUpsUiAo::on_updateUiDataTimer()
 		strPos = QString::number(UPSData::curPosAndAngle(i), 'f', 3);
 		realTimePos_group[i]->setText(strPos);
 	}
-	
+
 }
 
 void SixUpsUiAo::on_upsHomeCompleteTimer()
 {
 	//qDebug() << "on_upsHomeCompleteTimer ";
 
-	if (PmacData::axleHomeCompleteState.head(6).sum() == 6)
+	if (PmacData::axleHomeCompleteState.head(6).sum() == 6 && PmacData::originState.head(6).sum() == 4)
 	{
-		GlobalSta::axlesIshome = true;//表示所有轴已经回零位
+		GlobalSta::axlesIshome = true;//表示所有轴已经回原点
 	}
 	if (PmacData::pVariable(2 - 1) == 1)
 	{
-		GlobalSta::upsIsHome = true;
+		GlobalSta::upsIsHome = true;//并联机构动平台回零程序完成
 	}
 	/*********各轴归零完成，平台未归零*******/
-	if (  GlobalSta::axlesIshome == true && GlobalSta::upsIsHome == false && upsHomeSignalEmited == false)
+	if (GlobalSta::axlesIshome == true && GlobalSta::upsIsHome == false && upsHomeSignalEmited == false)
 	{
-		
+
 		emit platformDHome_signal();  // 平台根据当前位姿 让动平台回归初始零位 即二次归零
 		upsHomeSignalEmited = true;//这个标志位的作用是保证 platformDHome_signal只发送一次
 		qDebug() << "emit platformDHome_signal()  ";
-		
+
 	}
 	if (GlobalSta::axlesIshome == true && GlobalSta::upsIsHome == true)
 	{
@@ -325,8 +343,7 @@ void SixUpsUiAo::on_upsHomeCompleteTimer()
 		GlobalSta::axlesIshome = false;
 		upsHomeSignalEmited = false;
 		WaitWindowUI->close();//关闭等待对话框
-		//TODO 将P2置0
-		myPmac->setPvariable(2, 0);
+		myPmac->setPvariable(2, 0); //将P2置0
 		upsHomeCompleteTimer->stop();
 		qDebug() << "WaitWindowUI->close() ";
 	}
@@ -349,34 +366,38 @@ void SixUpsUiAo::on_connectPmacBtn_clicked()
 	}
 	else
 	{
+		/*回零相关复位*/
+		upsHomeCompleteTimer->stop();
+		GlobalSta::upsIsHome = false;
+		GlobalSta::axlesIshome = false;
+		upsHomeSignalEmited = false;
+		myPmac->setPvariable(2, 0); //将P2置0
+		/*计时器相关*/
+		upsCalculateTimer->stop();//停止计算并联机构实时位姿
+		dataGatherTimer->stop();//数据采集停止
+		updateUiDataTimer->stop();//停止更新UI
+
+		//让相关状态显示UI初始化
+		for (int i = 0; i < PmacData::numL; i++)
+		{
+			qlabNegLimit_group[i]->setPixmap(offIcon);
+			qlabPosLimit_group[i]->setPixmap(offIcon);
+			realTimeLengths_group[i]->setText("");
+			realTimePos_group[i]->setText("");
+		}
+
+		ui.pmacSta->setPixmap(offIcon);
+		ui.connectPmacBtn->setText("连接");
+
+		ui.initPmacBtn->setEnabled(false);
+		GlobalSta::pmacIsInitialed = false;
+		ui.pmacInitSta->setPixmap(offIcon);
+
+		ui.servoOnBtn->setEnabled(false);
+		ui.servoOffBtn->setEnabled(false);
+
 		//断开pamc
 		switchPmacThread();
-
-		if (!GlobalSta::pmacIsConnected)
-		{
-			upsCalculateTimer->stop();//停止计算并联机构实时位姿
-			dataGatherTimer->stop();//数据采集停止
-			updateUiDataTimer->stop();//停止更新UI
-
-			//让相关状态显示UI初始化
-			for (int i = 0; i < PmacData::numL ;i++)
-			{
-				qlabNegLimit_group[i]->setPixmap(offIcon);
-				qlabPosLimit_group[i]->setPixmap(offIcon);
-				realTimeLengths_group[i]->setText("");
-				realTimePos_group[i]->setText("");
-			}
-
-			ui.pmacSta->setPixmap(offIcon);
-			ui.connectPmacBtn->setText("连接");
-			
-			ui.initPmacBtn->setEnabled(false);
-			GlobalSta::pmacIsInitialed = false;
-			ui.pmacInitSta->setPixmap(offIcon);
-
-			ui.servoOnBtn->setEnabled(false);
-			ui.servoOffBtn->setEnabled(false);
-		}
 	}
 	qDebug() << "pmacIsConnected = " << GlobalSta::pmacIsConnected;
 }
@@ -401,7 +422,7 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 		//TODO 
 		//1.运行回零程序
 		//2.待各轴回零结束后 提示初始化完成
-	} 
+	}
 	else
 	{
 		//TODO
@@ -473,7 +494,7 @@ void SixUpsUiAo::on_jogStopBtn_clicked()
 
 void SixUpsUiAo::led_jogInc_valueChanged(double Inc)
 {
-	
+
 	QString btnName = QObject::sender()->objectName();
 	QString btnNamePrefix = "led_jogInc";
 	int axleNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//轴号
@@ -489,7 +510,7 @@ void SixUpsUiAo::dipJog_Clicked()
 	QString btnNamePrefix = "dipJog";
 	int axleNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//轴号
 	int index = axleNum - 1;//轴号减1才是索引号
-	
+
 	myPmac->setJogSpeed(axleNum, SingleJogData::jogSpeed);//先设置运动速度
 	myPmac->jogDisp(axleNum, SingleJogData::jogInc[index]);//再距离点动
 }

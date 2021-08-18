@@ -29,8 +29,9 @@ private:
 	QPixmap loadingIcon;
 
 	//各支链限位状态图片列表  因为C++不能使用eval语句
-	QList<QLabel*> qlabNegLimit_group;
-	QList<QLabel*> qlabPosLimit_group;
+	QList<QLabel*> qlabNegLimit_group;//轴负限位开关状态图标
+	QList<QLabel*> qlabPosLimit_group;//轴正限位开关状态图标
+	QList<QLabel*> qlabOrigin_group;//轴原点开关状态图标
 	QList<QLineEdit *> realTimeLengths_group;//杆长显示
 	QList<QLineEdit *> realTimePos_group;//位姿显示
 	QList<QDoubleSpinBox *> AbsTarPos_group;//多轴运动 绝对位置输入框

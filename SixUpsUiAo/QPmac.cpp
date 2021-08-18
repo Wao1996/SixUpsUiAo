@@ -18,14 +18,16 @@ QPmac::QPmac(QObject *parent):QObject(parent)
 	pmacVariableRecipe.append(NEGLIMITSTATE);
 	pmacVariableRecipe.append(POSLIMITSTATE);
 	pmacVariableRecipe.append(AXLEHOMECOMPLETESTATE);
-	pmacVariableRecipe.append(CURLENGTHS);
-	pmacVariableRecipe.append(PVARIABLE);
+	pmacVariableRecipe.append(CURLENGTHSMM);
+	pmacVariableRecipe.append(PVARIABLE); 
+	pmacVariableRecipe.append(ORIGINSTATE);
 
 	pmacVariableList.append(&PmacData::negLimitState);
 	pmacVariableList.append(&PmacData::posLimitState);
 	pmacVariableList.append(&PmacData::axleHomeCompleteState);
-	pmacVariableList.append(&PmacData::curLengths);
+	pmacVariableList.append(&PmacData::curLengthsMM);
 	pmacVariableList.append(&PmacData::pVariable);
+	pmacVariableList.append(&PmacData::originState);
 }
 
 QPmac::~QPmac()
@@ -81,110 +83,6 @@ bool QPmac::downloadFile(QString strFile)
 	return pbSucess_download;
 }
 
-int QPmac::getNegLimitState(int num)
-{
-	QString negLimitM = "M" + QString::number(num) + "32";
-	Pmac0->GetResponse(pDeviceNumber, negLimitM, pAnswer);
-	int flag = pAnswer.left(pAnswer.length() - 1).toInt();
-	return flag;
-}
-
-void QPmac::getNegLimitState(VectorXd & negLimitState)
-{
-	int nums = negLimitState.size();//共有多少个轴
-	QString strCommand;
-	//命令拼接
-	for (int i = 1; i <= nums; i++)
-	{
-		strCommand.append( "M" + QString::number(i) + "32");
-	}
-	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
-	//将返回值拆解
-	QStringList res = pAnswer.left(pAnswer.length() - 1).split("\r");
-	for (int i = 0; i < nums; i++)
-	{
-		negLimitState(i) = res.at(i).toDouble();
-	}
-}
-
-int QPmac::getPosLimitState(int num)
-{
-	QString posLimitM = "M" + QString::number(num) + "31";
-	Pmac0->GetResponse(pDeviceNumber, posLimitM, pAnswer);
-	int flag = pAnswer.left(pAnswer.length() - 1).toInt();
-	return flag;
-}
-
-void QPmac::getPosLimitState(VectorXd & posLimitState)
-{
-	int nums = posLimitState.size();//共有多少个轴
-	QString strCommand;
-	//命令拼接
-	for (int i = 1; i <= nums; i++)
-	{
-		strCommand.append("M" + QString::number(i) + "31");
-	}
-	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
-	//将返回值拆解
-	QStringList res = pAnswer.left(pAnswer.length() - 1).split("\r");
-	for (int i = 0; i < nums; i++)
-	{
-		posLimitState(i) = res.at(i).toDouble();
-	}
-}
-
-int QPmac::getHomeCompleteState(int num)
-{
-	QString homeCompleteM = "M" + QString::number(num) + "45";
-	Pmac0->GetResponse(pDeviceNumber, homeCompleteM, pAnswer);
-	int flag = pAnswer.left(pAnswer.length() - 1).toInt();
-	return flag;
-}
-
-void QPmac::getHomeCompleteState(VectorXd & axleHomeCompleteState)
-{
-	int nums = axleHomeCompleteState.size();//共有多少个轴
-	QString strCommand;
-	//命令拼接
-	for (int i = 1; i <= nums; i++)
-	{
-		strCommand.append("M" + QString::number(i) + "45");
-	}
-	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
-	//将返回值拆解
-	QStringList res = pAnswer.left(pAnswer.length() - 1).split("\r");
-	for (int i = 0; i < nums; i++)
-	{
-		axleHomeCompleteState(i) = res.at(i).toDouble();
-	}
-}
-
-double QPmac::getCurLengths(int num)
-{
-	QString negLimitM = "M" + QString::number(num) + "62";
-	Pmac0->GetResponse(pDeviceNumber, negLimitM, pAnswer);
-	double position = pAnswer.left(pAnswer.length() - 1).toDouble() / 3072 / 20480;
-	return position;
-}
-
-void QPmac::getCurLengths(VectorXd & curLengths)
-{
-	int nums = curLengths.size();//共有多少个轴
-	QString strCommand;
-	//命令拼接
-	for (int i = 1; i <= nums; i++)
-	{
-		strCommand.append("M" + QString::number(i) + "62");
-	}
-	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
-	//将返回值拆解
-	QStringList res = pAnswer.left(pAnswer.length() - 1).split("\r");
-	for (int i = 0; i < nums; i++)
-	{
-		curLengths(i) = res.at(i).toDouble() / 3072 / 20480;
-	}
-}
-
 void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<VectorXd*>  pmacVariableList)
 {
 	/*分析需要采集哪些数据 并按顺序生成字符串*/
@@ -216,7 +114,7 @@ void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<Vector
 				strCommand.append("M" + QString::number(j) + "45");
 			}
 			break;
-		case CURLENGTHS:
+		case CURLENGTHSMM:
 			numTemp = pmacVariableList.at(i)->size();
 			for (int j = 1; j <= numTemp; j++)
 			{
@@ -230,6 +128,14 @@ void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<Vector
 				strCommand.append("P" + QString::number(j));
 			}
 			break;
+		case ORIGINSTATE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 1; j <= numTemp; j++)
+			{
+				strCommand.append("M" + QString::number(j)+"20");
+			}
+			break;
+		//需要采集什么数据 在此处添加即可；
 		default:
 			qDebug() << "getMotorsState solve pmacVariableRecipe ERROR!";
 			break;
@@ -267,11 +173,11 @@ void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<Vector
 				res.removeFirst();
 			}
 			break;
-		case CURLENGTHS:
+		case CURLENGTHSMM:
 			numTemp = pmacVariableList.at(i)->size();
 			for (int j = 0; j < numTemp; j++)
 			{
-				(*pmacVariableList.at(i))(j) = res.at(0).toDouble() / 204800;
+				(*pmacVariableList.at(i))(j) = res.at(0).toDouble() / 204800;//204800个脉冲 电动缸走1mm
 				res.removeFirst();
 			}
 			break;
@@ -283,6 +189,15 @@ void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<Vector
 				res.removeFirst();
 			}
 			break;
+		case ORIGINSTATE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 0; j < numTemp; j++)
+			{
+				(*pmacVariableList.at(i))(j) = res.at(0).toDouble();
+				res.removeFirst();
+			}
+			break;
+		//需要采集什么数据 在此处添加即可；
 		default:
 			qDebug() << "getMotorsState solve pmacVariableRecipe ERROR!";
 			break;
@@ -290,24 +205,6 @@ void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<Vector
 	}
 }
 
-
-void QPmac::getPVariableList(VectorXd &pVariable)
-{
-	int nums = pVariable.size();//共有多少个轴
-	QString strCommand;
-	//命令拼接
-	for (int i = 1; i <= nums; i++)
-	{
-		strCommand.append("P" + QString::number(i));
-	}
-	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
-	//将返回值拆解
-	QStringList res = pAnswer.left(pAnswer.length() - 1).split("\r");
-	for (int i = 0; i < nums; i++)
-	{
-		pVariable(i) = res.at(i).toDouble();
-	}
-}
 
 void QPmac::setPvariable(int p, double data)
 {
@@ -373,65 +270,69 @@ void QPmac::setServoOff()
 	qDebug() << "setServoOff:" << strCommand << ":" << pAnswer;
 }
 
-void QPmac::setAllAxleHome()
+void QPmac::setHomeCompleteZero()
 {
+	QString strCommand;
+	for (int i = 1;i<=6;i++)
+	{
+		strCommand.append("M" + QString::number(i) + "45=0");
+	}
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+	qDebug() << "setHomeCompleteZero:" << strCommand << ":" << pAnswer;
 }
 
-void QPmac::setALLaxleHomez()
+void QPmac::axlesHomeMove()
+{
+	QDir temDir("./pmacProgram");
+	QString filePath = temDir.absolutePath();
+	QString axlesHomeFile = filePath + "/axlesHome.pmc";
+	bool downloadFileState = downloadFile(axlesHomeFile);
+	if (downloadFileState == true)
+	{
+		//Pmac0->GetResponse(pDeviceNumber, "&1b1r&2b2r&3b3r&4b4r&5b5r&6b6r", pAnswer);
+	}
+	else
+	{
+		qDebug() << "axlesHomeMove() error!";
+	}
+}
+
+void QPmac::axlesHomeZMove()
 {
 	QString strCommand = "#1hmz#2hmz#3hmz#4hmz#5hmz#6hmz";
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
-	qDebug() << "setALLaxleHomez:" << strCommand << ":" << pAnswer;
+	qDebug() << "axlesHomeZMove:" << strCommand << ":" << pAnswer;
 }
 
-void QPmac::upsAbsMove(Matrix<double, 6, 1> absL)
+void QPmac::upsAbsMove(Matrix<double, 6, 1> absL,double vel)
 {
 	QDir temDir("./pmacProgram");
 	QString filePath = temDir.absolutePath();
-	QString strUpsAbsMove = filePath + "/upsAbsMove.pmc";
-	QFile file(strUpsAbsMove);
-	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-	{
-		QTextStream pmacOutput(&file);
-		QString Head;
-		QString content;
-		double vel = 1;//进给速度
-		Head.sprintf("A\nOPEN PROG1 CLEAR\nABS\nLINEAR\nFRAX(X,Y,Z,A,B,C)\nF%.4f\n", vel);
-		content.sprintf("X%.4f Y%.4f Z%.4f A%.4f B%.4f C%.4f\nCLOSE\n", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5));
-		pmacOutput << Head << content << endl;
-		file.close();
-		qDebug() << strUpsAbsMove << "writeFile success";
-	}
-	bool downloadFileState= downloadFile(strUpsAbsMove);
-	if (downloadFileState == true)
-	{
-		//Pmac0->GetResponse(pDeviceNumber, "&1b1r", pAnswer);
-	} 
-	else
-	{
-	}
-}
-
-void QPmac::upsIncMove(Matrix<double, 6, 1> incL)
-{
-}
-
-void QPmac::upsHomeMove(Matrix<double, 6, 1> absL)
-{
-	QDir temDir("./pmacProgram");
-	QString filePath = temDir.absolutePath();
-	QString strUpsHomeMove = filePath + "/upsHomeMove.pmc";
+	QString strUpsHomeMove = filePath + "/upsAbsMove.pmc";
 	QFile file(strUpsHomeMove);
 	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
 		QTextStream pmacOutput(&file);
 		QString Head;
 		QString content;
-		char cmdP2Start[] = "CMD\"P2=0\"";
-		char cmdP2End[] = "CMD\"P2=1\"";
-		double vel = 1;//进给速度
-		Head.sprintf("A\nOPEN PROG1 CLEAR\n%s\nABS\nLINEAR\nFRAX(X,Y,Z,A,B,C)\nF%.4f\n", cmdP2Start, vel);
-		content.sprintf("X%.4f Y%.4f Z%.4f A%.4f B%.4f C%.4f\nDWELL10\n%s\nCLOSE\n", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5), cmdP2End);
+		Head.sprintf("A\n\
+					  CLOSE\n\
+					  UNDEFINE ALL\n\
+					  &1\n\
+					  #1->20480X\n\
+					  #2->20480Y\n\
+					  #3->20480Z\n\
+					  #4->20480A\n\
+					  #5->20480B\n\
+					  #6->20480C\n\
+					  OPEN PROG1 CLEAR\n\
+					  ABS\n\
+					  LINEAR\n\
+					  FRAX(X,Y,Z,A,B,C)\n\
+					  F%.4f\n", vel);
+		content.sprintf("X%.4f Y%.4f Z%.4f A%.4f B%.4f C%.4f\n\
+						DWELL10\n\
+						CLOSE\n", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5));
 		pmacOutput << Head << content << endl;
 		file.close();
 		qDebug() << strUpsHomeMove << "writeFile success";
@@ -443,7 +344,61 @@ void QPmac::upsHomeMove(Matrix<double, 6, 1> absL)
 	}
 	else
 	{
+		qDebug() << "upsAbsMove() error!";
 	}
+}
+
+
+void QPmac::upsHomeMove(Matrix<double, 6, 1> absL,  double vel)
+{
+	QDir temDir("./pmacProgram");
+	QString filePath = temDir.absolutePath();
+	QString strUpsHomeMove = filePath + "/upsHomeMove.pmc";
+	QFile file(strUpsHomeMove);
+	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		QTextStream pmacOutput(&file);
+		QString Head;
+		QString content;
+		//char cmdP2Start[] = "CMD\"P2=0\"";
+		//char cmdP2End[] = "CMD\"P2=1\"";
+		Head.sprintf("A\n\
+					  CLOSE\n\
+					  UNDEFINE ALL\n\
+					  &1\n\
+					  #1->20480X\n\
+					  #2->20480Y\n\
+					  #3->20480Z\n\
+					  #4->20480A\n\
+					  #5->20480B\n\
+					  #6->20480C\n\
+					  OPEN PROG1 CLEAR\n\
+					  P2=0\n\
+					  ABS\n\
+					  LINEAR\n\
+					  FRAX(X,Y,Z,A,B,C)\n\
+					  F%.4f\n",vel);
+		content.sprintf("X%.4f Y%.4f Z%.4f A%.4f B%.4f C%.4f\n\
+						DWELL10\n\
+						P2=1\n\
+						CLOSE\n", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5));
+		pmacOutput << Head << content << endl;
+		file.close();
+		qDebug() << strUpsHomeMove << "writeFile success";
+	}
+	bool downloadFileState = downloadFile(strUpsHomeMove);
+	if (downloadFileState == true)
+	{
+		//Pmac0->GetResponse(pDeviceNumber, "&1b1r", pAnswer);
+	}
+	else
+	{
+		qDebug() << "upsHomeMove() error!";
+	}
+}
+
+void QPmac::upsIncMove(Matrix<double, 6, 1> incL)
+{
 }
 
 
@@ -451,12 +406,6 @@ void QPmac::upsHomeMove(Matrix<double, 6, 1> absL)
 
 void QPmac::on_dataGatherTimer()
 {
-	//qDebug() << "on_dataGatherTimer";	
-	/*getNegLimitState(PmacData::negLimitState);
-	getPosLimitState(PmacData::posLimitState);
-	getCurLengths(PmacData::curLengths);
-	getHomeCompleteState(PmacData::axleHomeCompleteState);
-	getPVariableList(PmacData::pVariable);*/
 	getMotorsState( pmacVariableRecipe,  pmacVariableList);
-	UPSData::curL_norm = PmacData::curLengths.head(6) + UPSData::initL_norm;	
+	UPSData::curL_norm = PmacData::curLengthsMM.head(6) + UPSData::initL_norm;	
 }

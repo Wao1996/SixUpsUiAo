@@ -11,12 +11,12 @@ class SingleJogData;
 
 enum PmacVariable
 {
-	NEGLIMITSTATE = 86,         //ascii V
-	POSLIMITSTATE = 118,           //ascii v
-	AXLEHOMECOMPLETESTATE = 77,                     //ascii M
-	CURLENGTHS = 85,                     //ascii U
-	PVARIABLE = 79,    //ascii O
-
+	NEGLIMITSTATE = 1,          //轴负限位
+	POSLIMITSTATE = 2,          //轴正限位
+	AXLEHOMECOMPLETESTATE = 3,  //轴回零完成位
+	CURLENGTHSMM = 4,           //轴杆长
+	PVARIABLE = 5,              //P变量
+	ORIGINSTATE = 6,            //原点开关
 };
 
 class GlobalSta 
@@ -45,10 +45,11 @@ class PmacData
 public:
 	static int numL;//一共有多少根支链
 	static double multiSpeed;//多轴运动速度
-	static VectorXd negLimitState;//负限位状态
-	static VectorXd posLimitState;//正限位状态
-	static VectorXd axleHomeCompleteState;//pmac中 各轴回零状态
-	static VectorXd curLengths;//pmac中显示的杆长  (相对零位的杆长)
+	static VectorXd negLimitState;//负限位开关状态
+	static VectorXd posLimitState;//正限位开关状态
+	static VectorXd originState;  //原点开关状态
+	static VectorXd axleHomeCompleteState;//pmac中 各轴回零完成状态
+	static VectorXd curLengthsMM;//pmac中显示的杆长  (相对零位的杆长) 单位mm
 	static VectorXd pVariable;//P变量列表
 	
 };

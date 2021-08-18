@@ -1,0 +1,21 @@
+A
+					  CLOSE
+					  UNDEFINE ALL
+					  &1
+					  #1->20480X
+					  #2->20480Y
+					  #3->20480Z
+					  #4->20480A
+					  #5->20480B
+					  #6->20480C
+					  OPEN PROG1 CLEAR
+					  P2=0
+					  ABS
+					  LINEAR
+					  FRAX(X,Y,Z,A,B,C)
+					  F1.0000
+X-0.8885 Y10.1448 Z7.4043 A-4.1549 B-39.2795 C12.7128
+						DWELL10
+						P2=1
+						CLOSE
+

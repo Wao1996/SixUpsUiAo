@@ -692,9 +692,9 @@
    <widget class="QGroupBox" name="realTimeLengths">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>520</y>
-      <width>222</width>
+      <x>15</x>
+      <y>510</y>
+      <width>249</width>
       <height>221</height>
      </rect>
     </property>
@@ -753,6 +753,28 @@
       </widget>
      </item>
      <item row="0" column="4">
+      <widget class="QLabel" name="lab_origin">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5">
       <widget class="QLabel" name="lab_plus">
        <property name="minimumSize">
         <size>
@@ -877,6 +899,37 @@
       </widget>
      </item>
      <item row="1" column="4">
+      <widget class="QLabel" name="staOrigin1">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="SixUpsUiAo.qrc">:/SixUpsUiAo/icon/off.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="5">
       <widget class="QLabel" name="staPosLimit1">
        <property name="minimumSize">
         <size>
@@ -1004,6 +1057,37 @@
       </widget>
      </item>
      <item row="2" column="4">
+      <widget class="QLabel" name="staOrigin2">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="SixUpsUiAo.qrc">:/SixUpsUiAo/icon/off.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="5">
       <widget class="QLabel" name="staPosLimit2">
        <property name="minimumSize">
         <size>
@@ -1131,6 +1215,37 @@
       </widget>
      </item>
      <item row="3" column="4">
+      <widget class="QLabel" name="staOrigin3">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="SixUpsUiAo.qrc">:/SixUpsUiAo/icon/off.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="5">
       <widget class="QLabel" name="staPosLimit3">
        <property name="minimumSize">
         <size>
@@ -1258,6 +1373,37 @@
       </widget>
      </item>
      <item row="4" column="4">
+      <widget class="QLabel" name="staOrigin4">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="SixUpsUiAo.qrc">:/SixUpsUiAo/icon/off.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="5">
       <widget class="QLabel" name="staPosLimit4">
        <property name="minimumSize">
         <size>
@@ -1385,6 +1531,37 @@
       </widget>
      </item>
      <item row="5" column="4">
+      <widget class="QLabel" name="staOrigin5">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="SixUpsUiAo.qrc">:/SixUpsUiAo/icon/off.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="5">
       <widget class="QLabel" name="staPosLimit5">
        <property name="minimumSize">
         <size>
@@ -1512,6 +1689,37 @@
       </widget>
      </item>
      <item row="6" column="4">
+      <widget class="QLabel" name="staOrigin6">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="SixUpsUiAo.qrc">:/SixUpsUiAo/icon/off.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="5">
       <widget class="QLabel" name="staPosLimit6">
        <property name="minimumSize">
         <size>
@@ -2276,8 +2484,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>540</y>
+      <x>310</x>
+      <y>530</y>
       <width>116</width>
       <height>200</height>
      </rect>
@@ -4430,7 +4638,7 @@
  <layoutdefault spacing="6" margin="11"/>
  <resources>
   <include location="SixUpsUiAo.qrc"/>
-  <include location="C:/Users/AO/.designer/backup/SixUpsUiAo.qrc"/>
+  <include location="SixUpsUiAo.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -1,0 +1,24 @@
+; Created by PMAC Win32 Driver from:E:\MyVS2017Space\GitHub\Wao1996\SixUpsUiAo\SixUpsUiAo\pmacProgram\upsHomeMove.pmc
+;
+;E:\MyVS2017Space\GitHub\Wao1996\SixUpsUiAo\SixUpsUiAo\pmacProgram\upsHomeMove.pmc
+A;1
+  CLOSE;2
+  UNDEFINE ALL;3
+  &1;4
+  #1->20480X;5
+  #2->20480Y;6
+  #3->20480Z;7
+  #4->20480A;8
+  #5->20480B;9
+  #6->20480C;10
+  OPEN PROG1 CLEAR;11
+  P2=0;12
+  ABS;13
+  LINEAR;14
+  FRAX(X,Y,Z,A,B,C);15
+  F1.0000;16
+X-0.8885 Y10.1448 Z7.4043 A-4.1549 B-39.2795 C12.7128;17
+DWELL10;18
+P2=1;19
+CLOSE;20
+CLOSE

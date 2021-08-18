@@ -23,11 +23,12 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
 
  /***********************PmacData ************************************************/
  int PmacData::numL = 6;
- double PmacData::multiSpeed = 0;//多轴运动速度
- VectorXd PmacData::negLimitState = VectorXd::Zero(6);//负限位状态
- VectorXd PmacData::posLimitState = VectorXd::Zero(6);//正限位状态
- VectorXd PmacData::axleHomeCompleteState = VectorXd::Zero(6);//pmac中 各轴回零状态
- VectorXd PmacData::curLengths = VectorXd::Zero(6);//杆长
+ double PmacData::multiSpeed = 1;//多轴运动速度 单位mm/s
+ VectorXd PmacData::negLimitState = VectorXd::Zero(6);//负限位开关状态
+ VectorXd PmacData::posLimitState = VectorXd::Zero(6);//正限位开关状态
+ VectorXd PmacData::originState = VectorXd::Zero(6);//原点开关状态
+ VectorXd PmacData::axleHomeCompleteState = VectorXd::Zero(6);//pmac中 各轴回零完成状态
+ VectorXd PmacData::curLengthsMM = VectorXd::Zero(6);//杆长
  VectorXd PmacData::pVariable = VectorXd::Zero(20);//P变量
  
   /***********************SingleJogData ************************************************/

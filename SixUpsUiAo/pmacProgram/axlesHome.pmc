@@ -1,5 +1,7 @@
-#define jogSpeedNegL -50 ;向负限位运动时的回零速度(Counts / msec)
-#define jogSpeedHome 25	 ;从负限位向零位运动时的回零速度(Counts / msec)
+#define jogSpeedNegL -50 
+;向负限位运动时的回零速度(Counts / msec)
+#define jogSpeedHome 25	 
+;从负限位向零位运动时的回零速度(Counts / msec)
 CLOSE ;确认所有缓冲区被关闭 
 UNDEFINE ALL;清除所有坐标系的轴定义
 &1   
@@ -29,7 +31,7 @@ I7013=2                 ;使用负限位为触发信号
 I7012=7                 ;捕捉触发信号的上升沿及Z向的下降沿信号
 Home 1                 ;回零  
 EndIf 
-I123=JogSpeedHome       ;回零速度(Counts / msec),  
+I123=jogSpeedHome       ;回零速度(Counts / msec),  
 I124=$100001            ;使能限位  
 I126=0                  ;回零偏置,单位1/16 Count  
 I7013=0                 ;使用原位信号为触发信号  
@@ -49,7 +51,7 @@ I7023=2                 ;使用负限位为触发信号
 I7022=7                 ;捕捉触发信号的上升沿及Z向的下降沿信号
 Home 2                 ;回零  
 EndIf 
-I223=JogSpeedHome                 ;回零速度(Counts / msec),  
+I223=jogSpeedHome                 ;回零速度(Counts / msec),  
 I224=$100001            ;使能限位  
 I226=0                  ;回零偏置,单位1/16 Count  
 I7023=0                 ;使用原位信号为触发信号  
@@ -70,7 +72,7 @@ I7032=7                 ;捕捉触发信号的上升沿及Z向的下降沿信号
 Home 3                 ;回零  
 EndIf
 Dwell 20  
-I323=JogSpeedHome                 ;回零速度(Counts / msec),  
+I323=jogSpeedHome                 ;回零速度(Counts / msec),  
 I324=$100001            ;使能限位  
 I326=0                  ;回零偏置,单位1/16 Count  
 I7033=0                 ;使用原位信号为触发信号  
@@ -90,7 +92,7 @@ I7042=7                 ;捕捉触发信号的上升沿及Z向的下降沿信号
 Home 4                 ;回零  
 EndIf
 Dwell 20  
-I423=JogSpeedHome                 ;回零速度(Counts / msec),  
+I423=jogSpeedHome                 ;回零速度(Counts / msec),  
 I424=$100001            ;使能限位  
 I426=0                  ;回零偏置,单位1/16 Count  
 I7043=0                 ;使用原位信号为触发信号  
@@ -110,7 +112,7 @@ I7112=7                 ;捕捉触发信号的上升沿及Z向的下降沿信号
 Home 5                 ;回零  
 EndIf
 Dwell 20  
-I523=JogSpeedHome                 ;回零速度(Counts / msec),  
+I523=jogSpeedHome                 ;回零速度(Counts / msec),  
 I524=$100001            ;使能限位  
 I526=0                  ;回零偏置,单位1/16 Count  
 I7113=0                 ;使用原位信号为触发信号  
@@ -130,7 +132,7 @@ I7122=7                 ;捕捉触发信号的上升沿及Z向的下降沿信号
 Home 6                 ;回零  
 EndIf
 Dwell 20  
-I623=JogSpeedHome                 ;回零速度(Counts / msec),  
+I623=jogSpeedHome                 ;回零速度(Counts / msec),  
 I624=$100001            ;使能限位  
 I626=0                  ;回零偏置,单位1/16 Count  
 I7123=0                 ;使用原位信号为触发信号  

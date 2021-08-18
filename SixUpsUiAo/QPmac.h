@@ -21,27 +21,16 @@ public:
 	bool bAddLF;
 	int pstatus;
 
-	QList<PmacVariable> pmacVariableRecipe;//将需要采集的数据类型按顺序放置
-	QList<VectorXd *>		pmacVariableList;//才到的数据将按顺序填充到这里
+	QList<PmacVariable> pmacVariableRecipe; //将需要采集的数据类型按顺序放置到QList中
+	QList<VectorXd *>	pmacVariableList;//将采集到的数据将按顺序填充到这里
 
 	bool creatPmacSelect();//选择pmac
 	void initPmac();//初始化pmac
 	bool downloadFile(QString strFile);//下载程序
 
-	/*获取状态*/
-	int getNegLimitState(int);//获取某一个轴的负限位状态
-	void getNegLimitState(VectorXd & negLimitState);//直接获取所有轴的负限位状态
-	int getPosLimitState(int);//获取某一个轴的正限位状态
-	void getPosLimitState(VectorXd & posLimitState);//直接获取所有轴的正限位状态
-	int getHomeCompleteState(int);//获取某一个轴的回零状态
-	void getHomeCompleteState(VectorXd &axleHomeCompleteState);//直接获取所有轴的电机回零
-	double getCurLengths(int);//获取某一个轴的当前支链长度
-	void getCurLengths(VectorXd &curLengths);//直接获取所有轴的当前支链长度
-	/*获取电机状态*/
+	/*获取电机状态及变量*/
 	void getMotorsState(QList<PmacVariable> &pmacVariableRecipe, QList<VectorXd*> pmacVariableList);
 
-	/*获取P变量*/
-	void getPVariableList(VectorXd &pVariable);
 	/*设置P变量*/
 	void setPvariable(int p, double data);
 
@@ -54,13 +43,23 @@ public:
 	void setJogSpeed(int num, double speed);//设置手动运动速度
 	void setServoOff();//所有电机失去使能
 
-	/*所有轴归零位*/
-	void setAllAxleHome();//所有轴回零
-	void setALLaxleHomez();//所有轴假回零
-	/*多轴运动*/
-	void upsAbsMove(Matrix<double, 6, 1> absL);//并联机构绝对位置运动
-	void upsIncMove(Matrix<double, 6, 1> incL);//并联机构相对位置运动
-	void upsHomeMove(Matrix<double, 6, 1> absL);//并联机构 动平台回零运动
+	/***********所有轴归零位*****************/
+	void setHomeCompleteZero();//轴回零开始前清空 回零完成状态 防止误判
+	void axlesHomeMove();//所有轴回零
+	void axlesHomeZMove();//所有轴假回零
+
+	/**************多轴运动********************/
+	//并联机构绝对位置运动
+	void upsAbsMove(Matrix<double, 6, 1> absL,//各支链需要运动到的绝对位置(相对各轴的原点) 单位mm
+					double vel);//进给轴速度 单位mm/s
+
+	//并联机构 动平台回零运动
+	void upsHomeMove(Matrix<double, 6, 1> absL,//各支链需要运动到的绝对位置(相对各轴的原点) 单位mm
+					double vel);//回零进给周速度 单位mm/s
+
+	//并联机构相对位置运动
+	void upsIncMove(Matrix<double, 6, 1> incL);
+
 
 public slots:
 	void on_dataGatherTimer();
