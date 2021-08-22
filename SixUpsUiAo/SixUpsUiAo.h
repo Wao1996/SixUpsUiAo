@@ -56,6 +56,7 @@ private:
 	void initIcon();
 	void initUIList();
 	void initStructPara();
+	void initTablesStyle();
 	void initConnect();
 	/*********Pmac相关************/
 	QPmac *myPmac = nullptr;
@@ -83,6 +84,8 @@ private slots:
 	/**************电机使能按钮************/
 	void on_servoOnBtn_clicked();
 	void on_servoOffBtn_clicked();
+	/*************设置运动原点*******************/
+	void on_tableSetOrigin_clicked();
 	/***********多轴运动***************/
 	//联动
 	void on_getRealTimePosBtn_clicked();//获取当前位姿

@@ -10,6 +10,7 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	initIcon();
 	initUIList();
 	initStructPara();
+	initTablesStyle();
 	initConnect();
 
 	/*Pmac数据采集定时器*/
@@ -185,6 +186,38 @@ void SixUpsUiAo::initStructPara()
 	csvToMatrixXd("./Data/initL.csv", UPSData::initL_norm);
 	csvToMatrixXd("./Data/homePosAndAngle.csv", UPSData::homePosAndAngle);
 	UPSData::initPosAndAngle = UPSData::homePosAndAngle;
+}
+
+void SixUpsUiAo::initTablesStyle()
+{
+	int rowHeight = 25;//行高
+	int colWidth = 80;//列宽
+	int scrollBarHeight = 20;//滚动条高
+	QStringList VerticalHeaderXYZ;
+	VerticalHeaderXYZ << "X" << "Y" << "Z";
+	/*****tableCirclePt 待拟合参数******/
+	//列设置
+	ui.tableSetOrigin->horizontalHeader()->setDefaultSectionSize(colWidth);
+	ui.tableSetOrigin->setColumnCount(3);
+	QStringList tableCirclePtHorizontalHeader;
+	tableCirclePtHorizontalHeader << "O" << "X" << "XoY" ;
+	ui.tableSetOrigin->setHorizontalHeaderLabels(tableCirclePtHorizontalHeader);
+
+	//行设置
+	ui.tableSetOrigin->setRowCount(3);
+	ui.tableSetOrigin->verticalHeader()->setVisible(true);//行号可见
+	ui.tableSetOrigin->setVerticalHeaderLabels(VerticalHeaderXYZ);
+	ui.tableSetOrigin->verticalHeader()->setFont(QFont("黑体", 12));
+	ui.tableSetOrigin->verticalHeader()->setFixedWidth(25);
+	ui.tableSetOrigin->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+
+	ui.tableSetOrigin->horizontalHeader()->setStretchLastSection(true);//行头自适应表格
+	ui.tableSetOrigin->horizontalHeader()->setFont(QFont("黑体", 12));//表头字体
+	ui.tableSetOrigin->horizontalHeader()->setStyleSheet("border-bottom-width: 1px;border-style: outset;border-color: rgb(229,229,229);");//表头和第一行之间横线
+	ui.tableSetOrigin->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+	ui.tableSetOrigin->setAlternatingRowColors(true);//行奇偶颜色不同
+	ui.tableSetOrigin->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
+	ui.tableSetOrigin->setFixedHeight(4 * rowHeight + scrollBarHeight);
 }
 
 void SixUpsUiAo::initConnect()
@@ -501,6 +534,19 @@ void SixUpsUiAo::on_servoOnBtn_clicked()
 void SixUpsUiAo::on_servoOffBtn_clicked()
 {
 	myPmac->setServoOff();
+}
+
+void SixUpsUiAo::on_tableSetOrigin_clicked()
+{
+	qDebug() << "on_creatDCrdSys_clicked";
+	MatrixXd CrdSysD;
+	vector<int> index;
+	tableToMatrixXd(ui.tableSetOrigin, CrdSysD, index);
+	UPSData::O_m_D = CrdSysD.col(0);
+	UPSData::X_m_D = CrdSysD.col(1);
+	UPSData::XOY_m_D = CrdSysD.col(2);
+	creatCoordSysGetRt(UPSData::O_m_D, UPSData::X_m_D, UPSData::XOY_m_D, UPSData::R_DM, UPSData::t_DM);
+	cout << UPSData::R_DM << endl << UPSData::t_DM << endl;
 }
 
 

@@ -62,17 +62,21 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
 
  Matrix<double, 3, 3> UPSData::R_DM = MatrixXd::Zero(3, 3);	//动平台坐标系相对测量坐标系的关系:旋转矩阵(仅在结构参数标定时使用，其他情况在对应函数中作为中间变量直接计算得到)
  Matrix<double, 3, 1> UPSData::t_DM = MatrixXd::Zero(3, 1);	//动平台坐标系相对测量坐标系的关系:平移矩阵
-
-
+ //
+ Matrix<double, 3, 1> UPSData::O_set_S = MatrixXd::Zero(3, 1);//设定相对运动原点，在静坐标系下的位置(默认与静坐标系相同)
+ Matrix<double, 3, 1> UPSData::X_set_S = MatrixXd::Zero(3, 1);
+ Matrix<double, 3, 1> UPSData::XOY_set_S = MatrixXd::Zero(3, 1);
+ Matrix<double, 3, 3> UPSData::R_SetS = MatrixXd::Zero(3, 3);//运动坐标系相对静坐标系的关系:旋转矩阵
+ Matrix<double, 3, 1> UPSData::t_SetS = MatrixXd::Zero(3, 1);//运动坐标系相对静坐标系的关系:平移矩阵
 //测量相关
  int UPSData::n_D;						//测量的动平台靶标点个数
- MatrixXd UPSData::Q_DM;					//3*n_D 动平台靶标点在测量系下坐标
+ MatrixXd UPSData::Q_DM;				//3*n_D 动平台靶标点在测量系下坐标
  int UPSData::n_S;						//测量的静平台靶标点个数
- MatrixXd UPSData::Q_SM;					//3*n_S 静平台靶标点在测量系下坐标
+ MatrixXd UPSData::Q_SM;				//3*n_S 静平台靶标点在测量系下坐标
  Matrix<double, 3, 6> UPSData::D_M = MatrixXd::Zero(3, 6);		//动平台铰链点在测量坐标系下坐标
  Matrix<double, 3, 6> UPSData::S_M = MatrixXd::Zero(3, 6);		//静平台铰链点在测量坐标系下坐标
-
-
+ Matrix<double, 3, 1> UPSData::O_set_M = MatrixXd::Zero(3, 1);  //设定相对运动原点，在测量坐标系下坐标
+ 
  //结构参数与初始杆长
  Matrix<double, 3, 6> UPSData::D = MatrixXd::Zero(3, 6);				//动平台铰链点在动坐标系下坐标
  int UPSData::n_D_struct = 6;										//动平台上靶标点个数
