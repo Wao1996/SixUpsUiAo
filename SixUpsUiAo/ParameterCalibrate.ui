@@ -55,6 +55,15 @@
       <height>125</height>
      </size>
     </property>
+    <property name="dragEnabled">
+     <bool>true</bool>
+    </property>
+    <property name="dragDropOverwriteMode">
+     <bool>true</bool>
+    </property>
+    <property name="dragDropMode">
+     <enum>QAbstractItemView::DragDrop</enum>
+    </property>
     <attribute name="horizontalHeaderStretchLastSection">
      <bool>false</bool>
     </attribute>
@@ -88,6 +97,15 @@
       <width>16777215</width>
       <height>125</height>
      </size>
+    </property>
+    <property name="dragEnabled">
+     <bool>true</bool>
+    </property>
+    <property name="dragDropOverwriteMode">
+     <bool>true</bool>
+    </property>
+    <property name="dragDropMode">
+     <enum>QAbstractItemView::DragDrop</enum>
     </property>
    </widget>
    <widget class="QPushButton" name="calCircleC">
@@ -138,6 +156,15 @@
      <height>125</height>
     </size>
    </property>
+   <property name="dragEnabled">
+    <bool>true</bool>
+   </property>
+   <property name="dragDropOverwriteMode">
+    <bool>true</bool>
+   </property>
+   <property name="dragDropMode">
+    <enum>QAbstractItemView::DragDrop</enum>
+   </property>
   </widget>
   <widget class="QTableWidget" name="tableQ_SS_Struct">
    <property name="geometry">
@@ -159,6 +186,15 @@
      <width>16777215</width>
      <height>125</height>
     </size>
+   </property>
+   <property name="dragEnabled">
+    <bool>true</bool>
+   </property>
+   <property name="dragDropOverwriteMode">
+    <bool>true</bool>
+   </property>
+   <property name="dragDropMode">
+    <enum>QAbstractItemView::DragDrop</enum>
    </property>
   </widget>
   <widget class="QTableWidget" name="tableS_Struct">
@@ -182,6 +218,18 @@
      <height>125</height>
     </size>
    </property>
+   <property name="dragEnabled">
+    <bool>true</bool>
+   </property>
+   <property name="dragDropOverwriteMode">
+    <bool>true</bool>
+   </property>
+   <property name="dragDropMode">
+    <enum>QAbstractItemView::DragDrop</enum>
+   </property>
+   <property name="sortingEnabled">
+    <bool>false</bool>
+   </property>
   </widget>
   <widget class="QTableWidget" name="tableD_Struct">
    <property name="geometry">
@@ -203,6 +251,15 @@
      <width>16777215</width>
      <height>125</height>
     </size>
+   </property>
+   <property name="dragEnabled">
+    <bool>true</bool>
+   </property>
+   <property name="dragDropOverwriteMode">
+    <bool>true</bool>
+   </property>
+   <property name="dragDropMode">
+    <enum>QAbstractItemView::DragDrop</enum>
    </property>
   </widget>
   <widget class="QPushButton" name="loadStructPara">
