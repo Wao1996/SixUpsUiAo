@@ -1,0 +1,22 @@
+; Created by PMAC Win32 Driver from:E:\MyVS2017Space\GitHub\Wao1996\SixUpsUiAo\SixUpsUiAo\pmacProgram\upsAbsMove.pmc
+;
+;E:\MyVS2017Space\GitHub\Wao1996\SixUpsUiAo\SixUpsUiAo\pmacProgram\upsAbsMove.pmc
+A  ;1
+CLOSE  ;2
+UNDEFINE ALL  ;3
+&1  ;4
+#1->20480X  ;5
+#2->20480Y  ;6
+#3->20480Z  ;7
+#4->20480U  ;8
+#5->20480V  ;9
+#6->20480W  ;10
+OPEN PROG1 CLEAR  ;11
+ABS  ;12
+LINEAR  ;13
+FRAX(X,Y,Z,U,V,W)  ;14
+F1.0000;15
+X5.2127 Y16.2629 Z13.5238 U4.0551 V-33.1364 W18.8475;16
+DWELL10;17
+CLOSE;18
+CLOSE

@@ -34,6 +34,11 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	upsCalculateTimer->setInterval(250);
 	upsCalculateTimer->setTimerType(Qt::CoarseTimer);
 
+	/*并联机构长按点动定时器*/
+	upsJogTimer = new QTimer(this);
+	upsJogTimer->setInterval(200);
+	upsJogTimer->setTimerType(Qt::PreciseTimer);
+	connect(upsJogTimer, &QTimer::timeout, this, &SixUpsUiAo::on_upsJogTimer);
 
 	/*计算线程*/
 	calculateQthread = new QThread(this);
@@ -42,7 +47,6 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	//connect(calculateQthread, &QThread::started, myPmacThread, &QPmacThread::startPmac);
 	connect(calculateQthread, &QThread::finished, myUpsCalculateThread, &QObject::deleteLater);
 	connect(calculateQthread, &QThread::finished, calculateQthread, &QObject::deleteLater);
-
 	connect(upsCalculateTimer, &QTimer::timeout, myUpsCalculateThread, &UpsCalculateThread::on_upsCalculateTimer);
 	calculateQthread->start();
 
@@ -83,6 +87,25 @@ void SixUpsUiAo::initIcon()
 
 void SixUpsUiAo::initUIList()
 {
+	/***************赋初值****************/
+	//多轴点动运动模块
+	ui.led_multiAxisJogTranslationSpeed->setValue(UPSData::multiJogTranslationSpeed);
+	ui.led_multiAxisJogTranslationStep->setValue(UPSData::multiJogTranslationStep);
+	ui.led_multiAxisJogRotateSpeed->setValue(UPSData::multiJogRotateSpeed);
+	ui.led_multiAxisJogRotateStep->setValue(UPSData::multiJogRotateStep);
+	//单轴运动模块
+	ui.led_jogSpeed->setValue(SingleJogData::jogSpeed);
+
+	/*********UI控件指针列表***************/
+	btnGroupMultiAxisDirection= new QButtonGroup(this);
+	btnGroupMultiAxisDirection->addButton(ui.xRBtn, 1);
+	btnGroupMultiAxisDirection->addButton(ui.yRBtn, 2);
+	btnGroupMultiAxisDirection->addButton(ui.zRBtn, 3);
+	btnGroupMultiAxisDirection->addButton(ui.aRBtn, 4);
+	btnGroupMultiAxisDirection->addButton(ui.bRBtn, 5);
+	btnGroupMultiAxisDirection->addButton(ui.cRBtn, 6);
+
+
 	qlabNegLimit_group.append(ui.staNegLimit1);
 	qlabNegLimit_group.append(ui.staNegLimit2);
 	qlabNegLimit_group.append(ui.staNegLimit3);
@@ -172,7 +195,7 @@ void SixUpsUiAo::initConnect()
 	for (int i = 0; i < PmacData::numL; i++)
 	{
 		/**************************多轴运动**************************/
-		connect(AbsTarPos_group[i], QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SixUpsUiAo::absTarPos_group_valueChange);
+		connect(AbsTarPos_group[i], QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SixUpsUiAo::absTarPos_group_valueChanged);
 		/**************************单轴运动**************************/
 		//距离点动 输入框 信号槽
 		connect(jogInc_group[i], QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SixUpsUiAo::led_jogInc_valueChanged);
@@ -251,7 +274,7 @@ void SixUpsUiAo::platformDHome_slot()
 {
 	inverseSolution(UPSData::homePosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
-	myPmac->upsHomeMove(UPSData::tarLengths, PmacData::multiSpeed);
+	myPmac->upsHomeMove(UPSData::tarLengths, UPSData::multiSpeed);
 }
 
 void SixUpsUiAo::on_paraCailbrate_triggered()
@@ -320,7 +343,7 @@ void SixUpsUiAo::on_upsHomeCompleteTimer()
 {
 	//qDebug() << "on_upsHomeCompleteTimer ";
 
-	if (PmacData::axleHomeCompleteState.head(6).sum() == 6 && PmacData::originState.head(6).sum() == 4)
+	if (PmacData::axleHomeCompleteState.head(6).sum() == 6 && PmacData::originState.head(6).sum() == 6)
 	{
 		GlobalSta::axlesIshome = true;//表示所有轴已经回原点
 	}
@@ -347,6 +370,33 @@ void SixUpsUiAo::on_upsHomeCompleteTimer()
 		upsHomeCompleteTimer->stop();
 		qDebug() << "WaitWindowUI->close() ";
 	}
+}
+
+void SixUpsUiAo::on_upsJogTimer()
+{
+	double miniStep;//最小运动步长
+	int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
+	if (MultiAxisDirectionID <= 3)
+	{
+		//平动
+		miniStep = 0.01;//最小运动步长
+	}
+	else
+	{
+		//转动
+		miniStep = 0.01;//最小运动步长
+	}
+	
+	Matrix<double, 6, 1> delta_Lengths;
+	Matrix<double, 6, 1> axlesSpeed;
+	UPSData::tarPosAndAngle = UPSData::tarPosAndAngle + miniStep * UPSData::multiJogMoveDirection;
+	cout << UPSData::tarPosAndAngle << endl;
+	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
+	delta_Lengths = (UPSData::tarLengthsLast - UPSData::tarLengths);
+	axlesSpeed = delta_Lengths / 200 * PmacData::cts2mm;
+	myPmac->upsJogJMove(UPSData::tarLengths, axlesSpeed, 1);
+	UPSData::tarLengthsLast = UPSData::tarLengths;//更新
 }
 
 void SixUpsUiAo::on_connectPmacBtn_clicked()
@@ -418,6 +468,7 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 
 	if (ifHome == true)
 	{
+		myPmac->jogStop();
 		emit upsHome_signal();
 		//TODO 
 		//1.运行回零程序
@@ -465,11 +516,18 @@ void SixUpsUiAo::on_getRealTimePosBtn_clicked()
 
 void SixUpsUiAo::on_startMoveBtn_clicked()
 {
-	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);//反解
+	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
+	myPmac->upsAbsMove(UPSData::tarLengths, UPSData::multiSpeed);
+}
+
+void SixUpsUiAo::on_stopMoveBtn_clicked()
+{
+	myPmac->jogStop();
 }
 
 
-void SixUpsUiAo::absTarPos_group_valueChange(double data)
+void SixUpsUiAo::absTarPos_group_valueChanged(double data)
 {
 	QString btnName = QObject::sender()->objectName();
 	QString btnNamePrefix = "xAbsTarPos";
@@ -477,6 +535,258 @@ void SixUpsUiAo::absTarPos_group_valueChange(double data)
 	int index = posNum - 1;//轴号减1才是索引号
 	UPSData::tarPosAndAngle[index] = data;
 	qDebug() << "posNum:" << posNum << " tarPosAndAngle:" << UPSData::tarPosAndAngle[index];
+}
+
+
+void SixUpsUiAo::on_led_multiAxisJogTranslationSpeed_valueChanged(double data)
+{
+	UPSData::multiJogTranslationSpeed = data;
+	qDebug() << "UPSData::multiJogTranslationSpeed =:" << data;
+}
+
+void SixUpsUiAo::on_led_multiAxisJogTranslationStep_valueChanged(double data)
+{
+	UPSData::multiJogTranslationStep = data;
+	qDebug() << "UPSData::multiJogTranslationStep = :" << data;
+}
+
+void SixUpsUiAo::on_led_multiAxisJogRotateSpeed_valueChanged(double data)
+{
+	UPSData::multiJogRotateSpeed = data;
+	qDebug() << "UPSData::multiJogRotateSpeed =:" << data;
+}
+
+void SixUpsUiAo::on_led_multiAxisJogRotateStep_valueChanged(double data)
+{
+	UPSData::multiJogRotateStep = data;
+	qDebug() << "UPSData::multiJogRotateStep =:" << data;
+}
+
+void SixUpsUiAo::on_disMultiAxisJog_clicked()
+{
+	Matrix<double, 6, 1> incPosAndAngle = MatrixXd::Zero(6, 1);
+	switch (btnGroupMultiAxisDirection->checkedId())
+	{
+	case 1:
+		incPosAndAngle(0) = UPSData::multiJogTranslationStep;
+		qDebug() << "xRBtn";
+		break;
+	case 2:
+		incPosAndAngle(1) = UPSData::multiJogTranslationStep;
+		qDebug() << "yRBtn";
+		break;
+	case 3:
+		incPosAndAngle(2) = UPSData::multiJogTranslationStep;
+		qDebug() << "zRBtn";
+		break;
+	case 4:
+		incPosAndAngle(3) = UPSData::multiJogTranslationStep;
+		qDebug() << "aRBtn";
+		break;
+	case 5:
+		incPosAndAngle(4) = UPSData::multiJogTranslationStep;
+		qDebug() << "bRBtn";
+		break;
+	case 6:
+		incPosAndAngle(5) = UPSData::multiJogTranslationStep;
+		qDebug() << "cRBtn";
+		break;
+	default:
+		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
+		break;
+	}
+	UPSData::tarPosAndAngle = UPSData::curPosAndAngle + incPosAndAngle;
+	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
+	myPmac->upsAbsMove(UPSData::tarLengths, UPSData::multiJogTranslationSpeed);
+	
+}
+
+void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
+{
+	UPSData::tarPosAndAngle = UPSData::curPosAndAngle;
+	UPSData::tarLengthsLast = UPSData::curL_norm - UPSData::initL_norm;
+	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
+	//获取运动方向
+	int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
+	switch (MultiAxisDirectionID)
+	{
+	case 1:
+		moveDirection(0) = -1;
+		qDebug() << "xRBtn";
+		break;
+	case 2:
+		moveDirection(1) = -1;
+		qDebug() << "yRBtn";
+		break;
+	case 3:
+		moveDirection(2) = -1;
+		qDebug() << "zRBtn";
+		break;
+	case 4:
+		moveDirection(3) = -1;
+		qDebug() << "aRBtn";
+		break;
+	case 5:
+		moveDirection(4) = -1;
+		qDebug() << "bRBtn";
+		break;
+	case 6:
+		moveDirection(5) = -1;
+		qDebug() << "cRBtn";
+		break;
+	default:
+		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
+		break;
+	}
+	UPSData::multiJogMoveDirection = moveDirection;
+	upsJogTimer->start();
+	/*int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
+	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
+	//获取运动方向
+	switch (MultiAxisDirectionID)
+	{
+	case 1:
+		moveDirection(0) = -1;
+		qDebug() << "xRBtn";
+		break;
+	case 2:
+		moveDirection(1) = -1;
+		qDebug() << "yRBtn";
+		break;
+	case 3:
+		moveDirection(2) = -1;
+		qDebug() << "zRBtn";
+		break;
+	case 4:
+		moveDirection(3) = -1;
+		qDebug() << "aRBtn";
+		break;
+	case 5:
+		moveDirection(4) = -1;
+		qDebug() << "bRBtn";
+		break;
+	case 6:
+		moveDirection(5) = -1;
+		qDebug() << "cRBtn";
+		break;
+	default:
+		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
+		break;
+	}
+	
+	if (MultiAxisDirectionID <= 3)
+	{
+		//平动
+		//myPmac->upsJogLinearMove(moveDirection, UPSData::multiJogTranslationSpeed, 1);
+		myPmac->upsJogSpline1Move(moveDirection, UPSData::multiJogTranslationSpeed, 1);
+	}
+	else
+	{
+		//转动
+		//myPmac->upsJogLinearMove(moveDirection, UPSData::multiJogRotateSpeed, 2);
+		myPmac->upsJogSpline1Move(moveDirection, UPSData::multiJogTranslationSpeed, 2);
+	}*/
+	
+}
+
+void SixUpsUiAo::on_prsMultiAxisJogNeg_released()
+{
+	upsJogTimer->stop();
+	//myPmac->jogStop();
+}
+
+void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
+{
+	UPSData::tarPosAndAngle = UPSData::curPosAndAngle;
+	UPSData::tarLengthsLast = UPSData::curL_norm - UPSData::initL_norm;
+	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
+	//获取运动方向
+	int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
+	switch (MultiAxisDirectionID)
+	{
+	case 1:
+		moveDirection(0) = 1;
+		qDebug() << "xRBtn";
+		break;
+	case 2:
+		moveDirection(1) = 1;
+		qDebug() << "yRBtn";
+		break;
+	case 3:
+		moveDirection(2) = 1;
+		qDebug() << "zRBtn";
+		break;
+	case 4:
+		moveDirection(3) = 1;
+		qDebug() << "aRBtn";
+		break;
+	case 5:
+		moveDirection(4) = 1;
+		qDebug() << "bRBtn";
+		break;
+	case 6:
+		moveDirection(5) = 1;
+		qDebug() << "cRBtn";
+		break;
+	default:
+		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
+		break;
+	}
+	UPSData::multiJogMoveDirection = moveDirection;
+	upsJogTimer->start();
+	/*int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
+	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
+	//获取运动方向
+	switch (MultiAxisDirectionID)
+	{
+	case 1:
+		moveDirection(0) = 1;
+		qDebug() << "xRBtn";
+		break;
+	case 2:
+		moveDirection(1) = 1;
+		qDebug() << "yRBtn";
+		break;
+	case 3:
+		moveDirection(2) = 1;
+		qDebug() << "zRBtn";
+		break;
+	case 4:
+		moveDirection(3) = 1;
+		qDebug() << "aRBtn";
+		break;
+	case 5:
+		moveDirection(4) = 1;
+		qDebug() << "bRBtn";
+		break;
+	case 6:
+		moveDirection(5) = 1;
+		qDebug() << "cRBtn";
+		break;
+	default:
+		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
+		break;
+	}
+
+	if (MultiAxisDirectionID <= 3)
+	{
+		//平动
+		//myPmac->upsJogLinearMove(moveDirection, UPSData::multiJogTranslationSpeed, 1);
+		myPmac->upsJogSpline1Move(moveDirection, UPSData::multiJogTranslationSpeed, 1);
+	}
+	else
+	{
+		//转动
+		//myPmac->upsJogLinearMove(moveDirection, UPSData::multiJogRotateSpeed, 2);
+		myPmac->upsJogSpline1Move(moveDirection, UPSData::multiJogTranslationSpeed, 2);
+	}*/
+}
+
+void SixUpsUiAo::on_prsmultiAxisJogPos_released()
+{
+	upsJogTimer->stop();
+	//myPmac->jogStop();
 }
 
 

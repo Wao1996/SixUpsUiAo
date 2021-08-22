@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QDebug>
+#include <QButtonGroup>
 #include "ui_SixUpsUiAo.h"
 #include "ParameterCalibrate.h"
 #include "WaitWindow.h"
@@ -39,12 +40,14 @@ private:
 	QList<QToolButton *> dipJog_group;//单轴运动 距离点动按钮
 	QList<QToolButton *> prsJogPos_group;//单轴运动 长按正向运动
 	QList<QToolButton *> prsJogNeg_group;//单轴运动 长按负向运动
-
+	//多轴点动 按钮组 判断哪个运动方向被选中
+	QButtonGroup *btnGroupMultiAxisDirection;
 	/************定时器***********/
 	QTimer *dataGatherTimer;//数据收集定时器
 	QTimer *updateUiDataTimer;//刷新ui定时器
 	QTimer *upsCalculateTimer;//并联机构计算定时器
 	QTimer *upsHomeCompleteTimer;//并联机构归零判断定时器
+	QTimer *upsJogTimer;//并联机构长按点动定时器
 	/***********并联机构计算线程**********/
 	QThread *calculateQthread = nullptr;
 	UpsCalculateThread *myUpsCalculateThread = nullptr;
@@ -72,7 +75,7 @@ private slots:
 	/*********定时器***********/
 	void on_updateUiDataTimer();//刷新界面数据定时器溢出
 	void on_upsHomeCompleteTimer();//各轴回零完成状态判断
-
+	void on_upsJogTimer();
 	/**********PMAC按钮************/
 	void on_connectPmacBtn_clicked();
 	void on_initPmacBtn_clicked();
@@ -81,9 +84,21 @@ private slots:
 	void on_servoOnBtn_clicked();
 	void on_servoOffBtn_clicked();
 	/***********多轴运动***************/
+	//联动
 	void on_getRealTimePosBtn_clicked();//获取当前位姿
 	void on_startMoveBtn_clicked();//开始运动
-	void absTarPos_group_valueChange(double);
+	void on_stopMoveBtn_clicked();//停止运动
+	void absTarPos_group_valueChanged(double);
+	//点动
+	void on_led_multiAxisJogTranslationSpeed_valueChanged(double);//平动点动速度改变
+	void on_led_multiAxisJogTranslationStep_valueChanged(double);//平动点动步长改变
+	void on_led_multiAxisJogRotateSpeed_valueChanged(double);//转动点动速度改变
+	void on_led_multiAxisJogRotateStep_valueChanged(double);//转动点动步长改变
+	void on_disMultiAxisJog_clicked();//距离点动按钮
+	void on_prsMultiAxisJogNeg_pressed();//负方向长按点动按下
+	void on_prsMultiAxisJogNeg_released();//负方向长按点动松开
+	void on_prsmultiAxisJogPos_pressed();//正方向长按点动按下
+	void on_prsmultiAxisJogPos_released();//正方向长按点动松开
 	/***********单轴运动***************/
 	void on_led_jogSpeed_valueChanged(double);//单轴运动速度改变
 	void on_jogStopBtn_clicked();//所有电机停止

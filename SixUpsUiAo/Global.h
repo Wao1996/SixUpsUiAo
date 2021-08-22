@@ -44,7 +44,7 @@ class PmacData
 {
 public:
 	static int numL;//一共有多少根支链
-	static double multiSpeed;//多轴运动速度
+	static int cts2mm;//多少个脉冲代表电动缸走1mm
 	static VectorXd negLimitState;//负限位开关状态
 	static VectorXd posLimitState;//正限位开关状态
 	static VectorXd originState;  //原点开关状态
@@ -57,8 +57,8 @@ public:
 class SingleJogData
 {
 public:
-	static double jogSpeed;//点动速度
-	static VectorXd jogInc;//点动距离向量
+	static double jogSpeed;//单轴点动速度
+	static VectorXd jogInc;//单轴点动距离增量
 
 };
 class LazerData
@@ -69,6 +69,15 @@ public:
 class UPSData
 {
 public:
+	//运动参数
+	static double multiSpeed;//多轴联动 运动速度 单位mm/
+
+	static double multiJogTranslationSpeed;//多轴点动 平动运动速度 单位mm/s
+	static double multiJogTranslationStep;//多轴点动 平动运动步长 单位mm
+	static double multiJogRotateSpeed;//多轴点动 转动运动速度 单位°/s
+	static double multiJogRotateStep;//多轴点动 转动运动步长 单位°
+	static Matrix<double, 6, 1> multiJogMoveDirection;//多轴点动运动方向
+
 	//建立坐标系
 	static MatrixXd circlePt;			//3*n(圆心拟合数据点个数) 
 	static Matrix <double, 3, 1> circleC;		//拟合的圆心坐标
@@ -111,6 +120,7 @@ public:
 	static Matrix<double, 6, 1> tarPosAndAngle;			//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
 	static Matrix<double, 6, 1> tarL_norm;				//有目标位姿反解得到的目标杆长 单位mm
 	static Matrix<double, 6, 1> tarLengths;				//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
+	static Matrix<double, 6, 1> tarLengthsLast;			//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
 	static Matrix<double, 6, 1> curL_norm;				//由PMAC值换算得到的实时杆长 单位mm
 	static Matrix<double, 6, 1> initPosAndAngle;		//正解初始位姿 单位 mm °
 	static Matrix<double, 6, 1> curPosAndAngle;		    //正解实时位姿 单位 mm °

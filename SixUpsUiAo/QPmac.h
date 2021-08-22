@@ -57,9 +57,18 @@ public:
 	void upsHomeMove(Matrix<double, 6, 1> absL,//各支链需要运动到的绝对位置(相对各轴的原点) 单位mm
 					double vel);//回零进给周速度 单位mm/s
 
-	//并联机构相对位置运动
-	void upsIncMove(Matrix<double, 6, 1> incL);
-
+	//并联机构长按点动 Linear模式
+	void upsJogLinearMove(Matrix<double, 6, 1> moveDirection,//并联机构 运动方向
+					double speed,//运动速度
+					int flag);//flag 为1则是平动 为2则是转动
+	//并联机构长按点动 Spline1模式
+	void upsJogSpline1Move(Matrix<double, 6, 1> moveDirection,//并联机构 运动方向
+		double speed,//运动速度
+		int flag);//flag 为1则是平动 为2则是转动
+	//并联机构长按点动 J模式
+	void upsJogJMove(Matrix<double, 6, 1> tarLengths,//并联机构 
+		Matrix<double, 6, 1> speed,//运动速度
+		int flag);//flag 为1则是平动 为2则是转动
 
 public slots:
 	void on_dataGatherTimer();

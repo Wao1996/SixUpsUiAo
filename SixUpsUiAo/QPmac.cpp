@@ -177,7 +177,7 @@ void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<Vector
 			numTemp = pmacVariableList.at(i)->size();
 			for (int j = 0; j < numTemp; j++)
 			{
-				(*pmacVariableList.at(i))(j) = res.at(0).toDouble() / 204800;//204800个脉冲 电动缸走1mm
+				(*pmacVariableList.at(i))(j) = res.at(0).toDouble() / PmacData::cts2mm;//PmacData::cts2mm个脉冲 电动缸走1mm
 				res.removeFirst();
 			}
 			break;
@@ -215,7 +215,7 @@ void QPmac::setPvariable(int p, double data)
 void QPmac::jogDisp(int num, double disp)
 {
 	//换算成脉冲
-	int jog_disp_cts = disp * 20480;//位移转为脉冲
+	int jog_disp_cts = disp * PmacData::cts2mm;//位移转为脉冲
 	QString strCts = QString::number(jog_disp_cts);
 	QString strNum = QString::number(num);
 	QString strCommand = "#"+ strNum+"j^" + strCts;
@@ -241,7 +241,7 @@ void QPmac::jogNegContinuously(int num)
 
 void QPmac::jogStop()
 {
-	QString strCommand =  "j/";
+	QString strCommand =  "A#1j/#2j/#3j/#4j/#5j/#6j/";
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
 	qDebug() << "jogStop:" << strCommand << ":" << pAnswer;
 }
@@ -257,7 +257,7 @@ void QPmac::jogStop(int num)
 void QPmac::setJogSpeed(int num, double speed)
 {
 	QString strNum = QString::number(num);
-	QString strVel = QString::number( speed / 1000 * 20480, 'f', 4);//速度参数换算
+	QString strVel = QString::number( speed / 1000 * PmacData::cts2mm, 'f', 4);//速度参数换算
 	QString strCommand = "I" + strNum + "22=" + strVel;
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
 	qDebug() << "setJogSpeed:" << strCommand << ":" << pAnswer;
@@ -265,7 +265,7 @@ void QPmac::setJogSpeed(int num, double speed)
 
 void QPmac::setServoOff()
 {
-	QString strCommand =  "K";
+	QString strCommand =  "#1K#2K#3K#4K#5K#6K";
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
 	qDebug() << "setServoOff:" << strCommand << ":" << pAnswer;
 }
@@ -289,7 +289,7 @@ void QPmac::axlesHomeMove()
 	bool downloadFileState = downloadFile(axlesHomeFile);
 	if (downloadFileState == true)
 	{
-		//Pmac0->GetResponse(pDeviceNumber, "&1b1r&2b2r&3b3r&4b4r&5b5r&6b6r", pAnswer);
+		Pmac0->GetResponse(pDeviceNumber, "&1b1r&2b2r&3b3r&4b4r&5b5r&6b6r", pAnswer);
 	}
 	else
 	{
@@ -308,39 +308,39 @@ void QPmac::upsAbsMove(Matrix<double, 6, 1> absL,double vel)
 {
 	QDir temDir("./pmacProgram");
 	QString filePath = temDir.absolutePath();
-	QString strUpsHomeMove = filePath + "/upsAbsMove.pmc";
-	QFile file(strUpsHomeMove);
+	QString absHomeMoveFile = filePath + "/upsAbsMove.pmc";
+	QFile file(absHomeMoveFile);
 	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
 		QTextStream pmacOutput(&file);
 		QString Head;
 		QString content;
-		Head.sprintf("A\n\
-					  CLOSE\n\
-					  UNDEFINE ALL\n\
-					  &1\n\
-					  #1->20480X\n\
-					  #2->20480Y\n\
-					  #3->20480Z\n\
-					  #4->20480A\n\
-					  #5->20480B\n\
-					  #6->20480C\n\
-					  OPEN PROG1 CLEAR\n\
-					  ABS\n\
-					  LINEAR\n\
-					  FRAX(X,Y,Z,A,B,C)\n\
-					  F%.4f\n", vel);
-		content.sprintf("X%.4f Y%.4f Z%.4f A%.4f B%.4f C%.4f\n\
-						DWELL10\n\
-						CLOSE\n", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5));
+		Head.sprintf("A\
+					  \nCLOSE\
+					  \nUNDEFINE ALL\
+					  \n&1\
+					  \n#1->20480X\
+					  \n#2->20480Y\
+					  \n#3->20480Z\
+					  \n#4->20480U\
+					  \n#5->20480V\
+					  \n#6->20480W\
+					  \nOPEN PROG1 CLEAR\
+					  \nABS\
+					  \nLINEAR\
+					  \nFRAX(X,Y,Z,U,V,W)\
+					  \nF%.4f", vel);
+		content.sprintf("\nX%.4f Y%.4f Z%.4f U%.4f V%.4f W%.4f\
+						\nDWELL10\
+						\nCLOSE", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5));
 		pmacOutput << Head << content << endl;
 		file.close();
-		qDebug() << strUpsHomeMove << "writeFile success";
+		qDebug() << absHomeMoveFile << "writeFile success";
 	}
-	bool downloadFileState = downloadFile(strUpsHomeMove);
+	bool downloadFileState = downloadFile(absHomeMoveFile);
 	if (downloadFileState == true)
 	{
-		//Pmac0->GetResponse(pDeviceNumber, "&1b1r", pAnswer);
+		Pmac0->GetResponse(pDeviceNumber, "&1b1r", pAnswer);
 	}
 	else
 	{
@@ -353,8 +353,8 @@ void QPmac::upsHomeMove(Matrix<double, 6, 1> absL,  double vel)
 {
 	QDir temDir("./pmacProgram");
 	QString filePath = temDir.absolutePath();
-	QString strUpsHomeMove = filePath + "/upsHomeMove.pmc";
-	QFile file(strUpsHomeMove);
+	QString upsHomeMoveFile = filePath + "/upsHomeMove.pmc";
+	QFile file(upsHomeMoveFile);
 	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
 		QTextStream pmacOutput(&file);
@@ -362,34 +362,34 @@ void QPmac::upsHomeMove(Matrix<double, 6, 1> absL,  double vel)
 		QString content;
 		//char cmdP2Start[] = "CMD\"P2=0\"";
 		//char cmdP2End[] = "CMD\"P2=1\"";
-		Head.sprintf("A\n\
-					  CLOSE\n\
-					  UNDEFINE ALL\n\
-					  &1\n\
-					  #1->20480X\n\
-					  #2->20480Y\n\
-					  #3->20480Z\n\
-					  #4->20480A\n\
-					  #5->20480B\n\
-					  #6->20480C\n\
-					  OPEN PROG1 CLEAR\n\
-					  P2=0\n\
-					  ABS\n\
-					  LINEAR\n\
-					  FRAX(X,Y,Z,A,B,C)\n\
-					  F%.4f\n",vel);
-		content.sprintf("X%.4f Y%.4f Z%.4f A%.4f B%.4f C%.4f\n\
-						DWELL10\n\
-						P2=1\n\
-						CLOSE\n", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5));
+		Head.sprintf("A\
+					  \nCLOSE\
+					  \nUNDEFINE ALL\
+					  \n&1\
+					  \n#1->20480X\
+					  \n#2->20480Y\
+					  \n#3->20480Z\
+					  \n#4->20480U\
+					  \n#5->20480V\
+					  \n#6->20480W\
+					  \nOPEN PROG1 CLEAR\
+					  \nP2=0\
+					  \nABS\
+					  \nLINEAR\
+					  \nFRAX(X,Y,Z,U,V,W)\
+					  \nF%.4f",vel);
+		content.sprintf("\nX%.4f Y%.4f Z%.4f U%.4f V%.4f W%.4f\
+						\nDWELL10\
+						\nP2=1\
+						\nCLOSE", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5));
 		pmacOutput << Head << content << endl;
 		file.close();
-		qDebug() << strUpsHomeMove << "writeFile success";
+		qDebug() << upsHomeMoveFile << "writeFile success";
 	}
-	bool downloadFileState = downloadFile(strUpsHomeMove);
+	bool downloadFileState = downloadFile(upsHomeMoveFile);
 	if (downloadFileState == true)
 	{
-		//Pmac0->GetResponse(pDeviceNumber, "&1b1r", pAnswer);
+		Pmac0->GetResponse(pDeviceNumber, "&1b1r", pAnswer);
 	}
 	else
 	{
@@ -397,11 +397,169 @@ void QPmac::upsHomeMove(Matrix<double, 6, 1> absL,  double vel)
 	}
 }
 
-void QPmac::upsIncMove(Matrix<double, 6, 1> incL)
+void QPmac::upsJogLinearMove(Matrix<double, 6, 1> moveDirection, double speed,int flag)
 {
+	double miniStep;//最小运动步长
+	double dis;//假设的运动距离
+	if (flag == 1)//平动
+	{
+		miniStep = 0.1;//最小运动步长
+		dis = 50;//假设的运动距离
+	}
+	else//转动
+	{
+		miniStep = 0.1;//最小运动步长
+	    dis = 6;//假设的运动距离
+	}
+	int stepNum = dis / miniStep;//运动个数
+	double TM = dis / speed / stepNum * 1000;//单位 毫秒
+	Matrix<double, 6, 1> tempPosAndAngle = UPSData::curPosAndAngle;
+	Matrix<double, 6, 1> tempTarLengths = MatrixXd::Zero(6, 1);
+	Matrix<double, 6, 1> tempTarL_norm = MatrixXd::Zero(6, 1);
+
+	QDir temDir("./pmacProgram");
+	QString filePath = temDir.absolutePath();
+	QString upsJogLinearMoveFile = filePath + "/upsJogLinearMove.pmc";
+	QFile file(upsJogLinearMoveFile);
+
+	QString Head;//Pmac程序头
+	QString content;//Pmac程序变化内容
+	QString tempLinear;
+	QString tail;//Pmac程序尾
+
+	for (int i = 0; i < stepNum; i++)
+	{
+		tempPosAndAngle = tempPosAndAngle + miniStep * moveDirection;
+		inverseSolution(tempPosAndAngle, tempTarL_norm, UPSData::D, UPSData::S);
+		tempTarLengths = tempTarL_norm - UPSData::initL_norm;
+		tempLinear.sprintf("\nX%.4f Y%.4f Z%.4f U%.4f V%.4f W%.4f", tempTarLengths(0), tempTarLengths(1), tempTarLengths(2), tempTarLengths(3), tempTarLengths(4), tempTarLengths(5));
+		content.append(tempLinear);
+	}
+
+	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		QTextStream pmacOutput(&file);
+		Head.sprintf("A\
+					  \nCLOSE\
+					  \nUNDEFINE ALL\
+					  \n&1\
+					  \n#1->20480X\
+					  \n#2->20480Y\
+					  \n#3->20480Z\
+					  \n#4->20480U\
+					  \n#5->20480V\
+					  \n#6->20480W\
+					  \nP1=1234\
+					  \nOPEN PROG1 CLEAR\
+					  \nABS\
+					  \nLINEAR\
+					  \nTM%.4f\
+					  \nTA100\
+					  \nTS25", TM);
+		tail.sprintf("\nCLOSE");
+		pmacOutput << Head << content << tail << endl;
+		file.close();
+		qDebug() << upsJogLinearMoveFile << "writeFile success";
+	}
+	bool downloadFileState = downloadFile(upsJogLinearMoveFile);
+	if (downloadFileState == true)
+	{
+		Pmac0->GetResponse(pDeviceNumber, "&1b1r", pAnswer);
+	}
+	else
+	{
+		qDebug() << "upsJogLinearMove()  error!";
+	}
 }
 
+void QPmac::upsJogSpline1Move(Matrix<double, 6, 1> moveDirection, double speed, int flag)
+{
+	double miniStep;//最小运动步长
+	double dis;//假设的运动距离
+	if (flag == 1)//平动
+	{
+		miniStep = 0.1;//最小运动步长
+		dis = 50;//假设的运动距离
+	}
+	else//转动
+	{
+		miniStep = 0.1;//最小运动步长
+		dis = 6;//假设的运动距离
+	}
+	int stepNum = dis / miniStep;//运动个数
+	double TM = dis / speed / stepNum * 1000;//单位 毫秒
+	Matrix<double, 6, 1> tempPosAndAngle = UPSData::curPosAndAngle;
+	Matrix<double, 6, 1> tempTarLengths = MatrixXd::Zero(6, 1);
+	Matrix<double, 6, 1> tempTarL_norm = MatrixXd::Zero(6, 1);
 
+	QDir temDir("./pmacProgram");
+	QString filePath = temDir.absolutePath();
+	QString upsJogLinearMoveFile = filePath + "/upsJogLinearMove.pmc";
+	QFile file(upsJogLinearMoveFile);
+
+	QString Head;//Pmac程序头
+	QString content;//Pmac程序变化内容
+	QString tempLinear;
+	QString tail;//Pmac程序尾
+
+	for (int i = 0; i < stepNum; i++)
+	{
+		tempPosAndAngle = tempPosAndAngle + miniStep * moveDirection;
+		inverseSolution(tempPosAndAngle, tempTarL_norm, UPSData::D, UPSData::S);
+		tempTarLengths = tempTarL_norm - UPSData::initL_norm;
+		tempLinear.sprintf("\nX%.4f Y%.4f Z%.4f U%.4f V%.4f W%.4f", tempTarLengths(0), tempTarLengths(1), tempTarLengths(2), tempTarLengths(3), tempTarLengths(4), tempTarLengths(5));
+		content.append(tempLinear);
+	}
+
+	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		QTextStream pmacOutput(&file);
+		Head.sprintf("A\
+					  \nCLOSE\
+					  \nUNDEFINE ALL\
+					  \n&1\
+					  \n#1->20480X\
+					  \n#2->20480Y\
+					  \n#3->20480Z\
+					  \n#4->20480U\
+					  \n#5->20480V\
+					  \n#6->20480W\
+					  \nP1=1234\
+					  \nOPEN PROG1 CLEAR\
+					  \nABS\
+					  \nSpline1\
+					  \nTM%.4f", TM);
+		tail.sprintf("\nCLOSE");
+		pmacOutput << Head << content << tail << endl;
+		file.close();
+		qDebug() << upsJogLinearMoveFile << "writeFile success";
+	}
+	bool downloadFileState = downloadFile(upsJogLinearMoveFile);
+	if (downloadFileState == true)
+	{
+		Pmac0->GetResponse(pDeviceNumber, "&1b1r", pAnswer);
+	}
+	else
+	{
+		qDebug() << "upsJogLinearMove()  error!";
+	}
+}
+
+void QPmac::upsJogJMove(Matrix<double, 6, 1> tarLengths, Matrix<double, 6, 1> speed, int flag)
+{
+	Matrix<double, 6, 1> tarLengthCTS;
+	tarLengthCTS = tarLengths * PmacData::cts2mm;
+	QString strCommend;
+	for (int i = 1; i <= 6; i++)
+	{
+		strCommend.append("I" + QString::number(i) + "22=" + QString::number((speed(i - 1))));
+	}
+	for (int i = 1; i <= 6; i++)
+	{
+		strCommend.append("#" + QString::number(i) + "J=" + QString::number((tarLengthCTS(i - 1))));
+	}
+	Pmac0->GetResponse(pDeviceNumber, strCommend, pAnswer);
+}
 
 
 void QPmac::on_dataGatherTimer()

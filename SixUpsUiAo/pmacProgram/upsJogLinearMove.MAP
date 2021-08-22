@@ -1,0 +1,20 @@
+;Map created by PMAC Win32 Driver from file: E:\MyVS2017Space\GitHub\Wao1996\SixUpsUiAo\SixUpsUiAo\pmacProgram\upsJogLinearMove.pmc
+;
+
+
+; DEFINES sorted by KEY --------------------------
+_DPRAMBASE_                      $60000
+_DPRAMMAX_                       $60450
+_DPRAMSIZE_                      $0
+_DPRAMUSERBASE_                  $60450
+_PMAC2_                          
+_TURBO_                          
+
+
+; DEFINES sorted by VALUE ------------------------
+                                 _PMAC2_
+                                 _TURBO_
+$0                               _DPRAMSIZE_
+$60000                           _DPRAMBASE_
+$60450                           _DPRAMMAX_
+$60450                           _DPRAMUSERBASE_
