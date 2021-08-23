@@ -336,8 +336,8 @@ void SixUpsUiAo::upsHome_slot()
 void SixUpsUiAo::platformDHome_slot()
 {
 	inverseSolution(UPSData::homePosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
-	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
-	myPmac->upsHomeMove(UPSData::tarLengths, UPSData::multiSpeed);
+	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
+	myPmac->upsHomeMove(UPSData::tarAxlesL_norm, UPSData::multiSpeed);
 }
 
 void SixUpsUiAo::on_paraCailbrate_triggered()
@@ -442,28 +442,29 @@ void SixUpsUiAo::on_upsJogTimer()
 	/*
 	UPSData::tarPosAndAngle = UPSData::tarPosAndAngle + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
 	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
-	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
+	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
 	double time = upsJogTimer->interval() / 1000.0;//定时器间隔时间
-	double moveSpeed = abs((UPSData::lastLengths(0) - UPSData::tarLengths(0))) / time;//以1号轴运动行程除以运动时间 得到1号轴的进给速度
+	double moveSpeed = abs((UPSData::lastAxlesL_norm(0) - UPSData::tarAxlesL_norm(0))) / time;//以1号轴运动行程除以运动时间 得到1号轴的进给速度
 	qDebug() << "time:" << time;
 	qDebug() << "moveSpeed:" << moveSpeed;
-	myPmac->upsAbsMove(UPSData::tarLengths, moveSpeed);
-	UPSData::lastLengths = UPSData::tarLengths;//更新
+	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, moveSpeed);
+	UPSData::lastAxlesL_norm = UPSData::tarAxlesL_norm;//更新
 	*/
 	
 	
 	/***********采用在线命令形式***********/
-	Matrix<double, 6, 1> delta_Lengths;
-	Matrix<double, 6, 1> axlesSpeed;
-	UPSData::tarPosAndAngle = UPSData::tarPosAndAngle + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
-	qDebug() << "tarPosAndAngle:";
-	cout << UPSData::tarPosAndAngle << endl;
-	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
-	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
-	delta_Lengths = (UPSData::lastLengths - UPSData::tarLengths);
+	Matrix<double, 6, 1> delta_Lengths;//本次运动每个轴的运动增量 mm
+	Matrix<double, 6, 1> axlesSpeed;//每个轴的运动速度 mm/s
+	Matrix<double, 6, 1> tarL_norm;//目标杆长
+	UPSData::prsPosAndAngle = UPSData::prsPosAndAngle + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
+	//qDebug() << "UPSData::prsPosAndAngle:";
+	//cout << UPSData::prsPosAndAngle << endl;
+	inverseSolution(UPSData::prsPosAndAngle, tarL_norm, UPSData::D, UPSData::S);
+	UPSData::tarAxlesL_norm = tarL_norm - UPSData::initL_norm;
+	delta_Lengths = (UPSData::lastAxlesL_norm - UPSData::tarAxlesL_norm).cwiseAbs();
 	axlesSpeed = delta_Lengths * PmacData::cts2mm / upsJogTimer->interval();
-	myPmac->upsJogJMove(UPSData::tarLengths, axlesSpeed);
-	UPSData::lastLengths = UPSData::tarLengths;//更新
+	myPmac->upsJogJMove(UPSData::tarAxlesL_norm, axlesSpeed);
+	UPSData::lastAxlesL_norm = UPSData::tarAxlesL_norm;//更新
 	
 }
 
@@ -590,9 +591,13 @@ void SixUpsUiAo::on_getRealTimePosBtn_clicked()
 
 void SixUpsUiAo::on_startMoveBtn_clicked()
 {
+	for (int i = 0; i < 6; i++)
+	{
+		UPSData::tarPosAndAngle(i) = AbsTarPos_group[i]->value();
+	}
 	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
-	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
-	myPmac->upsAbsMove(UPSData::tarLengths, UPSData::multiSpeed);
+	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
+	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiSpeed);
 }
 
 void SixUpsUiAo::on_stopMoveBtn_clicked()
@@ -669,17 +674,17 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
 		break;
 	}
-	UPSData::tarPosAndAngle = UPSData::curPosAndAngle + incPosAndAngle;
-	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
-	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
-	myPmac->upsAbsMove(UPSData::tarLengths, UPSData::multiJogTranslationSpeed);
+	Matrix<double, 6, 1> tarPosAndAngleTemp = UPSData::curPosAndAngle + incPosAndAngle;
+	inverseSolution(tarPosAndAngleTemp, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
+	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiJogTranslationSpeed);
 	
 }
 
 void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 {
-	UPSData::tarPosAndAngle = UPSData::curPosAndAngle;
-	UPSData::lastLengths = UPSData::curL_norm - UPSData::initL_norm;
+	UPSData::prsPosAndAngle = UPSData::curPosAndAngle;
+	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
 	/*设置运动方向*/
 	int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
@@ -783,8 +788,8 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_released()
 
 void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 {
-	UPSData::tarPosAndAngle = UPSData::curPosAndAngle;
-	UPSData::lastLengths = UPSData::curL_norm - UPSData::initL_norm;
+	UPSData::prsPosAndAngle = UPSData::curPosAndAngle;
+	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
 	/*设置运动方向*/
 	int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向

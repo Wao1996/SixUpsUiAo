@@ -128,10 +128,12 @@ public:
 	//位姿杆长数据
 	static Matrix<double, 6, 1>	homePosAndAngle;		//并联机构 平台零位位姿   单位 mm °
 	static Matrix<double, 6, 1> tarPosAndAngle;			//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
+	static Matrix<double, 6, 1> prsPosAndAngle;			//长按点动按下时的位姿
 	static Matrix<double, 6, 1> tarL_norm;				//有目标位姿反解得到的目标杆长 单位mm
-	static Matrix<double, 6, 1> tarLengths;				//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
-	static Matrix<double, 6, 1> lastLengths;			//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
+	static Matrix<double, 6, 1> tarAxlesL_norm;			//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
+	static Matrix<double, 6, 1> lastAxlesL_norm;		//上一步轴长
 	static Matrix<double, 6, 1> curL_norm;				//由PMAC值换算得到的实时杆长 单位mm
+	static Matrix<double, 6, 1> lastL_norm;				//上一步的杆长
 	static Matrix<double, 6, 1> initPosAndAngle;		//正解初始位姿 单位 mm °
 	static Matrix<double, 6, 1> curPosAndAngle;		    //正解实时位姿 单位 mm °
 	static Matrix<double, 6, 1> realPosAndAngleByQD;	//激光跟踪仪测量靶标点计算得到的实际位姿

@@ -406,6 +406,23 @@ void QPmac::upsHomeMove(Matrix<double, 6, 1> absL,  double vel)
 	}
 }
 
+void QPmac::upsJogJMove(Matrix<double, 6, 1> tarAxlesL_norm, Matrix<double, 6, 1> speed)
+{
+	Matrix<double, 6, 1> tarLengthCTS;
+	tarLengthCTS = tarAxlesL_norm * PmacData::cts2mm;
+	QString strCommend;
+	for (int i = 1; i <= 6; i++)
+	{
+		strCommend.append("I" + QString::number(i) + "22=" + QString::number((speed(i - 1))));
+	}
+	for (int i = 1; i <= 6; i++)
+	{
+		strCommend.append("#" + QString::number(i) + "J=" + QString::number((tarLengthCTS(i - 1))));
+	}
+	Pmac0->GetResponse(pDeviceNumber, strCommend, pAnswer);
+}
+
+
 void QPmac::upsJogLinearMove(Matrix<double, 6, 1> moveDirection, double speed,int flag)
 {
 	double miniStep;//最小运动步长
@@ -552,22 +569,6 @@ void QPmac::upsJogSpline1Move(Matrix<double, 6, 1> moveDirection, double speed, 
 	{
 		qDebug() << "upsJogLinearMove()  error!";
 	}
-}
-
-void QPmac::upsJogJMove(Matrix<double, 6, 1> tarLengths, Matrix<double, 6, 1> speed)
-{
-	Matrix<double, 6, 1> tarLengthCTS;
-	tarLengthCTS = tarLengths * PmacData::cts2mm;
-	QString strCommend;
-	for (int i = 1; i <= 6; i++)
-	{
-		strCommend.append("I" + QString::number(i) + "22=" + QString::number((speed(i - 1))));
-	}
-	for (int i = 1; i <= 6; i++)
-	{
-		strCommend.append("#" + QString::number(i) + "J=" + QString::number((tarLengthCTS(i - 1))));
-	}
-	Pmac0->GetResponse(pDeviceNumber, strCommend, pAnswer);
 }
 
 
