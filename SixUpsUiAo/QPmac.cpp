@@ -67,6 +67,8 @@ bool QPmac::creatPmacSelect()
 
 void QPmac::initPmac()
 {
+	//创建获取pmac变量在线命令的字符串
+	PmacData::pmacGetVariableCommand = creatPmacVariableCommand(pmacVariableRecipe);
 	GlobalSta::pmacIsInitialed = true;
 
 }
@@ -83,7 +85,7 @@ bool QPmac::downloadFile(QString strFile)
 	return pbSucess_download;
 }
 
-void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<VectorXd*>  pmacVariableList)
+QString QPmac::creatPmacVariableCommand(QList<PmacVariable> &pmacVariableRecipe)
 {
 	/*分析需要采集哪些数据 并按顺序生成字符串*/
 	int numRecipe = pmacVariableRecipe.size();
@@ -132,15 +134,23 @@ void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<Vector
 			numTemp = pmacVariableList.at(i)->size();
 			for (int j = 1; j <= numTemp; j++)
 			{
-				strCommand.append("M" + QString::number(j)+"20");
+				strCommand.append("M" + QString::number(j) + "20");
 			}
 			break;
-		//需要采集什么数据 在此处添加即可；
+			//需要采集什么数据 在此处添加即可；
 		default:
-			qDebug() << "getMotorsState solve pmacVariableRecipe ERROR!";
+			qDebug() << "getPmacVariable solve pmacVariableRecipe ERROR!";
 			break;
 		}
 	}
+	return strCommand;
+}
+
+void QPmac::getPmacVariable(QList<PmacVariable>& pmacVariableRecipe, QString strCommand, QList<VectorXd*>  pmacVariableList)
+{
+	/*分析需要采集哪些数据 并按顺序生成字符串*/
+	int numRecipe = pmacVariableRecipe.size();
+	int numTemp = 0;
 	/*将命令发送给PMAC 解析结果*/
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
 	//将返回值拆解
@@ -199,7 +209,7 @@ void QPmac::getMotorsState(QList<PmacVariable>& pmacVariableRecipe, QList<Vector
 			break;
 		//需要采集什么数据 在此处添加即可；
 		default:
-			qDebug() << "getMotorsState solve pmacVariableRecipe ERROR!";
+			qDebug() << "getPmacVariable solve pmacVariableRecipe ERROR!";
 			break;
 		}
 	}
@@ -328,10 +338,9 @@ void QPmac::upsAbsMove(Matrix<double, 6, 1> absL,double vel)
 					  \nOPEN PROG1 CLEAR\
 					  \nABS\
 					  \nLINEAR\
-					  \nFRAX(X,Y,Z,U,V,W)\
+					  \nFRAX(X,Y,Z)\
 					  \nF%.4f", vel);
 		content.sprintf("\nX%.4f Y%.4f Z%.4f U%.4f V%.4f W%.4f\
-						\nDWELL10\
 						\nCLOSE", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5));
 		pmacOutput << Head << content << endl;
 		file.close();
@@ -545,7 +554,7 @@ void QPmac::upsJogSpline1Move(Matrix<double, 6, 1> moveDirection, double speed, 
 	}
 }
 
-void QPmac::upsJogJMove(Matrix<double, 6, 1> tarLengths, Matrix<double, 6, 1> speed, int flag)
+void QPmac::upsJogJMove(Matrix<double, 6, 1> tarLengths, Matrix<double, 6, 1> speed)
 {
 	Matrix<double, 6, 1> tarLengthCTS;
 	tarLengthCTS = tarLengths * PmacData::cts2mm;
@@ -564,6 +573,14 @@ void QPmac::upsJogJMove(Matrix<double, 6, 1> tarLengths, Matrix<double, 6, 1> sp
 
 void QPmac::on_dataGatherTimer()
 {
-	getMotorsState( pmacVariableRecipe,  pmacVariableList);
+	getPmacVariable(pmacVariableRecipe, PmacData::pmacGetVariableCommand, pmacVariableList);
+	for (int i = 0;i < PmacData::numL;i++)
+	{
+		if (PmacData::curLengthsMM(i) > -0.0005 && PmacData::curLengthsMM(i) < 0.0005 )
+		{
+			PmacData::curLengthsMM(i) = 0;
+		}
+	}
 	UPSData::curL_norm = PmacData::curLengthsMM.head(6) + UPSData::initL_norm;	
+
 }

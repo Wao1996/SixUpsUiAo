@@ -12,7 +12,7 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	initStructPara();
 	initTablesStyle();
 	initConnect();
-
+	myWidgetDisnable();
 	/*Pmac数据采集定时器*/
 	dataGatherTimer = new QTimer(this);
 	dataGatherTimer->setInterval(200);
@@ -32,12 +32,12 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 
 	/*并联机构计算定时器*/
 	upsCalculateTimer = new QTimer(this);
-	upsCalculateTimer->setInterval(250);
+	upsCalculateTimer->setInterval(400);
 	upsCalculateTimer->setTimerType(Qt::CoarseTimer);
 
 	/*并联机构长按点动定时器*/
 	upsJogTimer = new QTimer(this);
-	upsJogTimer->setInterval(200);
+	upsJogTimer->setInterval(100);
 	upsJogTimer->setTimerType(Qt::PreciseTimer);
 	connect(upsJogTimer, &QTimer::timeout, this, &SixUpsUiAo::on_upsJogTimer);
 
@@ -222,8 +222,6 @@ void SixUpsUiAo::initTablesStyle()
 
 void SixUpsUiAo::initConnect()
 {
-	//平台回零按钮
-	connect(ui.upsHomeBtn, &QPushButton::clicked, this, &SixUpsUiAo::upsHome_slot);
 	connect(this, &SixUpsUiAo::upsHome_signal, this, &SixUpsUiAo::upsHome_slot);//平台回零
 	for (int i = 0; i < PmacData::numL; i++)
 	{
@@ -245,6 +243,38 @@ void SixUpsUiAo::initConnect()
 	}
 
 	connect(this, &SixUpsUiAo::platformDHome_signal, this, &SixUpsUiAo::platformDHome_slot);
+}
+
+void SixUpsUiAo::myWidgetEnable()
+{
+	ui.servoOnBtn->setEnabled(true);
+	ui.servoOffBtn->setEnabled(true);
+	ui.axlesHomeBtn->setEnabled(true);
+	ui.upsHomeBtn->setEnabled(true);
+	ui.tabWidget->setEnabled(true);
+}
+
+void SixUpsUiAo::myWidgetDisnable()
+{
+	/*让相关状态显示UI初始化*/
+	for (int i = 0; i < PmacData::numL; i++)
+	{
+		qlabNegLimit_group[i]->setPixmap(offIcon);
+		qlabPosLimit_group[i]->setPixmap(offIcon);
+		qlabOrigin_group[i]->setPixmap(offIcon);
+		realTimeLengths_group[i]->setText("");
+		realTimePos_group[i]->setText("");
+	}
+
+	ui.pmacSta->setPixmap(offIcon);
+	ui.pmacInitSta->setPixmap(offIcon);
+	ui.connectPmacBtn->setText("连接");
+	ui.initPmacBtn->setEnabled(false);
+	ui.servoOnBtn->setEnabled(false);
+	ui.servoOffBtn->setEnabled(false);
+	ui.axlesHomeBtn->setEnabled(false);
+	ui.upsHomeBtn->setEnabled(false);
+	ui.tabWidget->setEnabled(false);
 }
 
 void SixUpsUiAo::switchPmacThread()
@@ -295,7 +325,7 @@ void SixUpsUiAo::upsHome_slot()
 	WaitWindowUI->setWindowModality(Qt::ApplicationModal);//设置窗体模态，要求该窗体没有父类，否则无效
 	WaitWindowUI->show();
 	/******各轴开始回零*****/
-	myPmac->setHomeCompleteZero();
+	myPmac->setHomeCompleteZero();//各轴回零完成位清零
 	myPmac->axlesHomeMove();
 	/******检测各轴是否归零计时器开始计时*****/
 	upsHomeCompleteTimer->start();
@@ -395,7 +425,6 @@ void SixUpsUiAo::on_upsHomeCompleteTimer()
 	}
 	if (GlobalSta::axlesIshome == true && GlobalSta::upsIsHome == true)
 	{
-		GlobalSta::upsIsHome = false;
 		GlobalSta::axlesIshome = false;
 		upsHomeSignalEmited = false;
 		WaitWindowUI->close();//关闭等待对话框
@@ -407,29 +436,35 @@ void SixUpsUiAo::on_upsHomeCompleteTimer()
 
 void SixUpsUiAo::on_upsJogTimer()
 {
-	double miniStep;//最小运动步长
-	int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
-	if (MultiAxisDirectionID <= 3)
-	{
-		//平动
-		miniStep = 0.01;//最小运动步长
-	}
-	else
-	{
-		//转动
-		miniStep = 0.01;//最小运动步长
-	}
 	
+	//******采用pmac文件形式**********//
+	//下一时刻目标位姿
+	/*
+	UPSData::tarPosAndAngle = UPSData::tarPosAndAngle + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
+	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
+	double time = upsJogTimer->interval() / 1000.0;//定时器间隔时间
+	double moveSpeed = abs((UPSData::lastLengths(0) - UPSData::tarLengths(0))) / time;//以1号轴运动行程除以运动时间 得到1号轴的进给速度
+	qDebug() << "time:" << time;
+	qDebug() << "moveSpeed:" << moveSpeed;
+	myPmac->upsAbsMove(UPSData::tarLengths, moveSpeed);
+	UPSData::lastLengths = UPSData::tarLengths;//更新
+	*/
+	
+	
+	/***********采用在线命令形式***********/
 	Matrix<double, 6, 1> delta_Lengths;
 	Matrix<double, 6, 1> axlesSpeed;
-	UPSData::tarPosAndAngle = UPSData::tarPosAndAngle + miniStep * UPSData::multiJogMoveDirection;
+	UPSData::tarPosAndAngle = UPSData::tarPosAndAngle + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
+	qDebug() << "tarPosAndAngle:";
 	cout << UPSData::tarPosAndAngle << endl;
 	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarLengths = UPSData::tarL_norm - UPSData::initL_norm;
-	delta_Lengths = (UPSData::tarLengthsLast - UPSData::tarLengths);
-	axlesSpeed = delta_Lengths / 200 * PmacData::cts2mm;
-	myPmac->upsJogJMove(UPSData::tarLengths, axlesSpeed, 1);
-	UPSData::tarLengthsLast = UPSData::tarLengths;//更新
+	delta_Lengths = (UPSData::lastLengths - UPSData::tarLengths);
+	axlesSpeed = delta_Lengths * PmacData::cts2mm / upsJogTimer->interval();
+	myPmac->upsJogJMove(UPSData::tarLengths, axlesSpeed);
+	UPSData::lastLengths = UPSData::tarLengths;//更新
+	
 }
 
 void SixUpsUiAo::on_connectPmacBtn_clicked()
@@ -459,26 +494,9 @@ void SixUpsUiAo::on_connectPmacBtn_clicked()
 		upsCalculateTimer->stop();//停止计算并联机构实时位姿
 		dataGatherTimer->stop();//数据采集停止
 		updateUiDataTimer->stop();//停止更新UI
-
-		//让相关状态显示UI初始化
-		for (int i = 0; i < PmacData::numL; i++)
-		{
-			qlabNegLimit_group[i]->setPixmap(offIcon);
-			qlabPosLimit_group[i]->setPixmap(offIcon);
-			realTimeLengths_group[i]->setText("");
-			realTimePos_group[i]->setText("");
-		}
-
-		ui.pmacSta->setPixmap(offIcon);
-		ui.connectPmacBtn->setText("连接");
-
-		ui.initPmacBtn->setEnabled(false);
 		GlobalSta::pmacIsInitialed = false;
-		ui.pmacInitSta->setPixmap(offIcon);
-
-		ui.servoOnBtn->setEnabled(false);
-		ui.servoOffBtn->setEnabled(false);
-
+		//让相关状态显示UI初始化
+		myWidgetDisnable();
 		//断开pamc
 		switchPmacThread();
 	}
@@ -513,16 +531,14 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 		//1.从文件中读取上一次正常结束程序时的PMAC杆长
 		//2.将上一次的PMAC杆长赋值给PMAC
 		//3.提示初始化完成
-
+		GlobalSta::upsIsHome = true;
 	}
 
 	if (GlobalSta::upsIsHome)
 	{
-		ui.pmacInitSta->setPixmap(onIcon);
-		ui.servoOnBtn->setEnabled(true);
-		ui.servoOffBtn->setEnabled(true);
+		GlobalSta::upsIsHome = false;
+		myWidgetEnable();
 	}
-
 	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
 }
 
@@ -534,6 +550,18 @@ void SixUpsUiAo::on_servoOnBtn_clicked()
 void SixUpsUiAo::on_servoOffBtn_clicked()
 {
 	myPmac->setServoOff();
+}
+
+void SixUpsUiAo::on_axlesHomeBtn_clicked()
+{
+	myPmac->jogStop();
+	myPmac->axlesHomeMove();
+}
+
+void SixUpsUiAo::on_upsHomeBtn_clicked()
+{
+	myPmac->jogStop();
+	emit upsHome_signal();
 }
 
 void SixUpsUiAo::on_tableSetOrigin_clicked()
@@ -651,9 +679,9 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 {
 	UPSData::tarPosAndAngle = UPSData::curPosAndAngle;
-	UPSData::tarLengthsLast = UPSData::curL_norm - UPSData::initL_norm;
+	UPSData::lastLengths = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
-	//获取运动方向
+	/*设置运动方向*/
 	int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
 	switch (MultiAxisDirectionID)
 	{
@@ -685,7 +713,18 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
 		break;
 	}
+	/*设置运动步长及*/
 	UPSData::multiJogMoveDirection = moveDirection;
+	if (MultiAxisDirectionID <= 3)
+	{
+		//平动
+		UPSData::multiJogMoveStep =  0.3;//最小运动步长
+	}
+	else
+	{
+		//转动
+		UPSData::multiJogMoveStep = 0.002;//最小运动步长
+	}
 	upsJogTimer->start();
 	/*int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
@@ -745,9 +784,9 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_released()
 void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 {
 	UPSData::tarPosAndAngle = UPSData::curPosAndAngle;
-	UPSData::tarLengthsLast = UPSData::curL_norm - UPSData::initL_norm;
+	UPSData::lastLengths = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
-	//获取运动方向
+	/*设置运动方向*/
 	int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
 	switch (MultiAxisDirectionID)
 	{
@@ -779,7 +818,18 @@ void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
 		break;
 	}
+	/*设置运动步长及*/
 	UPSData::multiJogMoveDirection = moveDirection;
+	if (MultiAxisDirectionID <= 3)
+	{
+		//平动
+		UPSData::multiJogMoveStep = 0.3;//最小运动步长
+	}
+	else
+	{
+		//转动
+		UPSData::multiJogMoveStep = 0.00;//最小运动步长
+	}
 	upsJogTimer->start();
 	/*int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量

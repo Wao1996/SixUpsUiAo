@@ -2791,16 +2791,19 @@
     </layout>
    </widget>
    <widget class="QTabWidget" name="tabWidget">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>500</x>
-      <y>60</y>
+      <x>510</x>
+      <y>40</y>
       <width>471</width>
-      <height>421</height>
+      <height>481</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_setOrigin">
      <attribute name="title">
@@ -3508,8 +3511,8 @@
      <widget class="QPushButton" name="startMoveBtn">
       <property name="geometry">
        <rect>
-        <x>80</x>
-        <y>410</y>
+        <x>90</x>
+        <y>320</y>
         <width>84</width>
         <height>30</height>
        </rect>
@@ -3533,8 +3536,8 @@
      <widget class="QPushButton" name="stopMoveBtn">
       <property name="geometry">
        <rect>
-        <x>280</x>
-        <y>410</y>
+        <x>270</x>
+        <y>320</y>
         <width>84</width>
         <height>30</height>
        </rect>
@@ -5101,12 +5104,12 @@
    </widget>
    <widget class="QPushButton" name="upsHomeBtn">
     <property name="enabled">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>170</y>
+      <x>340</x>
+      <y>120</y>
       <width>90</width>
       <height>30</height>
      </rect>
@@ -5128,6 +5131,9 @@
     </property>
    </widget>
    <widget class="QGroupBox" name="realTimePose_Origin">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -5589,6 +5595,34 @@
      </item>
     </layout>
    </widget>
+   <widget class="QPushButton" name="axlesHomeBtn">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>120</y>
+      <width>90</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>30</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>30</height>
+     </size>
+    </property>
+    <property name="text">
+     <string>各轴回零</string>
+    </property>
+   </widget>
    <zorder>realTimeLengths</zorder>
    <zorder>HMI</zorder>
    <zorder>PMAC</zorder>
@@ -5600,6 +5634,7 @@
    <zorder>servoOffBtn</zorder>
    <zorder>upsHomeBtn</zorder>
    <zorder>realTimePose_Origin</zorder>
+   <zorder>axlesHomeBtn</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -5607,7 +5642,7 @@
      <x>0</x>
      <y>0</y>
      <width>1160</width>
-     <height>23</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

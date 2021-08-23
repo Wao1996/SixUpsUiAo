@@ -43,6 +43,7 @@ public:
 class PmacData
 {
 public:
+	static QString pmacGetVariableCommand;//获取pmac变量在线命令的字符串
 	static int numL;//一共有多少根支链
 	static int cts2mm;//多少个脉冲代表电动缸走1mm
 	static VectorXd negLimitState;//负限位开关状态
@@ -76,6 +77,7 @@ public:
 	static double multiJogRotateSpeed;//多轴点动 转动运动速度 单位°/s
 	static double multiJogRotateStep;//多轴点动 转动运动步长 单位°
 	static Matrix<double, 6, 1> multiJogMoveDirection;//多轴点动运动方向
+	static double multiJogMoveStep;//多轴长按点动 运动步长
 
 	//建立坐标系
 	static MatrixXd circlePt;			//3*n(圆心拟合数据点个数) 
@@ -128,7 +130,7 @@ public:
 	static Matrix<double, 6, 1> tarPosAndAngle;			//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
 	static Matrix<double, 6, 1> tarL_norm;				//有目标位姿反解得到的目标杆长 单位mm
 	static Matrix<double, 6, 1> tarLengths;				//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
-	static Matrix<double, 6, 1> tarLengthsLast;			//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
+	static Matrix<double, 6, 1> lastLengths;			//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
 	static Matrix<double, 6, 1> curL_norm;				//由PMAC值换算得到的实时杆长 单位mm
 	static Matrix<double, 6, 1> initPosAndAngle;		//正解初始位姿 单位 mm °
 	static Matrix<double, 6, 1> curPosAndAngle;		    //正解实时位姿 单位 mm °

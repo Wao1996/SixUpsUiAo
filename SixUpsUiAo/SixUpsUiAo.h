@@ -58,10 +58,12 @@ private:
 	void initStructPara();
 	void initTablesStyle();
 	void initConnect();
+	/*******UI控件相关**********/
+	void myWidgetEnable();//控件使能
+	void myWidgetDisnable();//控件失去使能
 	/*********Pmac相关************/
 	QPmac *myPmac = nullptr;
 	void switchPmacThread();//切换Pmac线程的开启与关闭
-
 	/************平台相关*************/
 	bool QMesBoxWhetherHome();//平台是否回归零位对话框
 signals:
@@ -77,13 +79,16 @@ private slots:
 	void on_updateUiDataTimer();//刷新界面数据定时器溢出
 	void on_upsHomeCompleteTimer();//各轴回零完成状态判断
 	void on_upsJogTimer();
-	/**********PMAC按钮************/
+	/***************PMAC按钮************/
 	void on_connectPmacBtn_clicked();
 	void on_initPmacBtn_clicked();
-
-	/**************电机使能按钮************/
+	/*电机使能按钮*/
 	void on_servoOnBtn_clicked();
 	void on_servoOffBtn_clicked();
+	/*各轴回零*/
+	void on_axlesHomeBtn_clicked();
+	/*平台回零*/
+	void on_upsHomeBtn_clicked();
 	/*************设置运动原点*******************/
 	void on_tableSetOrigin_clicked();
 	/***********多轴运动***************/

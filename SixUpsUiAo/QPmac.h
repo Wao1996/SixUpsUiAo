@@ -29,7 +29,8 @@ public:
 	bool downloadFile(QString strFile);//下载程序
 
 	/*获取电机状态及变量*/
-	void getMotorsState(QList<PmacVariable> &pmacVariableRecipe, QList<VectorXd*> pmacVariableList);
+	QString creatPmacVariableCommand(QList<PmacVariable> &pmacVariableRecipe);//创建获取pmac变量在线命令的字符串
+	void getPmacVariable(QList<PmacVariable> &pmacVariableRecipe, QString strCommand, QList<VectorXd*> pmacVariableList);
 
 	/*设置P变量*/
 	void setPvariable(int p, double data);
@@ -67,8 +68,8 @@ public:
 		int flag);//flag 为1则是平动 为2则是转动
 	//并联机构长按点动 J模式
 	void upsJogJMove(Matrix<double, 6, 1> tarLengths,//并联机构 
-		Matrix<double, 6, 1> speed,//运动速度
-		int flag);//flag 为1则是平动 为2则是转动
+		Matrix<double, 6, 1> speed);//运动速度
+
 
 public slots:
 	void on_dataGatherTimer();
