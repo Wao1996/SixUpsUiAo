@@ -252,6 +252,7 @@ void SixUpsUiAo::myWidgetEnable()
 	ui.axlesHomeBtn->setEnabled(true);
 	ui.upsHomeBtn->setEnabled(true);
 	ui.tabWidget->setEnabled(true);
+	ui.pmacInitSta->setPixmap(onIcon);
 }
 
 void SixUpsUiAo::myWidgetDisnable()
@@ -755,12 +756,12 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 	if (MultiAxisDirectionID <= 3)
 	{
 		//平动
-		UPSData::multiJogMoveStep =  0.1;//最小运动步长
+		UPSData::multiJogMoveStep = UPSData::multiJogTranslationSpeed * 1000.0 / upsJogTimer->interval(); //最小运动步长
 	}
 	else
 	{
 		//转动
-		UPSData::multiJogMoveStep = 0.002;//最小运动步长
+		UPSData::multiJogMoveStep = UPSData::multiJogRotateSpeed * 1000.0 / upsJogTimer->interval();//最小运动步长
 	}
 	upsJogTimer->start();
 	/*int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
@@ -862,12 +863,12 @@ void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 	if (MultiAxisDirectionID <= 3)
 	{
 		//平动
-		UPSData::multiJogMoveStep = 0.3;//最小运动步长
+		UPSData::multiJogMoveStep = UPSData::multiJogTranslationSpeed * 1000.0 / upsJogTimer->interval();//运动步长
 	}
 	else
 	{
 		//转动
-		UPSData::multiJogMoveStep = 0.00;//最小运动步长
+		UPSData::multiJogMoveStep = UPSData::multiJogRotateSpeed * 1000.0 / upsJogTimer->interval();//运动步长
 	}
 	upsJogTimer->start();
 	/*int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向

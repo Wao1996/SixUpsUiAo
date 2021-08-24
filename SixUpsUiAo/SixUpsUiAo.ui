@@ -2803,7 +2803,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab_setOrigin">
      <attribute name="title">
@@ -3607,7 +3607,7 @@
           <string>沿X轴平动</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -3625,6 +3625,9 @@
         <widget class="QRadioButton" name="zRBtn">
          <property name="text">
           <string>沿Z轴平动</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
