@@ -34,7 +34,9 @@ public:
 
 	/*设置P变量*/
 	void setPvariable(int p, double data);
-
+	
+	void enablePLC(int num);//启动PLC
+	void disablePLC(int num);//关闭PLC
 	/*单轴运动控制*/
 	void jogDisp(int num, double disp);//距离点动
 	void jogPosContinuously(int num);//持续+运动

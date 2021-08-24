@@ -222,11 +222,22 @@ void QPmac::setPvariable(int p, double data)
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
 }
 
+void QPmac::enablePLC(int num)
+{
+	QString strCommand = "ENABLE PLC" + QString::number(num);
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+}
+
+void QPmac::disablePLC(int num)
+{
+	QString strCommand = "DISABLE PLC" + QString::number(num);
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+}
 void QPmac::jogDisp(int num, double disp)
 {
 	//»»Ëã³ÉÂö³å
 	int jog_disp_cts = disp * PmacData::cts2mm;//Î»ÒÆ×ªÎªÂö³å
-	QString strCts = QString::number(jog_disp_cts);
+	QString strCts = QString::number(jog_disp_cts,'f',1);
 	QString strNum = QString::number(num);
 	QString strCommand = "#"+ strNum+"j^" + strCts;
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
@@ -413,12 +424,13 @@ void QPmac::upsJogJMove(Matrix<double, 6, 1> tarAxlesL_norm, Matrix<double, 6, 1
 	QString strCommend;
 	for (int i = 1; i <= 6; i++)
 	{
-		strCommend.append("I" + QString::number(i) + "22=" + QString::number((speed(i - 1))));
+		strCommend.append("I" + QString::number(i) + "22=" + QString::number((speed(i - 1)), 'f', 4));
 	}
 	for (int i = 1; i <= 6; i++)
 	{
-		strCommend.append("#" + QString::number(i) + "J=" + QString::number((tarLengthCTS(i - 1))));
+		strCommend.append("#" + QString::number(i) + "J=" + QString::number((tarLengthCTS(i - 1)), 'f', 2));
 	}
+	qDebug() << strCommend;
 	Pmac0->GetResponse(pDeviceNumber, strCommend, pAnswer);
 }
 

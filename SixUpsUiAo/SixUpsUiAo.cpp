@@ -15,7 +15,7 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	myWidgetDisnable();
 	/*Pmac数据采集定时器*/
 	dataGatherTimer = new QTimer(this);
-	dataGatherTimer->setInterval(200);
+	dataGatherTimer->setInterval(100);
 	dataGatherTimer->setTimerType(Qt::CoarseTimer);
 
 	/*UI更新定时器*/
@@ -32,7 +32,7 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 
 	/*并联机构计算定时器*/
 	upsCalculateTimer = new QTimer(this);
-	upsCalculateTimer->setInterval(400);
+	upsCalculateTimer->setInterval(200);
 	upsCalculateTimer->setTimerType(Qt::CoarseTimer);
 
 	/*并联机构长按点动定时器*/
@@ -412,6 +412,7 @@ void SixUpsUiAo::on_upsHomeCompleteTimer()
 	}
 	if (PmacData::pVariable(2 - 1) == 1)
 	{
+		qDebug() << "P2=1";
 		GlobalSta::upsIsHome = true;//并联机构动平台回零程序完成
 	}
 	/*********各轴归零完成，平台未归零*******/
@@ -426,9 +427,11 @@ void SixUpsUiAo::on_upsHomeCompleteTimer()
 	if (GlobalSta::axlesIshome == true && GlobalSta::upsIsHome == true)
 	{
 		GlobalSta::axlesIshome = false;
+		GlobalSta::upsIsHome = false;
 		upsHomeSignalEmited = false;
 		WaitWindowUI->close();//关闭等待对话框
 		myPmac->setPvariable(2, 0); //将P2置0
+		myWidgetEnable();
 		upsHomeCompleteTimer->stop();
 		qDebug() << "WaitWindowUI->close() ";
 	}
@@ -461,8 +464,36 @@ void SixUpsUiAo::on_upsJogTimer()
 	//cout << UPSData::prsPosAndAngle << endl;
 	inverseSolution(UPSData::prsPosAndAngle, tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarAxlesL_norm = tarL_norm - UPSData::initL_norm;
-	delta_Lengths = (UPSData::lastAxlesL_norm - UPSData::tarAxlesL_norm).cwiseAbs();
-	axlesSpeed = delta_Lengths * PmacData::cts2mm / upsJogTimer->interval();
+	delta_Lengths = UPSData::tarAxlesL_norm - UPSData::lastAxlesL_norm;
+	axlesSpeed = delta_Lengths.cwiseAbs() * PmacData::cts2mm / upsJogTimer->interval();
+	/*判断负方向长按按钮按下时有没有轴在负限位，且轴的下一步也是向负方向运动*/
+	if (prsJogNegPressed == true && PmacData::negLimitState.sum() > 0 )
+	{
+		for (int i=0;i<6;i++)
+		{
+			if (delta_Lengths(i) < 0)
+			{
+				prsJogNegPressed = false;
+				qDebug() << "mutiAxlesJogNeg error:多轴运动长按负方向点动 限位！";
+				upsJogTimer->stop();
+				return;
+			}
+		}
+	}
+	else if (prsJogPosPressed == true && PmacData::posLimitState.sum() > 0)	
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			if (delta_Lengths(i) > 0)
+			{
+				prsJogNegPressed = false;
+				qDebug() << "mutiAxlesJogPos error:多轴运动长按正方向点动 限位！";
+				upsJogTimer->stop();
+				return;
+			}
+		}
+	}
+	//myPmac->enablePLC(1);
 	myPmac->upsJogJMove(UPSData::tarAxlesL_norm, axlesSpeed);
 	UPSData::lastAxlesL_norm = UPSData::tarAxlesL_norm;//更新
 	
@@ -533,12 +564,11 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 		//2.将上一次的PMAC杆长赋值给PMAC
 		//3.提示初始化完成
 		GlobalSta::upsIsHome = true;
-	}
-
-	if (GlobalSta::upsIsHome)
-	{
-		GlobalSta::upsIsHome = false;
-		myWidgetEnable();
+		if (GlobalSta::upsIsHome)
+		{
+			GlobalSta::upsIsHome = false;
+			myWidgetEnable();
+		}
 	}
 	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
 }
@@ -683,6 +713,8 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 
 void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 {
+	/*判断按下时有没有轴在负限位，且目标位姿也是负限位*/
+	prsJogNegPressed = true;
 	UPSData::prsPosAndAngle = UPSData::curPosAndAngle;
 	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
@@ -723,7 +755,7 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 	if (MultiAxisDirectionID <= 3)
 	{
 		//平动
-		UPSData::multiJogMoveStep =  0.3;//最小运动步长
+		UPSData::multiJogMoveStep =  0.1;//最小运动步长
 	}
 	else
 	{
@@ -782,12 +814,14 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 
 void SixUpsUiAo::on_prsMultiAxisJogNeg_released()
 {
+	prsJogNegPressed = false;
 	upsJogTimer->stop();
 	//myPmac->jogStop();
 }
 
 void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 {
+	prsJogPosPressed = true;
 	UPSData::prsPosAndAngle = UPSData::curPosAndAngle;
 	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
@@ -886,6 +920,7 @@ void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 
 void SixUpsUiAo::on_prsmultiAxisJogPos_released()
 {
+	prsJogPosPressed = false;
 	upsJogTimer->stop();
 	//myPmac->jogStop();
 }
