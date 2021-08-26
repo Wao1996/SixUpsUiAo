@@ -254,6 +254,31 @@ void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle, const Matrix<d
 
 
 
+void calibrateHingePoint(const Matrix<double, 3, 6>& point_theoretical, const Matrix<double, 3, 6>& point_measure, Matrix<double, 3, 6>& point_fact,Matrix<double, 3, 3> & Rot, Matrix<double, 3, 1> & Tran)
+{
+	rigidMotionSVDSolution(point_theoretical.cols(), point_theoretical, point_measure, Rot, Tran);
+	Matrix<double, 3, 6> Tran_Matrix;//位置向量拼接成矩阵
+	for (int i = 0; i < 6; i++)
+	{
+		Tran_Matrix.col(i) = Tran;
+	}
+	point_fact = Rot.inverse() * (point_measure - Tran_Matrix);
+	//cout << Rot.inverse();
+}
+
+void calibrateTargetPoint(const MatrixXd & point_measure, const Matrix<double, 3, 3>& Rot, const Matrix<double, 3, 1>& Tran, MatrixXd & point_fact)
+{
+	int rowNum = point_measure.rows();
+	int colNum = point_measure.cols();
+	MatrixXd Tran_Matrix(rowNum, colNum);//位置向量拼接成矩阵
+	for (int i = 0; i < colNum; i++)
+	{
+		Tran_Matrix.col(i) = Tran;
+	}
+	point_fact = Rot.inverse() * (point_measure - Tran_Matrix);
+}
+
+
 void calibrateInitLength(int n_D,/*动平台靶标点的个数 */ Matrix<double, 6, 1>& initL_norm,/*求得的初始杆长 */ const MatrixXd& Q_DD, /*动平台靶标点在自身坐标系下坐标，3行n_D列 */ const MatrixXd& Q_DM, /*动平台靶标点在测量坐标系中的坐标，3行n_D列 */ const Matrix<double, 3, 3>&R_SM,/*静平台相对测量系的旋转矩阵, */ const Matrix<double, 3, 1>&t_SM,/*平移, */ const Matrix<double, 3, 6>& D, /*动平台铰链点在动坐标系下坐标,结构参数 */ const Matrix<double, 3, 6>& S)
 {
 

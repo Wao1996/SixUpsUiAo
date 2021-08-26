@@ -1,0 +1,41 @@
+#define jogSpeedNegL -50 
+;向负限位运动时的回零速度(Counts / msec)
+#define jogSpeedHome 25	 
+;从负限位向零位运动时的回零速度(Counts / msec)
+Q1=0
+Q2=0
+Q3=0
+Q4=0
+Q5=0
+Q6=0
+OPEN PLC 2
+CLEAR
+IF (M122 = 0 AND Q1 = 0)           ;负限位无信号  
+I124=$120001            ;禁能限位 
+I123=jogSpeedNegL       ;回零速度(Counts / msec), 
+I126=0                  ;回零偏置,单位1/16 Count  
+I7013=2                 ;使用负限位为触发信号  
+I7012=7                 ;捕捉触发信号的上升沿及Z向的下降沿信号
+Q1=1
+CMD"#1HM"              ;回零  
+EndIf 
+IF (Q1=1)
+I123=jogSpeedHome       ;回零速度(Counts / msec),  
+I124=$100001            ;使能限位  
+I126=0                  ;回零偏置,单位1/16 Count  
+I7013=0                 ;使用原位信号为触发信号  
+I7012=7                 ;捕捉触发信号的上升沿及Z向的下降沿信号 
+Q1=2 
+CMD"#1HM"                 ;回零  
+EndIf 
+
+IF(Q1=2)
+Q1=0
+Q2=0
+Q3=0
+Q4=0
+Q5=0
+Q6=0
+DISABLE PLC2
+ENDIF
+CLOSE

@@ -37,18 +37,21 @@ QByteArray doubleListToByte(QList<double>, Endian);
 QList<double> vectorXd2QList(VectorXd);
 
 //遍历表中的数据到MatrixXd中,输出有数据的列序号（用于靶标点坐标的对应关系）
-void tableToMatrixXd(const QTableWidget* tab, MatrixXd &mat, vector<int> &dataIndex);
+bool tableToMatrixXd(const QTableWidget* tab, MatrixXd &mat, vector<int> &dataIndex);
 //遍历表中的数据到Matrix<double,3,6>中
-void tableToMatrixXd(const QTableWidget* tab, Matrix<double, 3, 6>& mat);
+bool tableToMatrixXd(const QTableWidget* tab, Matrix<double, 3, 6>& mat);
 //MatrixXd数据写入表中
-void matrixXdToTable(const MatrixXd &mat, QTableWidget* tab);
-void matrixXdToTable(const Matrix<double, 3, 6>&mat, QTableWidget* tab);
-void matrixXdToTable(const Matrix<double, 3, 1>&mat, QTableWidget* tab);
+bool matrixXdToTable(const MatrixXd &mat, QTableWidget* tab);
+/*void matrixXdToTable(const Matrix<double, 3, 6>&mat, QTableWidget* tab);
+void matrixXdToTable(const Matrix<double, 3, 1>&mat, QTableWidget* tab);*/
+//MatrixXd数据写入csv文件
+bool matrixXdToCsv(const MatrixXd &mat, const QString &filePath);
 //读取csv文件到表格
-void csvToTable(const QString &filePath, QTableWidget *tab);
+bool csvToTable(const QString &filePath, QTableWidget *tab);
 //读取csv文件到MatrixXd
-void csvToMatrixXd(const QString &filePath, Matrix<double, 3, 6> &mat);
-void csvToMatrixXd(const QString &filePath, Matrix<double, 6, 1> &mat);
-void csvToMatrixXd(const QString &filePath, MatrixXd &mat);
+bool csvToMatrixXd(const QString &filePath, Matrix<double, 6, 1> &mat);
+bool csvToMatrixXd(const QString &filePath, Matrix<double, 3, 6> &mat);
+bool csvToMatrixXd(const QString &filePath, MatrixXd &mat);
 //表格写入csv文件
-void tableToCsv(const QTableWidget *tab, const QString &filePath);
+bool tableToCsv(const QTableWidget *tab, const QString &filePath);
+

@@ -91,6 +91,18 @@ extern void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle,//动平
 //!**每次使用激光跟踪仪需要先找到静坐标系和激光跟踪仪测量坐标系的关系:R_SM、t_SM **
 //sixUPSRobotCalculate::rigidMotionSVDSolution(n_S, Q_SS, Q_SM, R_SM, t_SM);
 
+//!标定动静平台铰链点在自身坐标系下坐标
+extern void calibrateHingePoint(const Matrix<double, 3, 6> &point_theoretical,//平台铰链点在自身坐标系下坐标 理论值
+	const Matrix<double, 3, 6> & point_measure,//平台铰链点在测量坐标系下坐标
+	Matrix<double, 3, 6> & point_fact,//平台铰链点在自身坐标系下坐标 实际值
+	Matrix<double, 3, 3> & Rot,//平台自身坐标系 在测量坐标系下的姿态   旋转矩阵
+	Matrix<double, 3, 1> & Tran);//平台自身坐标系 在测量坐标系下的位置  位置向量
+
+//!标定动静平台靶标点在动静平台坐标系下坐标
+extern void calibrateTargetPoint(const MatrixXd &point_measure,//靶标点在测量坐标系下坐标
+	const Matrix<double, 3, 3> & Rot,//平台坐标系原点在测量坐标系下姿态：旋转矩阵
+	const Matrix<double, 3, 1> & Tran,//平台坐标系原点在测量坐标系下位置：位置向量
+	MatrixXd &point_fact);//靶标点在平台坐标系下坐标
 
 //!标定(求解)初始杆长
 extern void calibrateInitLength(int n_D,//动平台靶标点的个数

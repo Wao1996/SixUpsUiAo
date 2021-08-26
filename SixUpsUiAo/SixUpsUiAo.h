@@ -22,8 +22,6 @@ public:
 	ParameterCalibrate * ParameterCalibrateUI;
 	WaitWindow *WaitWindowUI;
 	bool upsHomeSignalEmited = false;//并联机构回零程序发送标志
-	bool prsJogNegPressed = false;//多轴运动 负方向长按点动 按下标志
-	bool prsJogPosPressed = false;//多轴运动 正方向长按点动 按下标志
 private:
     Ui::SixUpsUiAoClass ui;
 

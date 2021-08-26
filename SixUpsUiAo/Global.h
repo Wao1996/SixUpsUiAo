@@ -65,7 +65,7 @@ public:
 class LazerData
 {
 public:
-
+	
 };
 class UPSData
 {
@@ -80,48 +80,54 @@ public:
 	static double multiJogMoveStep;//多轴长按点动 运动步长
 
 	//建立坐标系
-	static MatrixXd circlePt;			//3*n(圆心拟合数据点个数) 
-	static Matrix <double, 3, 1> circleC;		//拟合的圆心坐标
+	static MatrixXd circlePt;				//3*n(圆心拟合数据点个数) 
+	static Matrix <double, 3, 1> circleC;	//拟合的圆心坐标
 	static double r;						//拟合的半径
+
 	//动平台坐标系
-	static Matrix <double, 3, 1> O_m_D;	//建立的动平台坐标系原点：圆心或跟踪仪测量点
-	static Matrix <double, 3, 1> X_m_D;	//第二个测量点为新坐标系x轴 **正** 方向上的一点
+	static Matrix <double, 3, 1> O_m_D;		//建立的动平台坐标系原点：圆心或跟踪仪测量点
+	static Matrix <double, 3, 1> X_m_D;		//第二个测量点为新坐标系x轴 **正** 方向上的一点
 	static Matrix <double, 3, 1> XOY_m_D;	//第三个测量点为新坐标系XOY平面上的一点(**在y轴正半轴空间**)
 	//静平台坐标系
-	static Matrix <double, 3, 1> O_m_S;	//建立的静平台坐标系原点：圆心或跟踪仪测量点
-	static Matrix <double, 3, 1> X_m_S;	//第二个测量点为新坐标系x轴 **正** 方向上的一点
+	static Matrix <double, 3, 1> O_m_S;		//建立的静平台坐标系原点：圆心或跟踪仪测量点
+	static Matrix <double, 3, 1> X_m_S;		//第二个测量点为新坐标系x轴 **正** 方向上的一点
 	static Matrix <double, 3, 1> XOY_m_S;	//第三个测量点为新坐标系XOY平面上的一点(**在y轴正半轴空间**)
 
-	static Matrix<double, 3, 3> R_SM;	//静平台坐标系相对测量坐标系的关系:旋转矩阵(每次重新放置跟踪仪都会测量计算)
-	static Matrix<double, 3, 1> t_SM;	//静平台坐标系相对测量坐标系的关系:平移矩阵
 
-	static Matrix<double, 3, 3> R_DM;	//动平台坐标系相对测量坐标系的关系:旋转矩阵(仅在结构参数标定时使用，其他情况在对应函数中作为中间变量直接计算得到)
-	static Matrix<double, 3, 1> t_DM;	//动平台坐标系相对测量坐标系的关系:平移矩阵
 	//运动坐标系下静平台下的描述
-	static Matrix<double, 3, 1>	O_set_S;//建立的运动坐标系原点，在静坐标系下的位置(默认与静坐标系相同)
+	static Matrix<double, 3, 1>	O_set_S;	//建立的运动坐标系原点，在静坐标系下的位置(默认与静坐标系相同)
 	static Matrix<double, 3, 1> X_set_S;
 	static Matrix<double, 3, 1> XOY_set_S;
-	static Matrix<double, 3, 3> R_SetS;//运动坐标系相对静坐标系的关系:旋转矩阵
-	static Matrix<double, 3, 1> t_SetS;//运动坐标系相对静坐标系的关系:平移矩阵
+	static Matrix<double, 3, 3> R_SetS;		//运动坐标系相对静坐标系的关系:旋转矩阵
+	static Matrix<double, 3, 1> t_SetS;		//运动坐标系相对静坐标系的关系:平移矩阵
 
-	//测量相关
-	static int n_D;						//测量的动平台靶标点个数
-	static MatrixXd Q_DM;				//3*n_D 动平台靶标点在测量系下坐标
-	static int n_S;						//测量的静平台靶标点个数
-	static MatrixXd Q_SM;				//3*n_S 静平台靶标点在测量系下坐标
-	static Matrix<double, 3, 6> D_M;		//动平台铰链点在测量坐标系下坐标
-	static Matrix<double, 3, 6> S_M;		//静平台铰链点在测量坐标系下坐标
-	//运动坐标系下测量坐标系下的描述
-	static Matrix<double, 3, 1>	O_set_M;	   //设定相对运动原点，在测量坐标系下的坐标
-	
+	//测量坐标系下
+	static int n_D;							//测量的动平台靶标点个数
+	static MatrixXd Q_DM;					//测量坐标系下 动平台靶标点坐标 3*n_S
+	static int n_S;							//测量的静平台靶标点个数
+	static MatrixXd Q_SM;					//测量坐标系下 静平台靶标点坐标 3*n_S
+	static Matrix<double, 3, 6> D_M;		//测量坐标系下 动平台铰链点坐标
+	static Matrix<double, 3, 6> S_M;		//测量坐标系下 静平台铰链点坐标
+	static Matrix<double, 3, 3> O_DM_r;		//测量坐标系下 动平台坐标系原点关系:旋转矩阵(平台标定时用，其余时候不用)
+	static Matrix<double, 3, 1> O_DM_t;		//测量坐标系下 动平台坐标系原点坐标:平移矩阵(平台标定时用，其余时候不用)
+	static Matrix<double, 3, 3> O_SM_r;		//测量坐标系下 静平台坐标系原点关系:旋转矩阵(平台标定时用，其余时候不用)
+	static Matrix<double, 3, 1> O_SM_t;		//测量坐标系下 静平台坐标系原点坐标:平移矩阵(平台标定时用，其余时候不用)
+	static Matrix<double, 3, 3> R_SM;		//静平台坐标系相对测量坐标系的关系:旋转矩阵(每次重新放置跟踪仪都会测量计算)
+	static Matrix<double, 3, 1> t_SM;		//静平台坐标系相对测量坐标系的关系:平移矩阵
+	static Matrix<double, 3, 3> R_DM;		//动平台坐标系相对测量坐标系的关系:旋转矩阵(仅在结构参数标定时使用，其他情况在对应函数中作为中间变量直接计算得到)
+	static Matrix<double, 3, 1> t_DM;		//动平台坐标系相对测量坐标系的关系:平移矩阵
+
+	static Matrix<double, 3, 1>	O_set_M;	//设定相对运动原点，在测量坐标系下的坐标
 
 	//结构参数与初始杆长标定
-	static Matrix<double, 3, 6> D;				//动平台铰链点在动坐标系下坐标
 	static int n_D_struct;						//动平台上靶标点个数
-	static MatrixXd Q_DD;						//3*n_D_struct 动平台靶标点在动系下坐标
-	static Matrix<double, 3, 6> S;				//静平台铰链点在静坐标系下坐标
 	static int n_S_struct;						//静平台上靶标点个数
+	static MatrixXd Q_DD;						//3*n_D_struct 动平台靶标点在动系下坐标
 	static MatrixXd Q_SS;						//3*n_S_struct 静平台靶标点在静系下坐标
+	static Matrix<double, 3, 6> D;				//动坐标系下 动平台铰链点坐标(实际值)
+	static Matrix<double, 3, 6> S;				//静坐标系下 静平台铰链点坐标(实际值)
+	static Matrix<double, 3, 6> D_theoretical;	//动坐标系下 动平台铰链点坐标(理论值) 用于确定动平台坐标系原点
+	static Matrix<double, 3, 6> S_theoretical;	//静坐标系下 静平台铰链点坐标(理论值) 用于确定静平台坐标系原点
 	static Matrix<double, 6, 1> initL_norm;		//并联机构各支链处于零位时 实际的杆长 单位 mm 
 
 
@@ -136,6 +142,7 @@ public:
 	static Matrix<double, 6, 1> lastL_norm;				//上一步的杆长
 	static Matrix<double, 6, 1> initPosAndAngle;		//正解初始位姿 单位 mm °
 	static Matrix<double, 6, 1> curPosAndAngle;		    //正解实时位姿 单位 mm °
+
 	static Matrix<double, 6, 1> realPosAndAngleByQD;	//激光跟踪仪测量靶标点计算得到的实际位姿
 	static Matrix<double, 6, 1> realPosAndAngleByMPt;	//激光跟踪仪测量待测点计算得到的实际位姿
 	static Matrix<double, 6, 1> compTarPosAndAngleByQD; //通过靶标点实际位姿补偿后得到的新目标位姿

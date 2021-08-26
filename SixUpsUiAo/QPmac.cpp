@@ -262,7 +262,7 @@ void QPmac::jogNegContinuously(int num)
 
 void QPmac::jogStop()
 {
-	QString strCommand =  "A#1j/#2j/#3j/#4j/#5j/#6j/";
+	QString strCommand =  "&1A&2A&3A&4A&5A&6A#1j/#2j/#3j/#4j/#5j/#6j/";
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
 	qDebug() << "jogStop:" << strCommand << ":" << pAnswer;
 }
@@ -430,7 +430,7 @@ void QPmac::upsJogJMove(Matrix<double, 6, 1> tarAxlesL_norm, Matrix<double, 6, 1
 	{
 		strCommend.append("#" + QString::number(i) + "J=" + QString::number((tarLengthCTS(i - 1)), 'f', 2));
 	}
-	qDebug() << strCommend;
+	//qDebug() << strCommend;
 	Pmac0->GetResponse(pDeviceNumber, strCommend, pAnswer);
 }
 
