@@ -72,7 +72,7 @@ Matrix<double, 6, 1> Rt2PosAngle(const Matrix<double, 3, 3>& R, const Matrix<dou
 }
 
 
-extern Matrix4d Rt2Trans(const Matrix<double, 3, 3>& R,/*旋转矩阵 */ const Matrix<double, 3, 1>& t)
+extern Matrix4d Rt2Trans(const Matrix<double, 3, 3>& R, const Matrix<double, 3, 1>& t)
 {
 	Matrix4d Trans = Matrix4d::Identity();
 	Trans.block<3, 3>(0, 0) = R;
@@ -195,7 +195,7 @@ void solvedFdx(const Matrix<double, 6, 1>& posAndAngle, const Matrix<double, 6, 
 	}
 }
 
-Matrix4d rigidMotionSVDSolution(const MatrixXd & Q_o/*点集Q在o自身坐标系中的坐标，3行n列*/, const MatrixXd & Q_m/*点集Q在m测量坐标系中的坐标，3行n列*/)
+Matrix4d rigidMotionSVDSolution(const MatrixXd & Q_o, const MatrixXd & Q_m)
 {
 	int n = Q_o.cols();
 	int p = Q_m.cols();
@@ -307,7 +307,7 @@ void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle_DS, const Matri
 
 }
 
-Matrix4d calibrateHingePoint(const Matrix<double, 3, 6>& point_theoretical/*平台铰链点在自身坐标系下坐标 理论值*/, const Matrix<double, 3, 6>& point_measure/*平台铰链点在测量坐标系下坐标 测量值*/, Matrix<double, 3, 6>& point_fact/*平台铰链点在自身坐标系下坐标 实际值*/)
+Matrix4d calibrateHingePoint(const Matrix<double, 3, 6>& point_theoretical, const Matrix<double, 3, 6>& point_measure, Matrix<double, 3, 6>& point_fact)
 {
 	Matrix4d TransSVD = Matrix4d::Zero();
 	TransSVD = rigidMotionSVDSolution(point_theoretical, point_measure);
@@ -318,7 +318,7 @@ Matrix4d calibrateHingePoint(const Matrix<double, 3, 6>& point_theoretical/*平�
 }
 
 
-void calibrateTargetPoint(const MatrixXd & point_measure/*靶标点集在测量坐标系下坐标 测量值*/, const Matrix4d & Trans/*平台坐标系相对测量坐标系的齐次变换矩阵*/, MatrixXd & point_fact/*靶标点集在平台坐标系下坐标 实际值*/)
+void calibrateTargetPoint(const MatrixXd & point_measure, const Matrix4d & Trans, MatrixXd & point_fact)
 {
 	MatrixXd  point_fact_homogeneous;
 	point_fact_homogeneous = Trans.inverse()*matrix2Homogeneous(point_measure);
@@ -351,6 +351,17 @@ Matrix<double, 6, 1> solveRealPosAndAngleByLazer(const Matrix4d & Trans_SM, cons
 	return realPosAndAngle;
 }
 
+Matrix<double, 6, 1> posAndAngleDset2DS(const Matrix<double, 6, 1> &posAndAngle_Dset, const Matrix4d &Trans_setS)
+{
+	//动平台位姿相对运动坐标系的齐次变换矩阵
+	Matrix4d Trans_Dset = posAngle2Trans(posAndAngle_Dset);
+	//动平台位姿相对静坐标系的齐次变换矩阵
+	Matrix4d Trans_DS = Trans_Dset * Trans_setS;
+	//动平台位姿齐次变换矩阵转化为目标位姿向量
+	Matrix<double, 6, 1> posAndAngle_DS = trans2PosAngle(Trans_DS);
+	return posAndAngle_DS;
+}
+
 
 MatrixXd solveMpt_D(const MatrixXd & Q_DD, const MatrixXd & Q_DM, const MatrixXd & MPt_M)
 {
@@ -376,7 +387,7 @@ Matrix<double, 6, 1> solveTarPosAndAnglebyMeasuredPt(const MatrixXd & MPt_D, con
 }
 
 
-void solveCompensationPosAndAngle(const Matrix<double, 6, 1> &inputPosAndAngle,/*面板输入的目标位姿 */ const Matrix<double, 6, 1> &realPosAndAngle,/*测得的当前实际位姿 */ Matrix<double, 6, 1> &posAndAngleAfterComp)
+void solveCompensationPosAndAngle(const Matrix<double, 6, 1> &inputPosAndAngle, const Matrix<double, 6, 1> &realPosAndAngle, Matrix<double, 6, 1> &posAndAngleAfterComp)
 {
 	//角度化为齐次矩阵
 	Matrix4d inputTrans;
@@ -389,4 +400,3 @@ void solveCompensationPosAndAngle(const Matrix<double, 6, 1> &inputPosAndAngle,/
 	//补偿后齐次矩阵化为角度
 	posAndAngleAfterComp = trans2PosAngle(transAfterComp);
 }
-

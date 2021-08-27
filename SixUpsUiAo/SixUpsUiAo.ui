@@ -2796,14 +2796,14 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>40</y>
+      <x>470</x>
+      <y>50</y>
       <width>561</width>
       <height>481</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -2865,8 +2865,8 @@
      <widget class="QPushButton" name="setOriginBtn">
       <property name="geometry">
        <rect>
-        <x>160</x>
-        <y>300</y>
+        <x>190</x>
+        <y>270</y>
         <width>121</width>
         <height>23</height>
        </rect>
@@ -2920,6 +2920,32 @@
       <attribute name="verticalHeaderStretchLastSection">
        <bool>false</bool>
       </attribute>
+     </widget>
+     <widget class="QPushButton" name="setSPosOriginBtn">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>330</y>
+        <width>231</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>将静坐标系原点设为运动原点</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="setCurPosOriginBtn">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>370</y>
+        <width>231</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>将当前位姿设为运动原点</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_multiAxis">

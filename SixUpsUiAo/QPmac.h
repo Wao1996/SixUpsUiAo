@@ -64,16 +64,6 @@ public:
 	void upsJogJMove(Matrix<double, 6, 1> tarAxlesL_norm,//并联机构 
 		Matrix<double, 6, 1> speed);//运动速度
 
-	//并联机构长按点动 Linear模式
-	void upsJogLinearMove(Matrix<double, 6, 1> moveDirection,//并联机构 运动方向
-					double speed,//运动速度
-					int flag);//flag 为1则是平动 为2则是转动
-	//并联机构长按点动 Spline1模式
-	void upsJogSpline1Move(Matrix<double, 6, 1> moveDirection,//并联机构 运动方向
-		double speed,//运动速度
-		int flag);//flag 为1则是平动 为2则是转动
-
-
 
 public slots:
 	void on_dataGatherTimer();

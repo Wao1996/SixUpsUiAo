@@ -1,3 +1,7 @@
+/*
+2021年8月27日 王傲 继承于邓钫元
+*/
+
 #pragma once
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -126,6 +130,10 @@ extern Matrix<double, 6, 1> solveRealPosAndAngleByLazer(const Matrix4d &Trans_SM
 	const MatrixXd &Q_DD,//3*n_D 动平台靶标点在动系下坐标,
 	const MatrixXd &Q_DM);//3*n_D 动平台靶标点在测量系下坐标,
 
+/*************************************************************************************/
+//动平台相对运动坐标系的位姿向量 转化为 动平台相对静坐标系的位姿向量
+extern Matrix<double, 6, 1> posAndAngleDset2DS(const Matrix<double, 6, 1> &posAndAngle_Dset,
+	const Matrix4d &Trans_setS);
 
 /****************************************************************************************/
 //!根据并联机器人上装配件的待测点组的坐标(激光跟踪仪测得的)计算需要输入的平台目标位姿

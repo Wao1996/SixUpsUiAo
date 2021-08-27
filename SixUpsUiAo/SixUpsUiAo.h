@@ -92,7 +92,9 @@ private slots:
 	/*平台回零*/
 	void on_upsHomeBtn_clicked();
 	/*************设置运动原点*******************/
-	void on_setOriginBtn_clicked();
+	void on_setOriginBtn_clicked();//将测量坐标系中的点设为运动原点
+	void on_setSPosOriginBtn_clicked();//将静坐标系原点设为运动原点
+	void on_setCurPosOriginBtn_clicked(); //将当前位姿设为运动原点
 	/***********多轴运动***************/
 	//联动
 	void on_getRealTimePosBtn_clicked();//获取当前位姿

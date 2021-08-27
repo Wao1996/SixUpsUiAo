@@ -14,6 +14,12 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	initConnect();
 	myWidgetDisnable();
 
+	UPSData::Trans_setS = Matrix4d::Identity();
+	Matrix<double, 6, 1> pos;
+	pos << 0, 0, 0, 10, 0, 0;
+	UPSData::Trans_setS = posAngle2Trans(pos);
+
+
 	/*Pmac数据采集定时器*/
 	dataGatherTimer = new QTimer(this);
 	dataGatherTimer->setInterval(100);
@@ -461,54 +467,32 @@ void SixUpsUiAo::on_upsJogTimer()
 	Matrix<double, 6, 1> delta_Lengths;//本次运动每个轴的运动增量 mm
 	Matrix<double, 6, 1> axlesSpeed;//每个轴的运动速度 mm/s
 	Matrix<double, 6, 1> tarL_norm;//目标杆长
-	UPSData::prsPosAndAngle_DS = UPSData::prsPosAndAngle_DS + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
-	//qDebug() << "UPSData::prsPosAndAngle_DS:";
-	//cout << UPSData::prsPosAndAngle_DS << endl;
-	inverseSolution(UPSData::prsPosAndAngle_DS, tarL_norm, UPSData::D, UPSData::S);
+	//动平台目标位姿 相对 运动坐标系的位姿向量
+	UPSData::prsPosAndAngle_Dset = UPSData::prsPosAndAngle_Dset + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
+	//动平台目标位姿 相对 静坐标系的位姿向量
+	Matrix<double, 6, 1> tarPosAndAngle_DS = posAndAngleDset2DS(UPSData::prsPosAndAngle_Dset, UPSData::Trans_setS);
+	//运动学反解反解
+	inverseSolution(tarPosAndAngle_DS, tarL_norm, UPSData::D, UPSData::S);
+	//求PMAC杆长
 	UPSData::tarAxlesL_norm = tarL_norm - UPSData::initL_norm;
+	//计算这一次各杆长度与上一次各杆长度的差值
 	delta_Lengths = UPSData::tarAxlesL_norm - UPSData::lastAxlesL_norm;
+	//用各杆长差值计算各杆的运动速度 保证每根杆同一时间到达目标位置
 	axlesSpeed = delta_Lengths.cwiseAbs() * PmacData::cts2mm / upsJogTimer->interval();
-	/*判断负方向长按按钮按下时有没有轴在负限位，且轴的下一步也是向负方向运动*/
+	/*判断 如果有杆在限位位置时还想限位方向运动 则终止运动*/
 	for (int i = 0; i < 6; i++)
 	{
 		if ((delta_Lengths(i) < 0 && PmacData::negLimitState(i) == 1) || (delta_Lengths(i) > 0 && PmacData::posLimitState(i) == 1))
 		{
-			//prsJogNegPressed = false;
-			qDebug() << "mutiAxlesJogNeg error:多轴运动长按负方向点动 限位！";
+			qDebug() << "mutiAxlesJogNeg error:多轴运动长按遭遇 限位！";
 			upsJogTimer->stop();
 			return;
 		}
 	}
-	/*if (prsJogNegPressed == true && PmacData::negLimitState.sum() > 0 )
-	{
-		for (int i=0;i<6;i++)
-		{
-			if (delta_Lengths(i) < 0)
-			{
-				prsJogNegPressed = false;
-				qDebug() << "mutiAxlesJogNeg error:多轴运动长按负方向点动 限位！";
-				upsJogTimer->stop();
-				return;
-			}
-		}
-	}
-	else if (prsJogPosPressed == true && PmacData::posLimitState.sum() > 0)	
-	{
-		for (int i = 0; i < 6; i++)
-		{
-			if (delta_Lengths(i) > 0)
-			{
-				prsJogNegPressed = false;
-				qDebug() << "mutiAxlesJogPos error:多轴运动长按正方向点动 限位！";
-				upsJogTimer->stop();
-				return;
-			}
-		}
-	}*/
 	//myPmac->enablePLC(1);
 	myPmac->upsJogJMove(UPSData::tarAxlesL_norm, axlesSpeed);
 	UPSData::lastAxlesL_norm = UPSData::tarAxlesL_norm;//更新
-	
+
 }
 
 void SixUpsUiAo::on_connectPmacBtn_clicked()
@@ -622,13 +606,23 @@ void SixUpsUiAo::on_setOriginBtn_clicked()
 	UPSData::Trans_setS = UPSData::Trans_SM.inverse()*Trans_set_M;
 }
 
+void SixUpsUiAo::on_setSPosOriginBtn_clicked()
+{
+	UPSData::Trans_setS = Matrix4d::Identity();
+}
+
+void SixUpsUiAo::on_setCurPosOriginBtn_clicked()
+{
+	UPSData::Trans_setS = UPSData::Trans_DS;
+}
+
 
 void SixUpsUiAo::on_getRealTimePosBtn_clicked()
 {
 	QString strPos;
 	for (int i = 0; i < 6; i++)
 	{
-		AbsTarPos_group[i]->setValue(UPSData::curPosAndAngle_DS(i));
+		AbsTarPos_group[i]->setValue(UPSData::curPosAndAngle_Dset(i));
 	}
 	qDebug() << "on_getRealTimePosBtn_clicked";
 }
@@ -637,9 +631,12 @@ void SixUpsUiAo::on_startMoveBtn_clicked()
 {
 	for (int i = 0; i < 6; i++)
 	{
-		UPSData::tarPosAndAngle_DS(i) = AbsTarPos_group[i]->value();
+		UPSData::tarPosAndAngle_Dset(i) = AbsTarPos_group[i]->value();
 	}
-	inverseSolution(UPSData::tarPosAndAngle_DS, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	Matrix<double, 6, 1> tarPosAndAngle_DS = posAndAngleDset2DS(UPSData::tarPosAndAngle_Dset, UPSData::Trans_setS);
+	//反解求杆长
+	inverseSolution(tarPosAndAngle_DS, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	//杆长减初始杆长得到PMAC杆长
 	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
 	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiSpeed);
 }
@@ -656,8 +653,8 @@ void SixUpsUiAo::absTarPos_group_valueChanged(double data)
 	QString btnNamePrefix = "xAbsTarPos";
 	int posNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//绝对位姿 x y z a b c的顺序号
 	int index = posNum - 1;//轴号减1才是索引号
-	UPSData::tarPosAndAngle_DS[index] = data;
-	qDebug() << "posNum:" << posNum << " tarPosAndAngle_DS:" << UPSData::tarPosAndAngle_DS[index];
+	UPSData::tarPosAndAngle_Dset[index] = data;
+	qDebug() << "posNum:" << posNum << " tarPosAndAngle_Dset:" << UPSData::tarPosAndAngle_Dset[index];
 }
 
 
@@ -718,8 +715,13 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
 		break;
 	}
-	Matrix<double, 6, 1> tarPosAndAngleTemp = UPSData::curPosAndAngle_DS + incPosAndAngle;
-	inverseSolution(tarPosAndAngleTemp, UPSData::tarL_norm, UPSData::D, UPSData::S);
+
+	//动平台目标位姿相对运动坐标系的位姿向量
+	Matrix<double, 6, 1> tarPosAndAngle_Dset = UPSData::curPosAndAngle_Dset + incPosAndAngle;
+	//动平台目标位相对静坐标系的位姿向量
+	Matrix<double, 6, 1> tarPosAndAngle_DS = posAndAngleDset2DS(UPSData::tarPosAndAngle_Dset, UPSData::Trans_setS);
+	//反解
+	inverseSolution(tarPosAndAngle_DS, UPSData::tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
 	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiJogTranslationSpeed);
 	
@@ -728,7 +730,7 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 {
 
-	UPSData::prsPosAndAngle_DS = UPSData::curPosAndAngle_DS;
+	UPSData::prsPosAndAngle_Dset = UPSData::curPosAndAngle_Dset;
 	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
 	/*设置运动方向*/
@@ -787,7 +789,7 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_released()
 void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 {
 
-	UPSData::prsPosAndAngle_DS = UPSData::curPosAndAngle_DS;
+	UPSData::prsPosAndAngle_Dset = UPSData::curPosAndAngle_Dset;
 	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
 	/*设置运动方向*/

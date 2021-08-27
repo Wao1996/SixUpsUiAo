@@ -5,7 +5,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
 //"./other/qss/psblack.css" //黑
 //"./other/qss/flatwhite.css"//白
 //"./other/qss/lightblue.css"//蓝
- bool GlobalSta::pmacIsConnected = false;
+ bool GlobalSta::pmacIsConnected = false; 
  bool GlobalSta::pmacIsInitialed = false;
  bool GlobalSta::axlesIshome = false;
  bool GlobalSta::upsIsHome = false;
@@ -66,7 +66,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  Matrix4d UPSData::Trans_DM = Matrix4d::Zero();			//动平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
  Matrix4d UPSData::Trans_SM = Matrix4d::Zero();			//静平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
  Matrix4d UPSData::Trans_DS = Matrix4d::Zero();			//动平台坐标系相对静平台坐标系齐次变换矩阵
- Matrix4d UPSData::Trans_Dset = Matrix4d::Zero();	//动平台坐标系相对运动坐标系齐次变换矩阵
+ Matrix4d UPSData::Trans_Dset = Matrix4d::Zero();   	//动平台坐标系相对运动坐标系齐次变换矩阵
 
  //结构参数与初始杆长
  int UPSData::n_D_struct = 6;										//动平台上靶标点个数
@@ -80,12 +80,14 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  Matrix<double, 6, 1> UPSData::initL_norm = MatrixXd::Zero(6, 1);	//初始杆长
 
  //当前位姿杆长数据
+
+ 
+ Matrix<double, 6, 1> UPSData::curPosAndAngle_Dset = MatrixXd::Zero(6, 1);
+ Matrix<double, 6, 1> UPSData::tarPosAndAngle_Dset = MatrixXd::Zero(6, 1);		//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
+ Matrix<double, 6, 1> UPSData::prsPosAndAngle_Dset = MatrixXd::Zero(6, 1);		//长按点动按下时的动平台相对运动坐标系位姿
  Matrix<double, 6, 1> UPSData::homePosAndAngle_DS = MatrixXd::Zero(6, 1);		//并联机构 平台零位位姿  单位 mm °
- Matrix<double, 6, 1> UPSData::tarPosAndAngle_DS = MatrixXd::Zero(6, 1);		//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
- Matrix<double, 6, 1> UPSData::prsPosAndAngle_DS = MatrixXd::Zero(6, 1);		//长按点动按下时的位姿
  Matrix<double, 6, 1> UPSData::initPosAndAngle_DS = MatrixXd::Zero(6, 1);		//正解初始位姿
  Matrix<double, 6, 1> UPSData::curPosAndAngle_DS = MatrixXd::Zero(6, 1);		//正解实时位姿
- Matrix<double, 6, 1> UPSData::curPosAndAngle_Dset = MatrixXd::Zero(6, 1);
  Matrix<double, 6, 1> UPSData::tarL_norm = MatrixXd::Zero(6, 1);			//有目标位姿反解得到的目标杆长 单位mm
  Matrix<double, 6, 1> UPSData::tarAxlesL_norm = MatrixXd::Zero(6, 1);       //得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
  Matrix<double, 6, 1> UPSData::lastAxlesL_norm = MatrixXd::Zero(6, 1);		//上一步的轴长
