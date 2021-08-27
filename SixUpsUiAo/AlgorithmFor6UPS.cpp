@@ -195,13 +195,13 @@ void solvedFdx(const Matrix<double, 6, 1>& posAndAngle, const Matrix<double, 6, 
 	}
 }
 
-Matrix4d rigidMotionSVDSolution(const MatrixXd & Q_o, const MatrixXd & Q_m)
+Matrix4d rigidMotionSVDSolution(const MatrixXd & Q_o/*点集Q在o自身坐标系中的坐标，3行n列*/, const MatrixXd & Q_m/*点集Q在m测量坐标系中的坐标，3行n列*/)
 {
 	int n = Q_o.cols();
 	int p = Q_m.cols();
 	if (n!=p)
 	{
-		cout << "rigidMotionSVDSolution ERROR! " << endl;
+		cout << "rigidMotionSVDSolution ERROR! : The number of point sets does not match" << endl;
 		return Matrix4d::Zero();
 	}
 	//求Q点集的均值
@@ -307,7 +307,7 @@ void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle_DS, const Matri
 
 }
 
-Matrix4d calibrateHingePoint(const Matrix<double, 3, 6>& point_theoretical, const Matrix<double, 3, 6>& point_measure, Matrix<double, 3, 6>& point_fact)
+Matrix4d calibrateHingePoint(const Matrix<double, 3, 6>& point_theoretical/*平台铰链点在自身坐标系下坐标 理论值*/, const Matrix<double, 3, 6>& point_measure/*平台铰链点在测量坐标系下坐标 测量值*/, Matrix<double, 3, 6>& point_fact/*平台铰链点在自身坐标系下坐标 实际值*/)
 {
 	Matrix4d TransSVD = Matrix4d::Zero();
 	TransSVD = rigidMotionSVDSolution(point_theoretical, point_measure);
@@ -318,7 +318,7 @@ Matrix4d calibrateHingePoint(const Matrix<double, 3, 6>& point_theoretical, cons
 }
 
 
-void calibrateTargetPoint(const MatrixXd & point_measure, const Matrix4d & Trans, MatrixXd & point_fact)
+void calibrateTargetPoint(const MatrixXd & point_measure/*靶标点集在测量坐标系下坐标 测量值*/, const Matrix4d & Trans/*平台坐标系相对测量坐标系的齐次变换矩阵*/, MatrixXd & point_fact/*靶标点集在平台坐标系下坐标 实际值*/)
 {
 	MatrixXd  point_fact_homogeneous;
 	point_fact_homogeneous = Trans.inverse()*matrix2Homogeneous(point_measure);

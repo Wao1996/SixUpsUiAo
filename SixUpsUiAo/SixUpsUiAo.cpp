@@ -13,6 +13,7 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	initTablesStyle();
 	initConnect();
 	myWidgetDisnable();
+
 	/*Pmac数据采集定时器*/
 	dataGatherTimer = new QTimer(this);
 	dataGatherTimer->setInterval(100);

@@ -42,8 +42,6 @@ bool tableToMatrixXd(const QTableWidget* tab, MatrixXd &mat, vector<int> &dataIn
 bool tableToMatrixXd(const QTableWidget* tab, Matrix<double, 3, 6>& mat);
 //MatrixXd数据写入表中
 bool matrixXdToTable(const MatrixXd &mat, QTableWidget* tab);
-/*void matrixXdToTable(const Matrix<double, 3, 6>&mat, QTableWidget* tab);
-void matrixXdToTable(const Matrix<double, 3, 1>&mat, QTableWidget* tab);*/
 //MatrixXd数据写入csv文件
 bool matrixXdToCsv(const MatrixXd &mat, const QString &filePath);
 //读取csv文件到表格

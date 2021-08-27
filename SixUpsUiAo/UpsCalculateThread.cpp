@@ -18,8 +18,9 @@ void UpsCalculateThread::on_upsCalculateTimer()
 	UPSData::initPosAndAngle_DS = UPSData::curPosAndAngle_DS;
 	//求动平台相对静平台实时齐次变换矩阵
 	UPSData::Trans_DS = posAngle2Trans(UPSData::curPosAndAngle_DS);
+	//求动平台相对运动坐标系的实时齐次变换矩阵
 	UPSData::Trans_Dset = UPSData::Trans_setS.inverse() * UPSData::Trans_DS ;
-	
+	//将动平台相对运动坐标系的实时齐次变换矩阵转换为位姿向量
 	UPSData::curPosAndAngle_Dset = trans2PosAngle(UPSData::Trans_Dset);
 	for (int i = 0; i < 6; i++)
 	{

@@ -7,13 +7,13 @@
 using namespace std;
 using namespace  Eigen;
 
-//矩阵增加一行为1行向量 变为齐次矩阵
+//矩阵增加一行为全为1的行向量 使其变为齐次矩阵
 extern MatrixXd matrix2Homogeneous(const MatrixXd & mat);
 
 //齐次矩阵减少最后一行
 extern MatrixXd homogeneous2Matrix(const MatrixXd & mat_hom);
 
-//旋转矩阵转RPY角 按照YPR顺序输出
+//旋转矩阵转RPY角 按照YPR顺序输出 
 extern Vector3d R2ypr(const Eigen::Matrix3d& R);
 
 //xyzabc姿态转换为旋转矩阵R和平移矩阵t
@@ -48,10 +48,10 @@ extern void solveOriginalPtBySphere(const MatrixXd &pt,//空间点构成的矩�
 	double &r);//输出半径
 
 //使用激光跟踪仪测量三点，建立直角坐标右手系o(三点尽量远点)
-//激光跟踪仪再测的其他点Q_m可以转换到o系坐标 
-extern Matrix4d creatCoordSysGetRt(const Matrix<double, 3, 1>& O_m,//第一个测量点为新坐标系的原点（**使用中心法或直接测得**）
-	const Matrix<double, 3, 1>& X_m, //第二个测量点为新坐标系x轴 **正** 方向上的一点
-	const Matrix<double, 3, 1>& XOY_m);//第三个测量点为新坐标系XOY平面上的一点(**在y轴正半轴空间**)
+//<返回>新建立的坐标系相对测量坐标系的齐次变换矩阵
+extern Matrix4d creatCoordSysGetRt(const Matrix<double, 3, 1>& O_m,//第一个测量点 为新坐标系的原点在测量坐标系下的坐标（**使用中心法或直接测得**）
+	const Matrix<double, 3, 1>& X_m, //第二个测量点 为新坐标系x轴正方向上的一点在测量坐标系下的坐标
+	const Matrix<double, 3, 1>& XOY_m);//第三个测量点 为新坐标系XOY平面上的一点在测量坐标系下的坐标 (**在y轴正半轴空间**)
 
 /******************************************************************************************/
 
@@ -77,7 +77,8 @@ extern void solvedFdx(const Matrix<double, 6, 1>& posAndAngle,//xyzabc姿态信�
 	Matrix<double, 6, 6>& dFdx);//得出的结果dF/dX 6*6矩阵
 
 
-//SVD法求解两坐标系中对应点集的变换矩阵 Trans*Q_o=Q_m
+//SVD法求解两坐标系中对应点集的变换矩阵 
+//<返回> Q_m相对Q_o的齐次变换矩阵Trans 即Trans*Q_o_hom=Q_m_hom
 extern Matrix4d rigidMotionSVDSolution(const MatrixXd& Q_o, //点集Q在o自身坐标系中的坐标，3行n列
 	const MatrixXd& Q_m);//点集Q在m测量坐标系中的坐标，3行n列
 
@@ -98,16 +99,17 @@ extern void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle_DS,//动
 //!**每次使用激光跟踪仪需要先找到静坐标系和激光跟踪仪测量坐标系的关系:R_SM、t_SM **
 //sixUPSRobotCalculate::rigidMotionSVDSolution(n_S, Q_SS, Q_SM, R_SM, t_SM);
 
-//!标定动静平台铰链点在自身坐标系下坐标
+//标定动静平台铰链点在自身坐标系下坐标
+//<返回> 平台相对测量坐标系的齐次变换矩阵Trans 
 extern Matrix4d calibrateHingePoint(const Matrix<double, 3, 6> &point_theoretical,//平台铰链点在自身坐标系下坐标 理论值
-	const Matrix<double, 3, 6> & point_measure,//平台铰链点在测量坐标系下坐标
+	const Matrix<double, 3, 6> & point_measure,//平台铰链点在测量坐标系下坐标 测量值
 	Matrix<double, 3, 6> & point_fact);//平台铰链点在自身坐标系下坐标 实际值
 
 
 //!标定动静平台靶标点在动静平台坐标系下坐标
-extern void calibrateTargetPoint(const MatrixXd &point_measure,//靶标点在测量坐标系下坐标
-	const Matrix4d & Trans,//平台坐标系原点在测量坐标系下姿态：旋转矩阵
-	MatrixXd &point_fact);//靶标点在平台坐标系下坐标
+extern void calibrateTargetPoint(const MatrixXd &point_measure,//靶标点集在测量坐标系下坐标 测量值
+	const Matrix4d & Trans,//平台坐标系相对测量坐标系的齐次变换矩阵
+	MatrixXd &point_fact);//靶标点集在平台坐标系下坐标 实际值
 
 //!标定(求解)初始杆长
 extern void calibrateInitLength(Matrix<double, 6, 1>& initL_norm,//求得的初始杆长
@@ -118,7 +120,8 @@ extern void calibrateInitLength(Matrix<double, 6, 1>& initL_norm,//求得的初�
 	const Matrix<double, 3, 6>& S);//静台铰链点在静平台坐标系下坐标,结构参数
 
 
-//!利用激光跟踪仪和靶标点求解实际位姿，若将n_D、Q_DD、Q_DM换为n_MPt、MPt_D、MPt_M即是通过待测点计算实际位姿
+//!利用激光跟踪仪和靶标点求解实际位姿
+//<返回> 相对静平台坐标系的实际位姿
 extern Matrix<double, 6, 1> solveRealPosAndAngleByLazer(const Matrix4d &Trans_SM,//静平台相对测量系的齐次变换矩阵
 	const MatrixXd &Q_DD,//3*n_D 动平台靶标点在动系下坐标,
 	const MatrixXd &Q_DM);//3*n_D 动平台靶标点在测量系下坐标,
@@ -127,13 +130,16 @@ extern Matrix<double, 6, 1> solveRealPosAndAngleByLazer(const Matrix4d &Trans_SM
 /****************************************************************************************/
 //!根据并联机器人上装配件的待测点组的坐标(激光跟踪仪测得的)计算需要输入的平台目标位姿
 //以下分两个函数写目的是使待测点组合动系的关系更灵活，若发生改变可以重新计算，若未变则只需计算一次
-//求待测点组在动系下的坐标 3*n_MPt 输出待测点组在动系下的坐标
+
+//求待测点组在动系下的坐标 
+//<返回>待测点组在动系下的坐标
 extern MatrixXd solveMpt_D(const MatrixXd &Q_DD,//3*n_D 动平台靶标点在动系下坐标,
 	const MatrixXd &Q_DM,//3*n_D 动平台靶标点在测量系系下坐标,
 	const MatrixXd &MPt_M);//3*n_MPt 待测点组在测量系系下坐标,
 
 
-//求基于待测点的并联平台目标位姿,即求R_tarDS,t_tarDS后转为tarPosAndAngleByMPt
+//求基于待测点的并联平台目标位姿
+//<返回>相对静坐标系的目标位姿
 extern Matrix<double, 6, 1> solveTarPosAndAnglebyMeasuredPt(const MatrixXd &MPt_D,//待测点组在动系下的坐标
 	const MatrixXd &tarMPt_M,//!目标待测点组在测量坐标系下的坐标
 	const Matrix4d &Trans_DM,//动平台相对测量系的齐次变换矩阵
