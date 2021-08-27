@@ -2796,38 +2796,62 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>510</x>
+      <x>460</x>
       <y>40</y>
-      <width>471</width>
+      <width>561</width>
       <height>481</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>测量准备</string>
+     </attribute>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>40</y>
+        <width>131</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>标定动平台靶标点</string>
+      </property>
+     </widget>
+    </widget>
     <widget class="QWidget" name="tab_setOrigin">
      <attribute name="title">
       <string>原点设置</string>
      </attribute>
      <widget class="QRadioButton" name="MsetOriginRBtn">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>50</x>
         <y>40</y>
-        <width>89</width>
+        <width>131</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
        <string>测量坐标系下</string>
       </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
      </widget>
      <widget class="QRadioButton" name="SsetOriginRBtn">
       <property name="geometry">
        <rect>
-        <x>160</x>
+        <x>180</x>
         <y>40</y>
-        <width>121</width>
+        <width>161</width>
         <height>16</height>
        </rect>
       </property>
@@ -2835,15 +2859,15 @@
        <string>在静平台坐标系下</string>
       </property>
       <property name="checked">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
      </widget>
      <widget class="QPushButton" name="setOriginBtn">
       <property name="geometry">
        <rect>
-        <x>90</x>
-        <y>310</y>
-        <width>91</width>
+        <x>160</x>
+        <y>300</y>
+        <width>121</width>
         <height>23</height>
        </rect>
       </property>

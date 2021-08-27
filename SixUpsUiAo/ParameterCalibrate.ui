@@ -16,8 +16,8 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>10</y>
+     <x>110</x>
+     <y>20</y>
      <width>821</width>
      <height>161</height>
     </rect>
@@ -138,18 +138,18 @@
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>180</y>
+     <x>40</x>
+     <y>200</y>
      <width>951</width>
      <height>581</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
-     <string>测量坐标系下</string>
+     <string>铰点靶点测量</string>
     </attribute>
     <widget class="QLabel" name="label_5">
      <property name="geometry">
@@ -333,7 +333,7 @@
     <widget class="QPushButton" name="dHingeCalbrateBtn">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>60</x>
        <y>230</y>
        <width>191</width>
        <height>28</height>
@@ -359,8 +359,8 @@
     <widget class="QPushButton" name="sHingeCalbrateBtn">
      <property name="geometry">
       <rect>
-       <x>630</x>
-       <y>230</y>
+       <x>540</x>
+       <y>240</y>
        <width>191</width>
        <height>28</height>
       </rect>
@@ -375,8 +375,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>140</x>
-       <y>470</y>
+       <x>80</x>
+       <y>460</y>
        <width>191</width>
        <height>28</height>
       </rect>
@@ -391,8 +391,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>620</x>
-       <y>470</y>
+       <x>530</x>
+       <y>460</y>
        <width>191</width>
        <height>28</height>
       </rect>
@@ -401,11 +401,56 @@
       <string>标定静平台靶标点</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="saveMeasureDataBtn">
+    <widget class="QPushButton" name="saveQ_DMBtn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
-       <x>380</x>
-       <y>500</y>
+       <x>290</x>
+       <y>460</y>
+       <width>191</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>保存测量数据</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="saveD_MBtn">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>230</y>
+       <width>191</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>保存测量数据</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="saveS_MBtn">
+     <property name="geometry">
+      <rect>
+       <x>740</x>
+       <y>240</y>
+       <width>191</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>保存测量数据</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="saveQ_SMBtn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>740</x>
+       <y>460</y>
        <width>191</width>
        <height>28</height>
       </rect>
@@ -417,7 +462,7 @@
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
-     <string>Tab 2</string>
+     <string>铰点靶点标定结果</string>
     </attribute>
     <widget class="QLabel" name="label_2">
      <property name="geometry">
@@ -436,7 +481,7 @@
      <property name="geometry">
       <rect>
        <x>490</x>
-       <y>260</y>
+       <y>300</y>
        <width>400</width>
        <height>140</height>
       </rect>
@@ -465,19 +510,6 @@
      <attribute name="horizontalHeaderMinimumSectionSize">
       <number>30</number>
      </attribute>
-    </widget>
-    <widget class="QPushButton" name="saveCalibrateDataBtn">
-     <property name="geometry">
-      <rect>
-       <x>380</x>
-       <y>460</y>
-       <width>141</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>保存标定数据</string>
-     </property>
     </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
@@ -538,8 +570,8 @@
     <widget class="QLabel" name="label_3">
      <property name="geometry">
       <rect>
-       <x>110</x>
-       <y>210</y>
+       <x>130</x>
+       <y>260</y>
        <width>201</width>
        <height>21</height>
       </rect>
@@ -551,8 +583,8 @@
     <widget class="QTableWidget" name="tableQ_DD">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>260</y>
+       <x>40</x>
+       <y>300</y>
        <width>400</width>
        <height>140</height>
       </rect>
@@ -586,7 +618,7 @@
      <property name="geometry">
       <rect>
        <x>610</x>
-       <y>220</y>
+       <y>260</y>
        <width>201</width>
        <height>21</height>
       </rect>
@@ -614,6 +646,245 @@
       <size>
        <width>16777215</width>
        <height>140</height>
+      </size>
+     </property>
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropOverwriteMode">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DragDrop</enum>
+     </property>
+     <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>30</number>
+     </attribute>
+    </widget>
+    <widget class="QPushButton" name="saveQ_DDBtn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>460</y>
+       <width>191</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>保存标定数据</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="saveQ_SSBtn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>620</x>
+       <y>460</y>
+       <width>191</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>保存标定数据</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="saveSBtn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>620</x>
+       <y>220</y>
+       <width>191</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>保存标定数据</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="saveDBtn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>210</y>
+       <width>191</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>保存标定数据</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_3">
+    <attribute name="title">
+     <string>初始杆长标定</string>
+    </attribute>
+    <widget class="QTableWidget" name="tableQ_SM_initL">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>80</y>
+       <width>400</width>
+       <height>140</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>140</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>140</height>
+      </size>
+     </property>
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropOverwriteMode">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DragDrop</enum>
+     </property>
+     <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>30</number>
+     </attribute>
+    </widget>
+    <widget class="QTableWidget" name="tableQ_DM_initL">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>290</y>
+       <width>400</width>
+       <height>140</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>140</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>140</height>
+      </size>
+     </property>
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropOverwriteMode">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DragDrop</enum>
+     </property>
+     <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>30</number>
+     </attribute>
+    </widget>
+    <widget class="QLabel" name="label_9">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>40</y>
+       <width>251</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>静平台靶标点在测量坐标系下坐标</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_10">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>250</y>
+       <width>251</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>动平台靶标点在测量坐标系下坐标</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="ininLcalbrateBtn">
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>90</y>
+       <width>141</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>标定初始初始杆长</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="saveInitLBtn">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>130</y>
+       <width>141</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>保存初始杆长数据</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_11">
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>30</y>
+       <width>181</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>各靶标点要按顺序标定</string>
+     </property>
+    </widget>
+    <widget class="QTableWidget" name="tableInitL">
+     <property name="geometry">
+      <rect>
+       <x>730</x>
+       <y>80</y>
+       <width>145</width>
+       <height>230</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>230</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>230</height>
       </size>
      </property>
      <property name="dragEnabled">

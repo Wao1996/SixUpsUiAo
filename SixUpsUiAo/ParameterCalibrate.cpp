@@ -19,92 +19,73 @@ ParameterCalibrate::~ParameterCalibrate()
 
 void ParameterCalibrate::initTablesStyle()
 {
-	int rowHeight = 30;//行高
-	int colWidth = 80;//列宽
-	int scrollBarHeight = 25;//滚动条高
-	/*****tableCirclePt 待拟合参数******/
-	setTablesStyle(ui.tableCirclePt);
-	//列设置
-	ui.tableCirclePt->setColumnCount(4);
-	QStringList tableCirclePtHorizontalHeader;
-	tableCirclePtHorizontalHeader << "点1" << "点2" << "点3"<< "点4";
-	ui.tableCirclePt->setHorizontalHeaderLabels(tableCirclePtHorizontalHeader);
-	/**********tableCircleC  拟合后数据*****************/
-	setTablesStyle(ui.tableCircleC);
-	//列设置
-	ui.tableCircleC->setColumnCount(1);
-	QStringList tableCircleCHorizontalHeader;
-	tableCircleCHorizontalHeader << "圆心" ;
-	ui.tableCircleC->setHorizontalHeaderLabels(tableCircleCHorizontalHeader);
 
+	QStringList VerticalHeaderXYZ;
+	VerticalHeaderXYZ << "X" << "Y" << "Z";
+	/*****tableCirclePt 待拟合参数******/
+	QStringList tableCirclePtHorizontalHeader;
+	tableCirclePtHorizontalHeader << "点1" << "点2" << "点3" << "点4";
+	setTablesStyle(ui.tableCirclePt, VerticalHeaderXYZ, tableCirclePtHorizontalHeader);
+	/**********tableCircleC  拟合后数据*****************/
+	QStringList tableCircleCHorizontalHeader;
+	tableCircleCHorizontalHeader << "圆心";
+	setTablesStyle(ui.tableCircleC, VerticalHeaderXYZ, tableCircleCHorizontalHeader);
+	/*****tableD_M ******/
 	QStringList tableD_HorizontalHeader;
 	tableD_HorizontalHeader << "动铰点1" << "动铰点2" << "动铰点3" << "动铰点4" << "动铰点5" << "动铰点6";
-	/*****tableD_M ******/
-	setTablesStyle(ui.tableD_M);
-	//列设置
-	ui.tableD_M->setColumnCount(6);
-	ui.tableD_M->setHorizontalHeaderLabels(tableD_HorizontalHeader);
+	setTablesStyle(ui.tableD_M, VerticalHeaderXYZ, tableD_HorizontalHeader);
 	/*****tableD ******/
-	setTablesStyle(ui.tableD);
-	//列设置
-	ui.tableD->setColumnCount(6);
-	ui.tableD->setHorizontalHeaderLabels(tableD_HorizontalHeader);
-
 	QStringList tableS_HorizontalHeader;
 	tableS_HorizontalHeader << "静铰点1" << "静铰点2" << "静铰点3" << "静铰点4" << "静铰点5" << "静铰点6";
+	setTablesStyle(ui.tableD, VerticalHeaderXYZ, tableS_HorizontalHeader);
 	/*****tableS_M ******/
-	setTablesStyle(ui.tableS_M);
-	//列设置
-	ui.tableS_M->setColumnCount(6);
-	ui.tableS_M->setHorizontalHeaderLabels(tableS_HorizontalHeader);
+	setTablesStyle(ui.tableS_M, VerticalHeaderXYZ, tableS_HorizontalHeader);
 	/*****tableS ******/
-	setTablesStyle(ui.tableS);
-	//列设置
-	ui.tableS->setColumnCount(6);
-	ui.tableS->setHorizontalHeaderLabels(tableS_HorizontalHeader);
-
-	QStringList tableQ_D_StructHorizontalHeader;
-	tableQ_D_StructHorizontalHeader << "动靶标1" << "动靶标2" << "动靶标3" << "动靶标4" << "动靶标5" << "动靶标6";
+	setTablesStyle(ui.tableS, VerticalHeaderXYZ, tableS_HorizontalHeader);
 	/*****tableQ_DM ******/
-	setTablesStyle(ui.tableQ_DM);
-	//列设置
-	ui.tableQ_DM->setColumnCount(6);
-	ui.tableQ_DM->setHorizontalHeaderLabels(tableQ_D_StructHorizontalHeader);
+	QStringList tableQ_DHorizontalHeader;
+	tableQ_DHorizontalHeader << "动靶标1" << "动靶标2" << "动靶标3" << "动靶标4" << "动靶标5" << "动靶标6";
+	setTablesStyle(ui.tableQ_DM, VerticalHeaderXYZ, tableQ_DHorizontalHeader);
 	/*****tableQ_DD ******/
-	setTablesStyle(ui.tableQ_DD);
-	//列设置
-	ui.tableQ_DD->setColumnCount(6);
-	ui.tableQ_DD->setHorizontalHeaderLabels(tableQ_D_StructHorizontalHeader);
-
 	QStringList tableQ_S_HorizontalHeader;
 	tableQ_S_HorizontalHeader << "静靶标1" << "静靶标2" << "静靶标3" << "静靶标4" << "静靶标5" << "静靶标6";
+	setTablesStyle(ui.tableQ_DD, VerticalHeaderXYZ, tableQ_DHorizontalHeader);
 	/*****tableQ_SM ******/
-	setTablesStyle(ui.tableQ_SM);
-	//列设置
-	ui.tableQ_SM->setColumnCount(6);
-	ui.tableQ_SM->setHorizontalHeaderLabels(tableQ_S_HorizontalHeader);
+	setTablesStyle(ui.tableQ_SM, VerticalHeaderXYZ, tableQ_S_HorizontalHeader);
 	/*****tableQ_SS ******/
-	setTablesStyle(ui.tableQ_SS);
-	//列设置
-	ui.tableQ_SS->setColumnCount(6);
-	ui.tableQ_SS->setHorizontalHeaderLabels(tableQ_S_HorizontalHeader);
+	setTablesStyle(ui.tableQ_SS, VerticalHeaderXYZ, tableQ_S_HorizontalHeader);
+	/*tableQ_SM_initL*/
+	setTablesStyle(ui.tableQ_SM_initL, VerticalHeaderXYZ, tableQ_S_HorizontalHeader);
+	/*tableQ_DM_initL*/
+	setTablesStyle(ui.tableQ_DM_initL, VerticalHeaderXYZ, tableQ_DHorizontalHeader);
+	/*tableInitL*/
+	QStringList tableInitL_HorizontalHeader;
+	tableInitL_HorizontalHeader << "初始杆长mm";
+	QStringList tableInitL_VerticalHeader;
+	tableInitL_VerticalHeader << "杆1" << "杆2" << "杆3" << "杆4" << "杆5" << "杆6";
+	setTablesStyle(ui.tableInitL, tableInitL_VerticalHeader, tableInitL_HorizontalHeader,45);
+
+
 }
 
-void ParameterCalibrate::setTablesStyle(QTableWidget * table)
+void ParameterCalibrate::setTablesStyle(QTableWidget * table, QStringList VerticalHeader, QStringList HorizontalHeader,int verticalHeaderWidth)
 {
 	int rowHeight = 30;//行高
 	int colWidth = 100;//列宽
 	int scrollBarHeight = 20;//滚动条高
-	QStringList VerticalHeaderXYZ;
-	VerticalHeaderXYZ << "X" << "Y" << "Z";
+	int rowNum = VerticalHeader.size();
+	int colNum = HorizontalHeader.size();
 	//列设置
+	table->setColumnCount(colNum);
 	table->horizontalHeader()->setDefaultSectionSize(colWidth);
+	table->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
+	table->setHorizontalHeaderLabels(HorizontalHeader);
 	//行设置
-	table->setRowCount(3);
+	table->setRowCount(rowNum);
 	table->verticalHeader()->setVisible(true);//行号可见
-	table->setVerticalHeaderLabels(VerticalHeaderXYZ);
+	table->setVerticalHeaderLabels(VerticalHeader);
 	table->verticalHeader()->setFont(QFont("黑体", 10));
-	table->verticalHeader()->setFixedWidth(30);
+	table->verticalHeader()->setFixedWidth(verticalHeaderWidth);
 	table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 
 	table->horizontalHeader()->setStretchLastSection(true);//行头自适应表格
@@ -113,7 +94,7 @@ void ParameterCalibrate::setTablesStyle(QTableWidget * table)
 	table->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 	table->setAlternatingRowColors(true);//行奇偶颜色不同
 	table->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
-	table->setFixedHeight(4 * rowHeight + scrollBarHeight);
+	table->setFixedHeight((rowNum+1) * rowHeight + scrollBarHeight);
 }
 
 
@@ -155,16 +136,26 @@ void ParameterCalibrate::on_calCircleS_clicked()
 	}
 }
 
+void ParameterCalibrate::on_inputTestDataBtn_clicked()
+{
+	csvToTable("./Data/S_M_test.csv", ui.tableS_M);
+	csvToTable("./Data/D_M_test.csv", ui.tableD_M);
+	csvToTable("./Data/Q_SM_test.csv", ui.tableQ_SM);
+	csvToTable("./Data/Q_DM_test.csv", ui.tableQ_DM);
+}
+
 void ParameterCalibrate::on_dHingeCalbrateBtn_clicked()
 {
-	//计算动平台坐标系原点在测量坐标系下的位姿
+
 	tableToMatrixXd(ui.tableD_M, UPSData::D_M);
-	calibrateHingePoint(UPSData::D_theoretical, UPSData::D_M, UPSData::D, UPSData::O_DM_r, UPSData::O_DM_t);
+	Trans_DM_calibrate = calibrateHingePoint(UPSData::D_theoretical, UPSData::D_M, UPSData::D );
+	
 	bool flag = matrixXdToTable(UPSData::D, ui.tableD);
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "动平台铰链点标定成功");
 		ui.dTargetCalbrateBtn->setEnabled(true);
+		ui.saveDBtn->setEnabled(true);
 	}
 	else
 	{
@@ -177,12 +168,14 @@ void ParameterCalibrate::on_sHingeCalbrateBtn_clicked()
 {
 	//计算静平台坐标系原点在测量坐标系下的位姿
 	tableToMatrixXd(ui.tableS_M, UPSData::S_M);
-	calibrateHingePoint(UPSData::S_theoretical, UPSData::S_M, UPSData::S, UPSData::O_SM_r, UPSData::O_SM_t);
+	Trans_SM_calibrate = calibrateHingePoint(UPSData::S_theoretical, UPSData::S_M, UPSData::S);
+	cout << Trans_SM_calibrate;
 	bool flag = matrixXdToTable(UPSData::S, ui.tableS);
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "静平台铰链点标定成功");
 		ui.sTargetCalbrateBtn->setEnabled(true);
+		ui.saveSBtn->setEnabled(true);
 	}
 	else
 	{
@@ -194,11 +187,12 @@ void ParameterCalibrate::on_dTargetCalbrateBtn_clicked()
 {
 	vector<int> index;
 	tableToMatrixXd(ui.tableQ_DM, UPSData::Q_DM, index);
-	calibrateTargetPoint(UPSData::Q_DM, UPSData::O_DM_r, UPSData::O_DM_t, UPSData::Q_DD);
+	calibrateTargetPoint(UPSData::Q_DM, Trans_DM_calibrate, UPSData::Q_DD);
 	bool flag = matrixXdToTable(UPSData::Q_DD, ui.tableQ_DD);
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "动平台靶标点标定成功");
+		ui.saveQ_DDBtn->setEnabled(true);
 	}
 	else
 	{
@@ -211,11 +205,12 @@ void ParameterCalibrate::on_sTargetCalbrateBtn_clicked()
 {
 	vector<int> index;
 	tableToMatrixXd(ui.tableQ_SM, UPSData::Q_SM, index);
-	calibrateTargetPoint(UPSData::Q_SM, UPSData::O_SM_r, UPSData::O_SM_t, UPSData::Q_SS);
+	calibrateTargetPoint(UPSData::Q_SM, Trans_SM_calibrate, UPSData::Q_SS);
 	bool flag = matrixXdToTable(UPSData::Q_SS, ui.tableQ_SS);
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "静平台靶标点标定成功");
+		ui.saveQ_SSBtn->setEnabled(true);
 	}
 	else
 	{
@@ -223,38 +218,64 @@ void ParameterCalibrate::on_sTargetCalbrateBtn_clicked()
 	}
 }
 
-void ParameterCalibrate::on_inputTestDataBtn_clicked()
-{
-	csvToTable("./Data/S_M_test.csv", ui.tableS_M);
-	csvToTable("./Data/D_M_test.csv", ui.tableD_M);
-	csvToTable("./Data/Q_SM_test.csv", ui.tableQ_SM);
-	csvToTable("./Data/Q_DM_test.csv", ui.tableQ_DM);
-}
 
-void ParameterCalibrate::on_saveMeasureDataBtn_clicked()
+
+void ParameterCalibrate::on_saveD_MBtn_clicked()
 {
-	bool flag1 = tableToCsv(ui.tableS_M, "./Data/S_M.csv");
-	bool flag2 = tableToCsv(ui.tableD_M, "./Data/D_M.csv");
-	bool flag3 = tableToCsv(ui.tableQ_SM, "./Data/Q_SM.csv");
-	bool flag4 = tableToCsv(ui.tableQ_DM, "./Data/Q_DM.csv");
-	if (flag1 && flag2 && flag3 && flag4)
-	{ 
+	bool flag = tableToCsv(ui.tableD_M, "./Data/D_M.csv");
+	if (flag)
+	{
 		QMessageBox::information(NULL, "提示", "测量数据保存成功");
 	}
 	else
 	{
 		QMessageBox::information(NULL, "提示", "测量数据保存失败");
 	}
-	
 }
 
-void ParameterCalibrate::on_saveCalibrateDataBtn_clicked()
+void ParameterCalibrate::on_saveS_MBtn_clicked()
 {
-	bool flag1 = matrixXdToCsv(UPSData::D,"./Data/D.csv");
-	bool flag2 = matrixXdToCsv(UPSData::S,"./Data/S.csv");
-	bool flag3 = matrixXdToCsv(UPSData::Q_DD, "./Data/Q_DD.csv");
-	bool flag4 = matrixXdToCsv(UPSData::Q_SS, "./Data/Q_SS.csv");
-	if (flag1 && flag2 && flag3 && flag4)
+	bool flag = tableToCsv(ui.tableS_M, "./Data/S_M.csv");
+	if (flag)
+	{
+		QMessageBox::information(NULL, "提示", "测量数据保存成功");
+	}
+	else
+	{
+		QMessageBox::information(NULL, "提示", "测量数据保存失败");
+	}
+}
+
+void ParameterCalibrate::on_saveQ_DMBtn_clicked()
+{
+	bool flag = tableToCsv(ui.tableQ_DM, "./Data/Q_DM.csv");
+	if (flag)
+	{
+		QMessageBox::information(NULL, "提示", "测量数据保存成功");
+	}
+	else
+	{
+		QMessageBox::information(NULL, "提示", "测量数据保存失败");
+	}
+}
+
+void ParameterCalibrate::on_saveQ_SMBtn_clicked()
+{
+	bool flag = tableToCsv(ui.tableQ_SM, "./Data/Q_SM.csv");
+	if (flag)
+	{
+		QMessageBox::information(NULL, "提示", "测量数据保存成功");
+	}
+	else
+	{
+		QMessageBox::information(NULL, "提示", "测量数据保存失败");
+	}
+}
+
+void ParameterCalibrate::on_saveDBtn_clicked()
+{
+	bool flag = matrixXdToCsv(UPSData::D, "./Data/D.csv");
+	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "标定数据保存成功");
 	}
@@ -262,8 +283,65 @@ void ParameterCalibrate::on_saveCalibrateDataBtn_clicked()
 	{
 		QMessageBox::information(NULL, "提示", "标定数据保存失败");
 	}
+}
+
+void ParameterCalibrate::on_saveSBtn_clicked()
+{
+	bool flag = matrixXdToCsv(UPSData::S, "./Data/S.csv");
+	if (flag)
+	{
+		QMessageBox::information(NULL, "提示", "标定数据保存成功");
+	}
+	else
+	{
+		QMessageBox::information(NULL, "提示", "标定数据保存失败");
+	}
+}
+
+void ParameterCalibrate::on_saveQ_DDBtn_clicked()
+{
+	bool flag = matrixXdToCsv(UPSData::Q_DD, "./Data/Q_DD.csv");
+	if (flag)
+	{
+		QMessageBox::information(NULL, "提示", "标定数据保存成功");
+	}
+	else
+	{
+		QMessageBox::information(NULL, "提示", "标定数据保存失败");
+	}
+}
+
+void ParameterCalibrate::on_saveQ_SSBtn_clicked()
+{
+	bool flag = matrixXdToCsv(UPSData::Q_SS, "./Data/Q_SS.csv");
+	if (flag)
+	{
+		QMessageBox::information(NULL, "提示", "标定数据保存成功");
+	}
+	else
+	{
+		QMessageBox::information(NULL, "提示", "标定数据保存失败");
+	}
+}
+
+void ParameterCalibrate::on_ininLcalbrateBtn_clicked()
+{
+	/*导入静平台数据*/
+	MatrixXd Q_SM_initL;
+	vector<int> index_Q_SM_initL;
+	tableToMatrixXd(ui.tableQ_SM_initL, Q_SM_initL, index_Q_SM_initL);
+	/*导入动平台数据*/
+	MatrixXd Q_DM_initL;
+	vector<int> index_Q_DM_initL;
+	tableToMatrixXd(ui.tableQ_DM_initL, Q_DM_initL, index_Q_DM_initL);
+	/*计算静平台相对测量坐标系位姿*/
+	//Matrix4d Trans_SM = rigidMotionSVDSolution( UPSData::Q_SS, Q_SM_initL);
+	/*标定初始杆长*/
+	//calibrateInitLength(UPSData::initL_norm, UPSData::Q_DD, Q_DM_initL, Trans_SM, UPSData::D, UPSData::S);
+
 
 }
+
 
 void ParameterCalibrate::addTableWidgetMenu()
 {

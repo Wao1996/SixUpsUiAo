@@ -16,6 +16,7 @@ class SixUpsUiAo : public QMainWindow
     Q_OBJECT
 
 public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;//eigen库 指针对齐 否则报错
     SixUpsUiAo(QWidget *parent = Q_NULLPTR);
 	~SixUpsUiAo();
 
@@ -90,7 +91,7 @@ private slots:
 	/*平台回零*/
 	void on_upsHomeBtn_clicked();
 	/*************设置运动原点*******************/
-	void on_tableSetOrigin_clicked();
+	void on_setOriginBtn_clicked();
 	/***********多轴运动***************/
 	//联动
 	void on_getRealTimePosBtn_clicked();//获取当前位姿

@@ -597,17 +597,19 @@ void SixUpsUiAo::on_upsHomeBtn_clicked()
 	emit upsHome_signal();
 }
 
-void SixUpsUiAo::on_tableSetOrigin_clicked()
+void SixUpsUiAo::on_setOriginBtn_clicked()
 {
 	qDebug() << "on_creatDCrdSys_clicked";
-	MatrixXd CrdSysD;
+	MatrixXd CrdSysD = Matrix3d::Zero();
 	vector<int> index;
 	tableToMatrixXd(ui.tableSetOrigin, CrdSysD, index);
-	UPSData::O_m_D = CrdSysD.col(0);
-	UPSData::X_m_D = CrdSysD.col(1);
-	UPSData::XOY_m_D = CrdSysD.col(2);
-	creatCoordSysGetRt(UPSData::O_m_D, UPSData::X_m_D, UPSData::XOY_m_D, UPSData::R_DM, UPSData::t_DM);
-	cout << UPSData::R_DM << endl << UPSData::t_DM << endl;
+	UPSData::O_set_M = CrdSysD.col(0);
+	UPSData::X_set_M = CrdSysD.col(1);
+	UPSData::XOY_set_M = CrdSysD.col(2);
+	//运动坐标系在测量坐标系中的齐次坐标
+	Matrix4d Trans_set_M = creatCoordSysGetRt(UPSData::O_set_M, UPSData::X_set_M, UPSData::XOY_set_M);
+	//将运动坐标系转换到静坐标系下描述
+	UPSData::Trans_set_S = UPSData::Trans_SM.inverse()*Trans_set_M;
 }
 
 

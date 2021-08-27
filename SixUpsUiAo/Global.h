@@ -43,6 +43,7 @@ public:
 class PmacData
 {
 public:
+
 	static QString pmacGetVariableCommand;//获取pmac变量在线命令的字符串
 	static int numL;//一共有多少根支链
 	static int cts2mm;//多少个脉冲代表电动缸走1mm
@@ -58,6 +59,7 @@ public:
 class SingleJogData
 {
 public:
+
 	static double jogSpeed;//单轴点动速度
 	static VectorXd jogInc;//单轴点动距离增量
 
@@ -70,7 +72,8 @@ public:
 class UPSData
 {
 public:
-	//运动参数
+
+	//并联机构运动参数
 	static double multiSpeed;//多轴联动 运动速度 单位mm/
 	static double multiJogTranslationSpeed;//多轴点动 平动运动速度 单位mm/s
 	static double multiJogTranslationStep;//多轴点动 平动运动步长 单位mm
@@ -84,40 +87,21 @@ public:
 	static Matrix <double, 3, 1> circleC;	//拟合的圆心坐标
 	static double r;						//拟合的半径
 
-	//动平台坐标系
-	static Matrix <double, 3, 1> O_m_D;		//建立的动平台坐标系原点：圆心或跟踪仪测量点
-	static Matrix <double, 3, 1> X_m_D;		//第二个测量点为新坐标系x轴 **正** 方向上的一点
-	static Matrix <double, 3, 1> XOY_m_D;	//第三个测量点为新坐标系XOY平面上的一点(**在y轴正半轴空间**)
-	//静平台坐标系
-	static Matrix <double, 3, 1> O_m_S;		//建立的静平台坐标系原点：圆心或跟踪仪测量点
-	static Matrix <double, 3, 1> X_m_S;		//第二个测量点为新坐标系x轴 **正** 方向上的一点
-	static Matrix <double, 3, 1> XOY_m_S;	//第三个测量点为新坐标系XOY平面上的一点(**在y轴正半轴空间**)
+	//运动原点设置相关
+	static Matrix<double, 3, 1>	O_set_M;	//运动坐标系原点在测量坐标系中位置
+	static Matrix<double, 3, 1> X_set_M;	//运动坐标系X轴正方向一点在测量坐标系中位置
+	static Matrix<double, 3, 1> XOY_set_M;	//运动坐标系XOY平面一点在测量坐标系中位置
+	static Matrix4d Trans_set_S;			//运动坐标系相对静坐标系的齐次变换矩阵
 
-
-	//运动坐标系下静平台下的描述
-	static Matrix<double, 3, 1>	O_set_S;	//建立的运动坐标系原点，在静坐标系下的位置(默认与静坐标系相同)
-	static Matrix<double, 3, 1> X_set_S;
-	static Matrix<double, 3, 1> XOY_set_S;
-	static Matrix<double, 3, 3> R_SetS;		//运动坐标系相对静坐标系的关系:旋转矩阵
-	static Matrix<double, 3, 1> t_SetS;		//运动坐标系相对静坐标系的关系:平移矩阵
-
-	//测量坐标系下
 	static int n_D;							//测量的动平台靶标点个数
-	static MatrixXd Q_DM;					//测量坐标系下 动平台靶标点坐标 3*n_S
 	static int n_S;							//测量的静平台靶标点个数
+	static MatrixXd Q_DM;					//测量坐标系下 动平台靶标点坐标 3*n_S
 	static MatrixXd Q_SM;					//测量坐标系下 静平台靶标点坐标 3*n_S
 	static Matrix<double, 3, 6> D_M;		//测量坐标系下 动平台铰链点坐标
 	static Matrix<double, 3, 6> S_M;		//测量坐标系下 静平台铰链点坐标
-	static Matrix<double, 3, 3> O_DM_r;		//测量坐标系下 动平台坐标系原点关系:旋转矩阵(平台标定时用，其余时候不用)
-	static Matrix<double, 3, 1> O_DM_t;		//测量坐标系下 动平台坐标系原点坐标:平移矩阵(平台标定时用，其余时候不用)
-	static Matrix<double, 3, 3> O_SM_r;		//测量坐标系下 静平台坐标系原点关系:旋转矩阵(平台标定时用，其余时候不用)
-	static Matrix<double, 3, 1> O_SM_t;		//测量坐标系下 静平台坐标系原点坐标:平移矩阵(平台标定时用，其余时候不用)
-	static Matrix<double, 3, 3> R_SM;		//静平台坐标系相对测量坐标系的关系:旋转矩阵(每次重新放置跟踪仪都会测量计算)
-	static Matrix<double, 3, 1> t_SM;		//静平台坐标系相对测量坐标系的关系:平移矩阵
-	static Matrix<double, 3, 3> R_DM;		//动平台坐标系相对测量坐标系的关系:旋转矩阵(仅在结构参数标定时使用，其他情况在对应函数中作为中间变量直接计算得到)
-	static Matrix<double, 3, 1> t_DM;		//动平台坐标系相对测量坐标系的关系:平移矩阵
-
-	static Matrix<double, 3, 1>	O_set_M;	//设定相对运动原点，在测量坐标系下的坐标
+	static Matrix4d Trans_DM;				//动平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
+	static Matrix4d Trans_SM;				//静平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
+	static Matrix4d Trans_DS;				//动平台坐标系相对静平台坐标系齐次变换矩阵
 
 	//结构参数与初始杆长标定
 	static int n_D_struct;						//动平台上靶标点个数
