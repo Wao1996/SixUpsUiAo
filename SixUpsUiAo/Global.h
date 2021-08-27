@@ -91,7 +91,7 @@ public:
 	static Matrix<double, 3, 1>	O_set_M;	//运动坐标系原点在测量坐标系中位置
 	static Matrix<double, 3, 1> X_set_M;	//运动坐标系X轴正方向一点在测量坐标系中位置
 	static Matrix<double, 3, 1> XOY_set_M;	//运动坐标系XOY平面一点在测量坐标系中位置
-	static Matrix4d Trans_set_S;			//运动坐标系相对静坐标系的齐次变换矩阵
+	static Matrix4d Trans_setS;			//运动坐标系相对静坐标系的齐次变换矩阵
 
 	static int n_D;							//测量的动平台靶标点个数
 	static int n_S;							//测量的静平台靶标点个数
@@ -102,6 +102,7 @@ public:
 	static Matrix4d Trans_DM;				//动平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
 	static Matrix4d Trans_SM;				//静平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
 	static Matrix4d Trans_DS;				//动平台坐标系相对静平台坐标系齐次变换矩阵
+	static Matrix4d Trans_Dset;				//动平台坐标系相对运动坐标系齐次变换矩阵
 
 	//结构参数与初始杆长标定
 	static int n_D_struct;						//动平台上靶标点个数
@@ -116,16 +117,18 @@ public:
 
 
 	//位姿杆长数据
-	static Matrix<double, 6, 1>	homePosAndAngle;		//并联机构 平台零位位姿   单位 mm °
-	static Matrix<double, 6, 1> tarPosAndAngle;			//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
-	static Matrix<double, 6, 1> prsPosAndAngle;			//长按点动按下时的位姿
+	static Matrix<double, 6, 1>	homePosAndAngle_DS;		//并联机构 动平台相对静平台的零位位姿   单位 mm °
+	static Matrix<double, 6, 1> tarPosAndAngle_DS;		//动平台相对静平台的目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
+	static Matrix<double, 6, 1> prsPosAndAngle_DS;		//长按点动按下时的动平台相对静平台位姿
+	static Matrix<double, 6, 1> initPosAndAngle_DS;		//动平台相对静平台 正解初始位姿 单位 mm °
+	static Matrix<double, 6, 1> curPosAndAngle_DS;		//动平台相对静平台 正解实时位姿 单位 mm °
+	static Matrix<double, 6, 1> curPosAndAngle_Dset;	//动平台相对运动坐标系 正解实时位姿 单位 mm °
 	static Matrix<double, 6, 1> tarL_norm;				//有目标位姿反解得到的目标杆长 单位mm
 	static Matrix<double, 6, 1> tarAxlesL_norm;			//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
 	static Matrix<double, 6, 1> lastAxlesL_norm;		//上一步轴长
 	static Matrix<double, 6, 1> curL_norm;				//由PMAC值换算得到的实时杆长 单位mm
 	static Matrix<double, 6, 1> lastL_norm;				//上一步的杆长
-	static Matrix<double, 6, 1> initPosAndAngle;		//正解初始位姿 单位 mm °
-	static Matrix<double, 6, 1> curPosAndAngle;		    //正解实时位姿 单位 mm °
+	
 
 	static Matrix<double, 6, 1> realPosAndAngleByQD;	//激光跟踪仪测量靶标点计算得到的实际位姿
 	static Matrix<double, 6, 1> realPosAndAngleByMPt;	//激光跟踪仪测量待测点计算得到的实际位姿

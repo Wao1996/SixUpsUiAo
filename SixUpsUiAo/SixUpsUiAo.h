@@ -35,7 +35,8 @@ private:
 	QList<QLabel*> qlabPosLimit_group;//轴正限位开关状态图标
 	QList<QLabel*> qlabOrigin_group;//轴原点开关状态图标
 	QList<QLineEdit *> realTimeLengths_group;//杆长显示
-	QList<QLineEdit *> realTimePos_group;//位姿显示
+	QList<QLineEdit *> realTimePos_group;//动平台相对静平台 位姿显示
+	QList<QLineEdit *> realTimePos_Origin_group;//动平台相对运动坐标系 位姿显示
 	QList<QDoubleSpinBox *> AbsTarPos_group;//多轴运动 绝对位置输入框
 	QList<QDoubleSpinBox *> jogInc_group;//单轴运动 距离点动增量
 	QList<QToolButton *> dipJog_group;//单轴运动 距离点动按钮

@@ -7,10 +7,6 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	ui.setupUi(this);
 	qDebug() << "SixUpsUiAo 构造";
 
-	/*Matrix<double, 2, 4> A;
-	A << 1, 2, 3, 4,
-	     5, 6, 7, 8;
-	matrixXdToCsv(A, "./Data/aaa.csv");*/
 	initIcon();
 	initUIList();
 	initStructPara();
@@ -146,6 +142,15 @@ void SixUpsUiAo::initUIList()
 	realTimePos_group.append(ui.led_realTimePdeg);
 	realTimePos_group.append(ui.led_realTimeYdeg);
 
+	realTimePos_Origin_group.append(ui.led_realTimeX_Origin);
+	realTimePos_Origin_group.append(ui.led_realTimeY_Origin);
+	realTimePos_Origin_group.append(ui.led_realTimeZ_Origin);
+	realTimePos_Origin_group.append(ui.led_realTimeRdeg_Origin);
+	realTimePos_Origin_group.append(ui.led_realTimePdeg_Origin);
+	realTimePos_Origin_group.append(ui.led_realTimeYdeg_Origin);
+
+
+
 	jogInc_group.append(ui.led_jogInc1);
 	jogInc_group.append(ui.led_jogInc2);
 	jogInc_group.append(ui.led_jogInc3);
@@ -190,8 +195,8 @@ void SixUpsUiAo::initStructPara()
 	csvToMatrixXd("./Data/S.csv", UPSData::S);
 	csvToMatrixXd("./Data/S_theoretical.csv", UPSData::S_theoretical);
 	csvToMatrixXd("./Data/initL.csv", UPSData::initL_norm);
-	csvToMatrixXd("./Data/homePosAndAngle.csv", UPSData::homePosAndAngle);
-	UPSData::initPosAndAngle = UPSData::homePosAndAngle;
+	csvToMatrixXd("./Data/homePosAndAngle.csv", UPSData::homePosAndAngle_DS);
+	UPSData::initPosAndAngle_DS = UPSData::homePosAndAngle_DS;
 }
 
 void SixUpsUiAo::initTablesStyle()
@@ -342,7 +347,7 @@ void SixUpsUiAo::upsHome_slot()
 
 void SixUpsUiAo::platformDHome_slot()
 {
-	inverseSolution(UPSData::homePosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	inverseSolution(UPSData::homePosAndAngle_DS, UPSData::tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
 	myPmac->upsHomeMove(UPSData::tarAxlesL_norm, UPSData::multiSpeed);
 }
@@ -403,8 +408,12 @@ void SixUpsUiAo::on_updateUiDataTimer()
 	QString strPos;
 	for (int i = 0; i < 6; i++)
 	{
-		strPos = QString::number(UPSData::curPosAndAngle(i), 'f', 3);
+		//动平台相对静平台
+		strPos = QString::number(UPSData::curPosAndAngle_DS(i), 'f', 3);
 		realTimePos_group[i]->setText(strPos);
+		//动平台相对运动坐标系
+		strPos = QString::number(UPSData::curPosAndAngle_Dset(i), 'f', 3);
+		realTimePos_Origin_group[i]->setText(strPos);
 	}
 
 }
@@ -451,10 +460,10 @@ void SixUpsUiAo::on_upsJogTimer()
 	Matrix<double, 6, 1> delta_Lengths;//本次运动每个轴的运动增量 mm
 	Matrix<double, 6, 1> axlesSpeed;//每个轴的运动速度 mm/s
 	Matrix<double, 6, 1> tarL_norm;//目标杆长
-	UPSData::prsPosAndAngle = UPSData::prsPosAndAngle + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
-	//qDebug() << "UPSData::prsPosAndAngle:";
-	//cout << UPSData::prsPosAndAngle << endl;
-	inverseSolution(UPSData::prsPosAndAngle, tarL_norm, UPSData::D, UPSData::S);
+	UPSData::prsPosAndAngle_DS = UPSData::prsPosAndAngle_DS + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
+	//qDebug() << "UPSData::prsPosAndAngle_DS:";
+	//cout << UPSData::prsPosAndAngle_DS << endl;
+	inverseSolution(UPSData::prsPosAndAngle_DS, tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarAxlesL_norm = tarL_norm - UPSData::initL_norm;
 	delta_Lengths = UPSData::tarAxlesL_norm - UPSData::lastAxlesL_norm;
 	axlesSpeed = delta_Lengths.cwiseAbs() * PmacData::cts2mm / upsJogTimer->interval();
@@ -609,7 +618,7 @@ void SixUpsUiAo::on_setOriginBtn_clicked()
 	//运动坐标系在测量坐标系中的齐次坐标
 	Matrix4d Trans_set_M = creatCoordSysGetRt(UPSData::O_set_M, UPSData::X_set_M, UPSData::XOY_set_M);
 	//将运动坐标系转换到静坐标系下描述
-	UPSData::Trans_set_S = UPSData::Trans_SM.inverse()*Trans_set_M;
+	UPSData::Trans_setS = UPSData::Trans_SM.inverse()*Trans_set_M;
 }
 
 
@@ -618,7 +627,7 @@ void SixUpsUiAo::on_getRealTimePosBtn_clicked()
 	QString strPos;
 	for (int i = 0; i < 6; i++)
 	{
-		AbsTarPos_group[i]->setValue(UPSData::curPosAndAngle(i));
+		AbsTarPos_group[i]->setValue(UPSData::curPosAndAngle_DS(i));
 	}
 	qDebug() << "on_getRealTimePosBtn_clicked";
 }
@@ -627,9 +636,9 @@ void SixUpsUiAo::on_startMoveBtn_clicked()
 {
 	for (int i = 0; i < 6; i++)
 	{
-		UPSData::tarPosAndAngle(i) = AbsTarPos_group[i]->value();
+		UPSData::tarPosAndAngle_DS(i) = AbsTarPos_group[i]->value();
 	}
-	inverseSolution(UPSData::tarPosAndAngle, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	inverseSolution(UPSData::tarPosAndAngle_DS, UPSData::tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
 	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiSpeed);
 }
@@ -646,8 +655,8 @@ void SixUpsUiAo::absTarPos_group_valueChanged(double data)
 	QString btnNamePrefix = "xAbsTarPos";
 	int posNum = (btnName.mid(btnNamePrefix.size(), -1)).toInt();//绝对位姿 x y z a b c的顺序号
 	int index = posNum - 1;//轴号减1才是索引号
-	UPSData::tarPosAndAngle[index] = data;
-	qDebug() << "posNum:" << posNum << " tarPosAndAngle:" << UPSData::tarPosAndAngle[index];
+	UPSData::tarPosAndAngle_DS[index] = data;
+	qDebug() << "posNum:" << posNum << " tarPosAndAngle_DS:" << UPSData::tarPosAndAngle_DS[index];
 }
 
 
@@ -708,7 +717,7 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
 		break;
 	}
-	Matrix<double, 6, 1> tarPosAndAngleTemp = UPSData::curPosAndAngle + incPosAndAngle;
+	Matrix<double, 6, 1> tarPosAndAngleTemp = UPSData::curPosAndAngle_DS + incPosAndAngle;
 	inverseSolution(tarPosAndAngleTemp, UPSData::tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
 	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiJogTranslationSpeed);
@@ -718,7 +727,7 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 {
 
-	UPSData::prsPosAndAngle = UPSData::curPosAndAngle;
+	UPSData::prsPosAndAngle_DS = UPSData::curPosAndAngle_DS;
 	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
 	/*设置运动方向*/
@@ -777,7 +786,7 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_released()
 void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 {
 
-	UPSData::prsPosAndAngle = UPSData::curPosAndAngle;
+	UPSData::prsPosAndAngle_DS = UPSData::curPosAndAngle_DS;
 	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
 	/*设置运动方向*/

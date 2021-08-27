@@ -451,7 +451,7 @@ void QPmac::upsJogLinearMove(Matrix<double, 6, 1> moveDirection, double speed,in
 	}
 	int stepNum = dis / miniStep;//运动个数
 	double TM = dis / speed / stepNum * 1000;//单位 毫秒
-	Matrix<double, 6, 1> tempPosAndAngle = UPSData::curPosAndAngle;
+	Matrix<double, 6, 1> tempPosAndAngle = UPSData::curPosAndAngle_DS;
 	Matrix<double, 6, 1> tempTarLengths = MatrixXd::Zero(6, 1);
 	Matrix<double, 6, 1> tempTarL_norm = MatrixXd::Zero(6, 1);
 
@@ -526,7 +526,7 @@ void QPmac::upsJogSpline1Move(Matrix<double, 6, 1> moveDirection, double speed, 
 	}
 	int stepNum = dis / miniStep;//运动个数
 	double TM = dis / speed / stepNum * 1000;//单位 毫秒
-	Matrix<double, 6, 1> tempPosAndAngle = UPSData::curPosAndAngle;
+	Matrix<double, 6, 1> tempPosAndAngle = UPSData::curPosAndAngle_DS;
 	Matrix<double, 6, 1> tempTarLengths = MatrixXd::Zero(6, 1);
 	Matrix<double, 6, 1> tempTarL_norm = MatrixXd::Zero(6, 1);
 

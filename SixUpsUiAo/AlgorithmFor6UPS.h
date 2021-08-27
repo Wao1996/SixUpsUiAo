@@ -13,6 +13,9 @@ extern MatrixXd matrix2Homogeneous(const MatrixXd & mat);
 //齐次矩阵减少最后一行
 extern MatrixXd homogeneous2Matrix(const MatrixXd & mat_hom);
 
+//旋转矩阵转RPY角 按照YPR顺序输出
+extern Vector3d R2ypr(const Eigen::Matrix3d& R);
+
 //xyzabc姿态转换为旋转矩阵R和平移矩阵t
 extern void posAngle2Rt(const Matrix<double, 6, 1>& posAndAngle,//xyzabc姿态信息
 	Matrix<double, 3, 3>& R,//输出旋转矩阵R
@@ -86,7 +89,7 @@ extern void solveJacobi(const Matrix<double, 6, 1>& posAndAngle, //动平台相�
 	const Matrix<double, 3, 6>& S);//静台铰链点在静平台坐标系下坐标,结构参数
 
 //!运动学正解
-extern void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle,//动平台初始位姿
+extern void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle_DS,//动平台初始位姿
 	const Matrix<double, 6, 1>& targL_norm,//目标的新杆长
 	Matrix<double, 6, 1>& targPosAndAngle,//正解得到的位姿
 	const Matrix<double, 3, 6>& D, //动平台铰链点在动坐标系下坐标,结构参数

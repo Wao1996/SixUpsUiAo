@@ -12,6 +12,23 @@ MatrixXd homogeneous2Matrix(const MatrixXd & mat_hom)
 	return mat_hom.topRows(mat_hom.rows()-1);
 }
 
+Vector3d R2ypr(const Eigen::Matrix3d& R) 
+{
+	Eigen::Vector3d n = R.col(0);
+	Eigen::Vector3d o = R.col(1);
+	Eigen::Vector3d a = R.col(2);
+
+	Eigen::Vector3d ypr(3);
+	double y = atan2(n(1), n(0));
+	double p = atan2(-n(2), n(0) * cos(y) + n(1) * sin(y));
+	double r = atan2(a(0) * sin(y) - a(1) * cos(y), -o(0) * sin(y) + o(1) * cos(y));
+	ypr(0) = y;
+	ypr(1) = p;
+	ypr(2) = r;
+
+	return ypr;
+}
+
 void posAngle2Rt(const Matrix<double, 6, 1>& posAndAngle, Matrix<double, 3, 3>& R, Matrix<double, 3, 1>& t)
 {
 	//这里也可用Eigen函数toRotationMatrix
@@ -44,11 +61,13 @@ Matrix<double, 6, 1> Rt2PosAngle(const Matrix<double, 3, 3>& R, const Matrix<dou
 {
 	//注：关于绕定坐标系的xyz的rpy角和绕动系的zyx欧拉角
 	//由于变换矩阵相乘时绕定系为左乘，绕动系为右乘，因此上述两变换矩阵实际上是相同的均为R(a)*R(b)*R(c)
-	Matrix <double, 3, 1> eulerAngle_ZYX = R.eulerAngles(2, 1, 0);
+	//Matrix <double, 3, 1> eulerAngle_ZYX = R.eulerAngles(2, 1, 0);//使用 eulerAngles会出现角度偏差PI的现象
+	Matrix <double, 3, 1> eulerAngle_ZYX = R2ypr(R);
 	Matrix <double, 3, 1> Angle_XYZ;
 	Angle_XYZ << eulerAngle_ZYX(2), eulerAngle_ZYX(1), eulerAngle_ZYX(0);
 	Matrix<double, 6, 1> posAndAngle;
 	posAndAngle << t, Angle_XYZ / M_PI * 180;
+
 	return posAndAngle;
 }
 
@@ -226,12 +245,12 @@ void solveJacobi(const Matrix<double, 6, 1>& posAndAngle, Matrix<double, 6, 6>& 
 	jacobi << j13, j46;
 }
 
-void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle, const Matrix<double, 6, 1>& targL_norm, Matrix<double, 6, 1>& targPosAndAngle, const Matrix<double, 3, 6>& D, const Matrix<double, 3, 6>& S)
+void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle_DS, const Matrix<double, 6, 1>& targL_norm, Matrix<double, 6, 1>& targPosAndAngle, const Matrix<double, 3, 6>& D, const Matrix<double, 3, 6>& S)
 {
 
 	//求解初始位姿下的杆长
 	Matrix<double, 6, 1> initL_norm;
-	inverseSolution(initPosAndAngle, initL_norm, D, S);
+	inverseSolution(initPosAndAngle_DS, initL_norm, D, S);
 	//使用的参数
 	double delta_t = 1e-1; //t是0~1的数,表示杆长变化的步长百分比
 	int k = int(1 / delta_t);//杆长变化次数
@@ -240,7 +259,7 @@ void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle, const Matrix<d
 	double err = 1e-5; //牛顿迭代的阈值
 	bool newtonFialed = false;//牛顿迭代成功
 	//赋初值
-	Matrix<double, 6, 1> nPosAndAngle = initPosAndAngle;//nPosAndAngle为n次迭代的位姿
+	Matrix<double, 6, 1> nPosAndAngle = initPosAndAngle_DS;//nPosAndAngle为n次迭代的位姿
 	//杆长每次增加一个步长
 	for (int n = 1; n <= k; n++)
 	{
@@ -282,7 +301,7 @@ void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle, const Matrix<d
 	}
 	else
 	{
-		targPosAndAngle = initPosAndAngle;
+		targPosAndAngle = initPosAndAngle_DS;
 	}
 
 

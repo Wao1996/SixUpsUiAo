@@ -54,7 +54,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  Matrix<double, 3, 1> UPSData::O_set_M = MatrixXd::Zero(3, 1);  //在测量坐标系下 运动坐标系原点位置
  Matrix<double, 3, 1> UPSData::X_set_M = MatrixXd::Zero(3, 1);  //在测量坐标系下 运动坐标系的第二个测量点(为新坐标系x轴 **正** 方向上的一点)
  Matrix<double, 3, 1> UPSData::XOY_set_M = MatrixXd::Zero(3, 1);//在测量坐标系下 运动坐标系的第三个测量点(为新坐标系XOY平面上的一点(**在y轴正半轴空间**))
- Matrix4d UPSData::Trans_set_S = Matrix4d::Zero();
+ Matrix4d UPSData::Trans_setS = Matrix4d::Identity();
 
 //测量相关
  int UPSData::n_D;						//测量的动平台靶标点个数
@@ -65,9 +65,9 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  Matrix<double, 3, 6> UPSData::S_M = MatrixXd::Zero(3, 6);		//静平台铰链点在测量坐标系下坐标
  Matrix4d UPSData::Trans_DM = Matrix4d::Zero();			//动平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
  Matrix4d UPSData::Trans_SM = Matrix4d::Zero();			//静平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
- //动平台相对静平台的关系
- Matrix4d UPSData::Trans_DS = Matrix4d::Zero();	//动平台坐标系相对静平台坐标系齐次变换矩阵
- 
+ Matrix4d UPSData::Trans_DS = Matrix4d::Zero();			//动平台坐标系相对静平台坐标系齐次变换矩阵
+ Matrix4d UPSData::Trans_Dset = Matrix4d::Zero();	//动平台坐标系相对运动坐标系齐次变换矩阵
+
  //结构参数与初始杆长
  int UPSData::n_D_struct = 6;										//动平台上靶标点个数
  int UPSData::n_S_struct = 6;										//静平台上靶标点个数
@@ -80,16 +80,17 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  Matrix<double, 6, 1> UPSData::initL_norm = MatrixXd::Zero(6, 1);	//初始杆长
 
  //当前位姿杆长数据
- Matrix<double, 6, 1> UPSData::homePosAndAngle = MatrixXd::Zero(6, 1);		//并联机构 平台零位位姿  单位 mm °
- Matrix<double, 6, 1> UPSData::tarPosAndAngle = MatrixXd::Zero(6, 1);		//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
- Matrix<double, 6, 1> UPSData::prsPosAndAngle = MatrixXd::Zero(6, 1);		//长按点动按下时的位姿
+ Matrix<double, 6, 1> UPSData::homePosAndAngle_DS = MatrixXd::Zero(6, 1);		//并联机构 平台零位位姿  单位 mm °
+ Matrix<double, 6, 1> UPSData::tarPosAndAngle_DS = MatrixXd::Zero(6, 1);		//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
+ Matrix<double, 6, 1> UPSData::prsPosAndAngle_DS = MatrixXd::Zero(6, 1);		//长按点动按下时的位姿
+ Matrix<double, 6, 1> UPSData::initPosAndAngle_DS = MatrixXd::Zero(6, 1);		//正解初始位姿
+ Matrix<double, 6, 1> UPSData::curPosAndAngle_DS = MatrixXd::Zero(6, 1);		//正解实时位姿
+ Matrix<double, 6, 1> UPSData::curPosAndAngle_Dset = MatrixXd::Zero(6, 1);
  Matrix<double, 6, 1> UPSData::tarL_norm = MatrixXd::Zero(6, 1);			//有目标位姿反解得到的目标杆长 单位mm
  Matrix<double, 6, 1> UPSData::tarAxlesL_norm = MatrixXd::Zero(6, 1);       //得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
  Matrix<double, 6, 1> UPSData::lastAxlesL_norm = MatrixXd::Zero(6, 1);		//上一步的轴长
  Matrix<double, 6, 1> UPSData::curL_norm = MatrixXd::Zero(6, 1);			//由PMAC值换算得到的实时杆长 单位mm
  Matrix<double, 6, 1> UPSData::lastL_norm = MatrixXd::Zero(6, 1);			//上一步的杆长
- Matrix<double, 6, 1> UPSData::initPosAndAngle = MatrixXd::Zero(6, 1);		//正解初始位姿
- Matrix<double, 6, 1> UPSData::curPosAndAngle = MatrixXd::Zero(6, 1);		//正解实时位姿
  Matrix<double, 6, 1> UPSData::realPosAndAngleByQD = MatrixXd::Zero(6, 1);	//激光跟踪仪测量靶标点计算得到的实际位姿
  Matrix<double, 6, 1> UPSData::realPosAndAngleByMPt = MatrixXd::Zero(6, 1);	//激光跟踪仪测量待测点计算得到的实际位姿
  Matrix<double, 6, 1> UPSData::compTarPosAndAngleByQD = MatrixXd::Zero(6, 1); //通过靶标点实际位姿补偿后得到的新目标位姿
