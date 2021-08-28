@@ -356,7 +356,7 @@ Matrix<double, 6, 1> posAndAngleDset2DS(const Matrix<double, 6, 1> &posAndAngle_
 	//动平台位姿相对运动坐标系的齐次变换矩阵
 	Matrix4d Trans_Dset = posAngle2Trans(posAndAngle_Dset);
 	//动平台位姿相对静坐标系的齐次变换矩阵
-	Matrix4d Trans_DS = Trans_Dset * Trans_setS;
+	Matrix4d Trans_DS =  Trans_setS*Trans_Dset;
 	//动平台位姿齐次变换矩阵转化为目标位姿向量
 	Matrix<double, 6, 1> posAndAngle_DS = trans2PosAngle(Trans_DS);
 	return posAndAngle_DS;

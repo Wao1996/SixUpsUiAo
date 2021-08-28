@@ -14,10 +14,10 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	initConnect();
 	myWidgetDisnable();
 
-	UPSData::Trans_setS = Matrix4d::Identity();
-	Matrix<double, 6, 1> pos;
-	pos << 0, 0, 0, 10, 0, 0;
-	UPSData::Trans_setS = posAngle2Trans(pos);
+	//UPSData::Trans_setS = Matrix4d::Identity();
+	//Matrix<double, 6, 1> pos;
+	//pos << 0, 0, 0, 10, 0, 0;
+	//UPSData::Trans_setS = posAngle2Trans(pos);
 
 
 	/*Pmac数据采集定时器*/
@@ -700,26 +700,31 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 		qDebug() << "zRBtn";
 		break;
 	case 4:
-		incPosAndAngle(3) = UPSData::multiJogTranslationStep;
+		incPosAndAngle(3) = UPSData::multiJogRotateStep;
 		qDebug() << "aRBtn";
 		break;
 	case 5:
-		incPosAndAngle(4) = UPSData::multiJogTranslationStep;
+		incPosAndAngle(4) = UPSData::multiJogRotateStep;
 		qDebug() << "bRBtn";
 		break;
 	case 6:
-		incPosAndAngle(5) = UPSData::multiJogTranslationStep;
+		incPosAndAngle(5) = UPSData::multiJogRotateStep;
 		qDebug() << "cRBtn";
 		break;
 	default:
 		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
 		break;
 	}
-
+	qDebug() << "Step:" ;
+	cout << incPosAndAngle << endl;
 	//动平台目标位姿相对运动坐标系的位姿向量
 	Matrix<double, 6, 1> tarPosAndAngle_Dset = UPSData::curPosAndAngle_Dset + incPosAndAngle;
+	qDebug() << "tarPosAndAngle_Dset:";
+	cout << tarPosAndAngle_Dset << endl;
 	//动平台目标位相对静坐标系的位姿向量
 	Matrix<double, 6, 1> tarPosAndAngle_DS = posAndAngleDset2DS(UPSData::tarPosAndAngle_Dset, UPSData::Trans_setS);
+	qDebug() << "tarPosAndAngle_DS:";
+	cout << tarPosAndAngle_DS << endl;
 	//反解
 	inverseSolution(tarPosAndAngle_DS, UPSData::tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
