@@ -119,7 +119,7 @@ extern void calibrateTargetPoint(const MatrixXd &point_measure,//靶标点集在
 extern void calibrateInitLength(Matrix<double, 6, 1>& initL_norm,//求得的初始杆长
 	const MatrixXd& Q_DD, //动平台靶标点在自身坐标系下坐标，3行n_D列
 	const MatrixXd& Q_DM, //动平台靶标点在测量坐标系中的坐标，3行n_D列
-	const Matrix<double, 3, 3>&Trans_SM,//静平台相对测量系的齐次变换矩阵
+	const Matrix4d&Trans_SM,//静平台相对测量系的齐次变换矩阵
 	const Matrix<double, 3, 6>& D, //动平台铰链点在动坐标系下坐标,结构参数
 	const Matrix<double, 3, 6>& S);//静台铰链点在静平台坐标系下坐标,结构参数
 

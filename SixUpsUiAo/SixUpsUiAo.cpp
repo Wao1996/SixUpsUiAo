@@ -7,9 +7,9 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	ui.setupUi(this);
 	qDebug() << "SixUpsUiAo 构造";
 
+	initStructPara();
 	initIcon();
 	initUIList();
-	initStructPara();
 	initTablesStyle();
 	initConnect();
 	myWidgetDisnable();
@@ -201,6 +201,8 @@ void SixUpsUiAo::initStructPara()
 	csvToMatrixXd("./Data/D_theoretical.csv", UPSData::D_theoretical);
 	csvToMatrixXd("./Data/S.csv", UPSData::S);
 	csvToMatrixXd("./Data/S_theoretical.csv", UPSData::S_theoretical);
+	csvToMatrixXd("./Data/Q_DD.csv", UPSData::Q_DD);
+	csvToMatrixXd("./Data/Q_SS.csv", UPSData::Q_SS);
 	csvToMatrixXd("./Data/initL.csv", UPSData::initL_norm);
 	csvToMatrixXd("./Data/homePosAndAngle.csv", UPSData::homePosAndAngle_DS);
 	UPSData::initPosAndAngle_DS = UPSData::homePosAndAngle_DS;
@@ -718,9 +720,9 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 	qDebug() << "Step:" ;
 	cout << incPosAndAngle << endl;
 	//动平台目标位姿相对运动坐标系的位姿向量
-	Matrix<double, 6, 1> tarPosAndAngle_Dset = UPSData::curPosAndAngle_Dset + incPosAndAngle;
+	UPSData::tarPosAndAngle_Dset = UPSData::curPosAndAngle_Dset + incPosAndAngle;
 	qDebug() << "tarPosAndAngle_Dset:";
-	cout << tarPosAndAngle_Dset << endl;
+	cout << UPSData::tarPosAndAngle_Dset << endl;
 	//动平台目标位相对静坐标系的位姿向量
 	Matrix<double, 6, 1> tarPosAndAngle_DS = posAndAngleDset2DS(UPSData::tarPosAndAngle_Dset, UPSData::Trans_setS);
 	qDebug() << "tarPosAndAngle_DS:";

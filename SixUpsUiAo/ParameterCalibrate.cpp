@@ -36,7 +36,7 @@ void ParameterCalibrate::initTablesStyle()
 	setTablesStyle(ui.tableD_M, VerticalHeaderXYZ, tableD_HorizontalHeader);
 	/*****tableD ******/
 	QStringList tableS_HorizontalHeader;
-	tableS_HorizontalHeader << "静铰点1" << "静铰点2" << "静铰点3" << "静铰点4" << "静铰点5" << "静铰点6";
+	tableS_HorizontalHeader << "动铰点1" << "动铰点2" << "动铰点3" << "动铰点4" << "动铰点5" << "动铰点6";
 	setTablesStyle(ui.tableD, VerticalHeaderXYZ, tableS_HorizontalHeader);
 	/*****tableS_M ******/
 	setTablesStyle(ui.tableS_M, VerticalHeaderXYZ, tableS_HorizontalHeader);
@@ -138,10 +138,12 @@ void ParameterCalibrate::on_calCircleS_clicked()
 
 void ParameterCalibrate::on_inputTestDataBtn_clicked()
 {
-	csvToTable("./Data/S_M_test.csv", ui.tableS_M);
-	csvToTable("./Data/D_M_test.csv", ui.tableD_M);
-	csvToTable("./Data/Q_SM_test.csv", ui.tableQ_SM);
-	csvToTable("./Data/Q_DM_test.csv", ui.tableQ_DM);
+	csvToTable("./Data/S_M_test1.csv", ui.tableS_M);
+	csvToTable("./Data/D_M_test1.csv", ui.tableD_M);
+	csvToTable("./Data/Q_SM_test1.csv", ui.tableQ_SM);
+	csvToTable("./Data/Q_DM_test1.csv", ui.tableQ_DM);
+	csvToTable("./Data/Q_SM_test2.csv", ui.tableQ_SM_initL);
+	csvToTable("./Data/Q_DM_test2.csv", ui.tableQ_DM_initL);
 }
 
 void ParameterCalibrate::on_dHingeCalbrateBtn_clicked()
@@ -153,7 +155,7 @@ void ParameterCalibrate::on_dHingeCalbrateBtn_clicked()
 	bool flag = matrixXdToTable(UPSData::D, ui.tableD);
 	if (flag)
 	{
-		QMessageBox::information(NULL, "提示", "动平台铰链点标定成功");
+		QMessageBox::information(NULL, "提示", "动平台铰链点标定成功，请保存数据。");
 		ui.dTargetCalbrateBtn->setEnabled(true);
 		ui.saveDBtn->setEnabled(true);
 	}
@@ -173,7 +175,7 @@ void ParameterCalibrate::on_sHingeCalbrateBtn_clicked()
 	bool flag = matrixXdToTable(UPSData::S, ui.tableS);
 	if (flag)
 	{
-		QMessageBox::information(NULL, "提示", "静平台铰链点标定成功");
+		QMessageBox::information(NULL, "提示", "静平台铰链点标定成功，请保存数据。");
 		ui.sTargetCalbrateBtn->setEnabled(true);
 		ui.saveSBtn->setEnabled(true);
 	}
@@ -191,7 +193,7 @@ void ParameterCalibrate::on_dTargetCalbrateBtn_clicked()
 	bool flag = matrixXdToTable(UPSData::Q_DD, ui.tableQ_DD);
 	if (flag)
 	{
-		QMessageBox::information(NULL, "提示", "动平台靶标点标定成功");
+		QMessageBox::information(NULL, "提示", "动平台靶标点标定成功，请保存数据。");
 		ui.saveQ_DDBtn->setEnabled(true);
 	}
 	else
@@ -209,7 +211,7 @@ void ParameterCalibrate::on_sTargetCalbrateBtn_clicked()
 	bool flag = matrixXdToTable(UPSData::Q_SS, ui.tableQ_SS);
 	if (flag)
 	{
-		QMessageBox::information(NULL, "提示", "静平台靶标点标定成功");
+		QMessageBox::information(NULL, "提示", "静平台靶标点标定成功，请保存数据。");
 		ui.saveQ_SSBtn->setEnabled(true);
 	}
 	else
@@ -326,20 +328,28 @@ void ParameterCalibrate::on_saveQ_SSBtn_clicked()
 
 void ParameterCalibrate::on_ininLcalbrateBtn_clicked()
 {
-	/*导入静平台数据*/
+	/*将测量系中静平台靶标点数据转换为矩阵*/
 	MatrixXd Q_SM_initL;
 	vector<int> index_Q_SM_initL;
 	tableToMatrixXd(ui.tableQ_SM_initL, Q_SM_initL, index_Q_SM_initL);
-	/*导入动平台数据*/
+	/*将测量系中静平台靶标点数据转换为矩阵*/
 	MatrixXd Q_DM_initL;
 	vector<int> index_Q_DM_initL;
 	tableToMatrixXd(ui.tableQ_DM_initL, Q_DM_initL, index_Q_DM_initL);
 	/*计算静平台相对测量坐标系位姿*/
-	//Matrix4d Trans_SM = rigidMotionSVDSolution( UPSData::Q_SS, Q_SM_initL);
+	Matrix4d Trans_SM = rigidMotionSVDSolution(UPSData::Q_SS, Q_SM_initL);
 	/*标定初始杆长*/
-	//calibrateInitLength(UPSData::initL_norm, UPSData::Q_DD, Q_DM_initL, Trans_SM, UPSData::D, UPSData::S);
-
-
+	calibrateInitLength(UPSData::initL_norm, UPSData::Q_DD, Q_DM_initL, Trans_SM, UPSData::D, UPSData::S);
+	bool flag = matrixXdToTable(UPSData::initL_norm, ui.tableInitL);
+	if (flag)
+	{
+		QMessageBox::information(NULL, "提示", "初始杆长标定标定成功，请保存数据。");
+		ui.saveInitLBtn->setEnabled(true);
+	}
+	else
+	{
+		QMessageBox::information(NULL, "提示", "初始杆长标定标定失败！");
+	}
 }
 
 

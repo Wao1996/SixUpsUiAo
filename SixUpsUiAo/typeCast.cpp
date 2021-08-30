@@ -470,47 +470,38 @@ bool tableToMatrixXd(const QTableWidget * tab, Matrix<double, 3, 6> &mat)
 
 bool matrixXdToTable(const MatrixXd & mat, QTableWidget * tab)
 {
-	int rows = mat.rows();
-	int cols = mat.cols();
-	if (rows > tab->rowCount() || cols > tab->columnCount())
+	int matRows = mat.rows();
+	int matCols = mat.cols();
+	int tabRows = tab->rowCount();
+	int tabCols = tab->columnCount();
+	if (matRows > tabRows)
 	{
-		qDebug() << "数据行列数大于表格行列数!!!";
+		qDebug() << "数据行数超限!!";
 		return false;
 	}
-	else
+	//若csv列数大于当前表格列数则扩展表格列数
+	if (matCols > tabCols)
 	{
-		for (int i = 0; i < rows; i++)
+		qDebug() << "自动扩展列数->" << matCols;
+		for (int i = 0; i < matCols - tabCols; i++)
 		{
-			for (int j = 0; j < cols; j++)
+			tab->insertColumn(i + tabCols);
+			for (int j = 0; j < matRows; j++)
 			{
-				tab->setItem(i, j, new QTableWidgetItem(QString::number(mat(i, j), 'f', 4)));
+				tab->setItem(j, i + tabCols, new QTableWidgetItem());//添加新元素
 			}
+		}
+	}
+	for (int i = 0; i < matRows; i++)
+	{
+		for (int j = 0; j < matCols; j++)
+		{
+			tab->setItem(i, j, new QTableWidgetItem(QString::number(mat(i, j), 'f', 4)));
 		}
 	}
 	return true;
 }
 
-/*void matrixXdToTable(const Matrix<double, 3, 6>&mat, QTableWidget* tab)
-{
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 6; j++)
-		{
-			tab->setItem(i, j, new QTableWidgetItem(QString::number(mat(i, j), 'f', 4)));
-		}
-	}
-}
-
-void matrixXdToTable(const Matrix<double, 3, 1>& mat, QTableWidget* tab)
-{
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 1; j++)
-		{
-			tab->setItem(i, j, new QTableWidgetItem(QString::number(mat(i, j), 'f', 4)));
-		}
-	}
-}*/
 
 bool matrixXdToCsv(const MatrixXd & mat, const QString & filePath)
 {
@@ -703,10 +694,12 @@ bool csvToMatrixXd(const QString & filePath, MatrixXd & mat)
 		csvColCount = getColCount.size();
 		csvRowCount++;
 	}
-	//cout << "csvRowCount:" << csvRowCount << endl;
-	//cout << "csvColCount:" << csvColCount << endl;
+	cout << "csvRowCount:" << csvRowCount << endl;
+	cout << "csvColCount:" << csvColCount << endl;
 	structParaFile.close();
 
+	//给矩阵重新分配行列数
+	mat.resize(csvRowCount, csvColCount);
 	//从csv文件读取数据
 	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text)) { return false; }
 	QTextStream in(&structParaFile);

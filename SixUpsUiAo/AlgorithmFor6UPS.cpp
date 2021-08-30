@@ -325,7 +325,7 @@ void calibrateTargetPoint(const MatrixXd & point_measure, const Matrix4d & Trans
 	point_fact = homogeneous2Matrix(point_fact_homogeneous);
 }
 
-void calibrateInitLength(Matrix<double, 6, 1>& initL_norm, const MatrixXd & Q_DD, const MatrixXd & Q_DM, const Matrix<double, 3, 3>& Trans_SM, const Matrix<double, 3, 6>& D, const Matrix<double, 3, 6>& S)
+void calibrateInitLength(Matrix<double, 6, 1>& initL_norm, const MatrixXd & Q_DD, const MatrixXd & Q_DM, const Matrix4d & Trans_SM, const Matrix<double, 3, 6>& D, const Matrix<double, 3, 6>& S)
 {
 	int n_D = Q_DD.cols();
 	//求动平台靶标点在静坐标系下的坐标
