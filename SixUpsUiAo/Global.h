@@ -124,6 +124,7 @@ public:
 	static Matrix<double, 6, 1>	homePosAndAngle_DS;		//并联机构 动平台相对静平台的零位位姿   单位 mm °
 	static Matrix<double, 6, 1> initPosAndAngle_DS;		//动平台相对静平台 正解初始位姿 单位 mm °
 	static Matrix<double, 6, 1> curPosAndAngle_DS;		//动平台相对静平台 正解实时位姿 单位 mm °
+	static Matrix<double, 6, 1> curPosAndAngle_setS;	//运动坐标系相对静平台 正解实时位姿 单位 mm °
 	static Matrix<double, 6, 1> curPosAndAngle_Dset;	//动平台相对运动坐标系 正解实时位姿 单位 mm °
 	static Matrix<double, 6, 1> tarL_norm;				//由目标位姿反解得到的目标杆长 单位mm
 	static Matrix<double, 6, 1> tarAxlesL_norm;			//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm

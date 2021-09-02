@@ -502,6 +502,53 @@ bool matrixXdToTable(const MatrixXd & mat, QTableWidget * tab)
 	return true;
 }
 
+bool matrixXdToTable(const MatrixXd & mat, QTableWidget * tab, const QString colTitle)
+{
+	int matRows = mat.rows();
+	int matCols = mat.cols();
+	int tabRows = tab->rowCount();
+	int tabCols = tab->columnCount();
+	if (matRows > tabRows)
+	{
+		qDebug() << "数据行数超限!!";
+		return false;
+	}
+	//若csv列数大于当前表格列数则扩展表格列数
+	if (matCols > tabCols)
+	{
+		qDebug() << "自动扩展列数->" << matCols;
+		for (int i = 0; i < matCols - tabCols; i++)
+		{
+			tab->insertColumn(i + tabCols);
+			QTableWidgetItem * tmpItem = new QTableWidgetItem();
+			tab->setHorizontalHeaderItem(i + tabCols, tmpItem);//设置列标题
+			QTableWidgetItem * colItem = tab->horizontalHeaderItem(i + tabCols);
+			colItem->setText(colTitle + QString::number(i + tabCols + 1));
+			for (int j = 0; j < matRows; j++)
+			{
+				tab->setItem(j, i + tabCols, new QTableWidgetItem());//添加新元素
+			}
+		}
+	}
+	else if (matCols < tabCols)
+	{
+		qDebug() << "自动删除列数->" << matCols;
+		for (int i = 0; i < tabCols - matCols; i++)
+		{
+			tab->removeColumn(i + matCols);
+		}
+
+	}
+	for (int i = 0; i < matRows; i++)
+	{
+		for (int j = 0; j < matCols; j++)
+		{
+			tab->setItem(i, j, new QTableWidgetItem(QString::number(mat(i, j), 'f', 4)));
+		}
+	}
+	return true;
+}
+
 
 bool matrixXdToCsv(const MatrixXd & mat, const QString & filePath)
 {
@@ -589,6 +636,72 @@ bool csvToTable(const QString &filePath, QTableWidget *tab)
 	structParaFile.close();
 	return true;
 
+}
+
+bool csvToTable(const QString & filePath, QTableWidget * tab, const QString colTitle)
+{
+	QFile structParaFile(filePath);
+	//获取csv文件的行列数
+	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		qDebug() << "未打开文件:" << filePath;
+		return false;
+	}
+	QTextStream getCsvRowColCount(&structParaFile);
+	int csvRowCount = 0;
+	int csvColCount = 0;
+	while (!getCsvRowColCount.atEnd())
+	{
+		QString getRowCount = getCsvRowColCount.readLine();
+		QStringList getColCount = getRowCount.split(',');
+		csvColCount = getColCount.size();
+		csvRowCount++;
+	}
+	//cout << "csvRowCount:" << csvRowCount << endl;
+	//cout << "csvColCount:" << csvColCount << endl;
+	structParaFile.close();
+	//获取table行列数
+	int tabRow = tab->rowCount();
+	int tabCol = tab->columnCount();
+	//从csv文件读取数据
+	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text)) { return false; }
+	QTextStream in(&structParaFile);
+	QString line;
+	QStringList fields;
+	if (csvRowCount > tabRow)
+	{
+		qDebug() << "数据行数超限!!";
+		return false;
+	}
+	//若csv列数大于当前表格列数则扩展表格列数
+	if (csvColCount > tabCol)
+	{
+		qDebug() << "自动扩展列数->" << csvColCount;
+		for (int i = 0; i < csvColCount - tabCol; i++)
+		{
+			tab->insertColumn(i + tabCol);
+			QTableWidgetItem * tmpItem = new QTableWidgetItem();
+			tab->setHorizontalHeaderItem(i + tabCol, tmpItem);//设置列标题
+			QTableWidgetItem * colItem = tab->horizontalHeaderItem(i + tabCol);
+			colItem->setText(colTitle + QString::number(i + tabCol + 1));
+			for (int j = 0; j < csvRowCount; j++)
+			{
+				tab->setItem(j, i + tabCol, new QTableWidgetItem());//添加新元素
+			}
+		}
+	}
+	for (int i = 0; i < csvRowCount; i++)
+	{
+		line = in.readLine();
+		fields = line.split(',');//按照,分割
+		for (int j = 0; j < csvColCount; j++)
+		{
+			tab->setItem(i, j, new QTableWidgetItem(fields[j]));
+			//tab->setItem(i, j, new QTableWidgetItem(QString::number(fields[j].toDouble(),'f',4)));
+		}
+	}
+	structParaFile.close();
+	return true;
 }
 
 bool csvToMatrixXd(const QString & filePath, Matrix<double, 6, 1>& mat)
@@ -718,6 +831,7 @@ bool csvToMatrixXd(const QString & filePath, MatrixXd & mat)
 	structParaFile.close();
 	return true;
 }
+
 
 bool tableToCsv(const QTableWidget * tab, const QString & filePath)
 {

@@ -42,10 +42,12 @@ bool tableToMatrixXd(const QTableWidget* tab, MatrixXd &mat, vector<int> &dataIn
 bool tableToMatrixXd(const QTableWidget* tab, Matrix<double, 3, 6>& mat);
 //MatrixXd数据写入表中
 bool matrixXdToTable(const MatrixXd &mat, QTableWidget* tab);
+bool matrixXdToTable(const MatrixXd &mat, QTableWidget* tab, const QString colTitle);
 //MatrixXd数据写入csv文件
 bool matrixXdToCsv(const MatrixXd &mat, const QString &filePath);
 //读取csv文件到表格
 bool csvToTable(const QString &filePath, QTableWidget *tab);
+bool csvToTable(const QString &filePath, QTableWidget *tab, const QString colTitle);
 //读取csv文件到MatrixXd
 bool csvToMatrixXd(const QString &filePath, Matrix<double, 6, 1> &mat);
 bool csvToMatrixXd(const QString &filePath, Matrix<double, 3, 6> &mat);

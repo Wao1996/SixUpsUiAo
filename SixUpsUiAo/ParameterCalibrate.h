@@ -52,10 +52,10 @@ private slots:
 	void on_saveQ_SSBtn_clicked();//保存静平台靶标点标定结果
 	/*标定初始杆长*/
 	void on_ininLcalbrateBtn_clicked();//标定初始杆长
-
+	void on_saveInitLBtn_clicked();//保存初始杆长数据
 
 
 	/*****************添加tablewidget右键菜单***********/
 	void addTableWidgetMenu();
-	void on_loadStructPara_clicked();//导入动静平台参数
+
 };

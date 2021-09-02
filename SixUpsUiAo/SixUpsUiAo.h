@@ -35,8 +35,9 @@ private:
 	QList<QLabel*> qlabPosLimit_group;//轴正限位开关状态图标
 	QList<QLabel*> qlabOrigin_group;//轴原点开关状态图标
 	QList<QLineEdit *> realTimeLengths_group;//杆长显示
-	QList<QLineEdit *> realTimePos_group;//动平台相对静平台 位姿显示
-	QList<QLineEdit *> realTimePos_Origin_group;//动平台相对运动坐标系 位姿显示
+	QList<QLineEdit *> realTimePose_DS_group;//动平台相对静平台 位姿显示
+	QList<QLineEdit *> realTimePose_setS_group; //运动坐标系相对静平台  位姿显示
+	QList<QLineEdit *> realTimePos_Dset_group;//动平台相对运动坐标系 位姿显示
 	QList<QDoubleSpinBox *> AbsTarPos_group;//多轴运动 绝对位置输入框
 	QList<QDoubleSpinBox *> jogInc_group;//单轴运动 距离点动增量
 	QList<QToolButton *> dipJog_group;//单轴运动 距离点动按钮
@@ -107,6 +108,7 @@ private slots:
 	void on_led_multiAxisJogRotateSpeed_valueChanged(double);//转动点动速度改变
 	void on_led_multiAxisJogRotateStep_valueChanged(double);//转动点动步长改变
 	void on_disMultiAxisJog_clicked();//距离点动按钮
+	void on_disMultiAxisJog_stop_clicked();//距离点动停止按钮
 	void on_prsMultiAxisJogNeg_pressed();//负方向长按点动按下
 	void on_prsMultiAxisJogNeg_released();//负方向长按点动松开
 	void on_prsmultiAxisJogPos_pressed();//正方向长按点动按下

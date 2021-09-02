@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1160</width>
+    <width>1214</width>
     <height>870</height>
    </rect>
   </property>
@@ -227,7 +227,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QGroupBox" name="realTimePose">
+   <widget class="QGroupBox" name="realTimePose_DS">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -249,7 +249,7 @@
      </size>
     </property>
     <property name="title">
-     <string>动平台相对静系实时位姿</string>
+     <string>动平台相对静系</string>
     </property>
     <property name="checkable">
      <bool>true</bool>
@@ -2796,14 +2796,14 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>470</x>
-      <y>50</y>
+      <x>610</x>
+      <y>90</y>
       <width>561</width>
       <height>481</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -3707,7 +3707,7 @@
      <widget class="QToolButton" name="disMultiAxisJog">
       <property name="geometry">
        <rect>
-        <x>180</x>
+        <x>160</x>
         <y>290</y>
         <width>30</width>
         <height>30</height>
@@ -4079,6 +4079,41 @@
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QToolButton" name="disMultiAxisJog_stop">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>290</y>
+        <width>30</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icon/stop.png</normaloff>icon/stop.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>24</width>
+        <height>24</height>
+       </size>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_singleJog">
@@ -5183,13 +5218,13 @@
      <string>平台回零</string>
     </property>
    </widget>
-   <widget class="QGroupBox" name="realTimePose_Origin">
+   <widget class="QGroupBox" name="realTimePose_Dset">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>420</x>
       <y>290</y>
       <width>180</width>
       <height>200</height>
@@ -5208,7 +5243,7 @@
      </size>
     </property>
     <property name="title">
-     <string>动平台相对原点实时位姿</string>
+     <string>动平台相对原点</string>
     </property>
     <property name="checkable">
      <bool>true</bool>
@@ -5240,7 +5275,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="led_realTimeX_Origin">
+      <widget class="QLineEdit" name="led_realTimeX_Dset">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -5311,7 +5346,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="led_realTimeY_Origin">
+      <widget class="QLineEdit" name="led_realTimeY_Dset">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -5382,7 +5417,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="led_realTimeZ_Origin">
+      <widget class="QLineEdit" name="led_realTimeZ_Dset">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -5453,7 +5488,7 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QLineEdit" name="led_realTimeRdeg_Origin">
+      <widget class="QLineEdit" name="led_realTimeRdeg_Dset">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -5524,7 +5559,7 @@
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="QLineEdit" name="led_realTimePdeg_Origin">
+      <widget class="QLineEdit" name="led_realTimePdeg_Dset">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -5595,7 +5630,7 @@
       </widget>
      </item>
      <item row="5" column="1">
-      <widget class="QLineEdit" name="led_realTimeYdeg_Origin">
+      <widget class="QLineEdit" name="led_realTimeYdeg_Dset">
        <property name="minimumSize">
         <size>
          <width>70</width>
@@ -5676,25 +5711,491 @@
      <string>各轴回零</string>
     </property>
    </widget>
+   <widget class="QGroupBox" name="realTimePose_SetS">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>290</y>
+      <width>180</width>
+      <height>200</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>180</width>
+      <height>200</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>180</width>
+      <height>200</height>
+     </size>
+    </property>
+    <property name="title">
+     <string>运动坐标系相对静系</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_15">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_43">
+       <property name="minimumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Adobe Devanagari</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>X坐标</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="led_realTimeX_setS">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="lab_mm1_3">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>mm</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_44">
+       <property name="minimumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Y坐标</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="led_realTimeY_setS">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="lab_mm2_3">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>mm</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_45">
+       <property name="minimumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Z坐标</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="led_realTimeZ_setS">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="lab_mm3_3">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>mm</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_46">
+       <property name="minimumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>绕X角度</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="led_realTimeRdeg_setS">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="lab_deg1_3">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>°</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_47">
+       <property name="minimumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>绕Y角度</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="led_realTimePdeg_setS">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QLabel" name="lab_deg2_3">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>°</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_48">
+       <property name="minimumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>55</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>绕Z角度</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QLineEdit" name="led_realTimeYdeg_setS">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QLabel" name="lab_deg3_3">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>°</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
    <zorder>realTimeLengths</zorder>
    <zorder>HMI</zorder>
    <zorder>PMAC</zorder>
-   <zorder>realTimePose</zorder>
+   <zorder>realTimePose_DS</zorder>
    <zorder>poseMargin</zorder>
    <zorder>realTimeForce</zorder>
    <zorder>tabWidget</zorder>
    <zorder>servoOnBtn</zorder>
    <zorder>servoOffBtn</zorder>
    <zorder>upsHomeBtn</zorder>
-   <zorder>realTimePose_Origin</zorder>
+   <zorder>realTimePose_Dset</zorder>
    <zorder>axlesHomeBtn</zorder>
+   <zorder>realTimePose_SetS</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1160</width>
+     <width>1214</width>
      <height>26</height>
     </rect>
    </property>

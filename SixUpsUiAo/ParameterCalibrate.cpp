@@ -44,11 +44,11 @@ void ParameterCalibrate::initTablesStyle()
 	setTablesStyle(ui.tableS, VerticalHeaderXYZ, tableS_HorizontalHeader);
 	/*****tableQ_DM ******/
 	QStringList tableQ_DHorizontalHeader;
-	tableQ_DHorizontalHeader << "动靶标1" << "动靶标2" << "动靶标3" << "动靶标4" << "动靶标5" << "动靶标6";
+	tableQ_DHorizontalHeader << "动靶点1" << "动靶点2" << "动靶点3" << "动靶点4" << "动靶点5" << "动靶点6";
 	setTablesStyle(ui.tableQ_DM, VerticalHeaderXYZ, tableQ_DHorizontalHeader);
 	/*****tableQ_DD ******/
 	QStringList tableQ_S_HorizontalHeader;
-	tableQ_S_HorizontalHeader << "静靶标1" << "静靶标2" << "静靶标3" << "静靶标4" << "静靶标5" << "静靶标6";
+	tableQ_S_HorizontalHeader << "静靶点1" << "静靶点2" << "静靶点3" << "静靶点4" << "静靶点5" << "静靶点6";
 	setTablesStyle(ui.tableQ_DD, VerticalHeaderXYZ, tableQ_DHorizontalHeader);
 	/*****tableQ_SM ******/
 	setTablesStyle(ui.tableQ_SM, VerticalHeaderXYZ, tableQ_S_HorizontalHeader);
@@ -102,6 +102,14 @@ void ParameterCalibrate::initTableWidgetConnect()
 {
 	ui.tableCirclePt->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(ui.tableCirclePt, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenu()));
+	ui.tableQ_SM->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.tableQ_SM, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenu()));
+	ui.tableQ_DM->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.tableQ_DM, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenu()));
+	ui.tableQ_SM_initL->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.tableQ_SM_initL, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenu()));
+	ui.tableQ_DM_initL->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.tableQ_DM_initL, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenu()));
 }
 
 
@@ -138,12 +146,12 @@ void ParameterCalibrate::on_calCircleS_clicked()
 
 void ParameterCalibrate::on_inputTestDataBtn_clicked()
 {
-	csvToTable("./Data/S_M_test1.csv", ui.tableS_M);
-	csvToTable("./Data/D_M_test1.csv", ui.tableD_M);
-	csvToTable("./Data/Q_SM_test1.csv", ui.tableQ_SM);
-	csvToTable("./Data/Q_DM_test1.csv", ui.tableQ_DM);
-	csvToTable("./Data/Q_SM_test2.csv", ui.tableQ_SM_initL);
-	csvToTable("./Data/Q_DM_test2.csv", ui.tableQ_DM_initL);
+	csvToTable("./Data/S_M_test1.csv", ui.tableS_M,"静铰点");
+	csvToTable("./Data/D_M_test1.csv", ui.tableD_M, "动铰点");
+	csvToTable("./Data/Q_SM_test1.csv", ui.tableQ_SM, "静靶点");
+	csvToTable("./Data/Q_DM_test1.csv", ui.tableQ_DM, "动靶点");
+	csvToTable("./Data/Q_SM_test2.csv", ui.tableQ_SM_initL, "静靶点");
+	csvToTable("./Data/Q_DM_test2.csv", ui.tableQ_DM_initL, "动靶点");
 }
 
 void ParameterCalibrate::on_dHingeCalbrateBtn_clicked()
@@ -152,7 +160,7 @@ void ParameterCalibrate::on_dHingeCalbrateBtn_clicked()
 	tableToMatrixXd(ui.tableD_M, UPSData::D_M);
 	Trans_DM_calibrate = calibrateHingePoint(UPSData::D_theoretical, UPSData::D_M, UPSData::D );
 	
-	bool flag = matrixXdToTable(UPSData::D, ui.tableD);
+	bool flag = matrixXdToTable(UPSData::D, ui.tableD,"动铰点");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "动平台铰链点标定成功，请保存数据。");
@@ -172,7 +180,7 @@ void ParameterCalibrate::on_sHingeCalbrateBtn_clicked()
 	tableToMatrixXd(ui.tableS_M, UPSData::S_M);
 	Trans_SM_calibrate = calibrateHingePoint(UPSData::S_theoretical, UPSData::S_M, UPSData::S);
 	cout << Trans_SM_calibrate;
-	bool flag = matrixXdToTable(UPSData::S, ui.tableS);
+	bool flag = matrixXdToTable(UPSData::S, ui.tableS, "静铰点");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "静平台铰链点标定成功，请保存数据。");
@@ -190,7 +198,7 @@ void ParameterCalibrate::on_dTargetCalbrateBtn_clicked()
 	vector<int> index;
 	tableToMatrixXd(ui.tableQ_DM, UPSData::Q_DM, index);
 	calibrateTargetPoint(UPSData::Q_DM, Trans_DM_calibrate, UPSData::Q_DD);
-	bool flag = matrixXdToTable(UPSData::Q_DD, ui.tableQ_DD);
+	bool flag = matrixXdToTable(UPSData::Q_DD, ui.tableQ_DD, "动靶点");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "动平台靶标点标定成功，请保存数据。");
@@ -208,7 +216,7 @@ void ParameterCalibrate::on_sTargetCalbrateBtn_clicked()
 	vector<int> index;
 	tableToMatrixXd(ui.tableQ_SM, UPSData::Q_SM, index);
 	calibrateTargetPoint(UPSData::Q_SM, Trans_SM_calibrate, UPSData::Q_SS);
-	bool flag = matrixXdToTable(UPSData::Q_SS, ui.tableQ_SS);
+	bool flag = matrixXdToTable(UPSData::Q_SS, ui.tableQ_SS, "静靶点");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "静平台靶标点标定成功，请保存数据。");
@@ -343,15 +351,28 @@ void ParameterCalibrate::on_ininLcalbrateBtn_clicked()
 	bool flag = matrixXdToTable(UPSData::initL_norm, ui.tableInitL);
 	if (flag)
 	{
-		QMessageBox::information(NULL, "提示", "初始杆长标定标定成功，请保存数据。");
+		QMessageBox::information(NULL, "提示", "初始杆长标定成功，请保存数据。");
 		ui.saveInitLBtn->setEnabled(true);
 	}
 	else
 	{
-		QMessageBox::information(NULL, "提示", "初始杆长标定标定失败！");
+		QMessageBox::information(NULL, "提示", "初始杆长标定失败！");
 	}
 }
 
+
+void ParameterCalibrate::on_saveInitLBtn_clicked()
+{
+	bool flag = matrixXdToCsv(UPSData::initL_norm, "./Data/initL_norm.csv");
+	if (flag)
+	{
+		QMessageBox::information(NULL, "提示", "初始杆长标定数据保存成功");
+	}
+	else
+	{
+		QMessageBox::information(NULL, "提示", "初始杆长标定数据保存失败");
+	}
+}
 
 void ParameterCalibrate::addTableWidgetMenu()
 {
@@ -362,7 +383,7 @@ void ParameterCalibrate::addTableWidgetMenu()
 	/************根据表格名设定不同列标题**************/
 	QString curTabName = senderTableWidget->objectName();//获取发送信号的表格名
 	QStringList tabNameList;//各种表格名
-	tabNameList << "tableCirclePt" << "tableMPt_D" << "tableMPt_M" << "tableTarMPt_M" << "tableMPt_M_Comp";
+	tabNameList << "tableCirclePt" << "tableQ_SM" << "tableQ_DM" << "tableQ_SM_initL" << "tableQ_DM_initL";
 	QString colTitle;//列标题
 	switch (tabNameList.indexOf(curTabName))
 	{
@@ -370,16 +391,16 @@ void ParameterCalibrate::addTableWidgetMenu()
 		colTitle = "测点";
 		break;
 	case 1:
-		colTitle = "待测点";
+		colTitle = "静靶点";
 		break;
 	case 2:
-		colTitle = "待测点";
+		colTitle = "动靶点";
 		break;
 	case 3:
-		colTitle = "目标待测点";
+		colTitle = "静靶点";
 		break;
 	case 4:
-		colTitle = "待测点";
+		colTitle = "动靶点";
 		break;
 	default:
 		break;
@@ -422,21 +443,3 @@ void ParameterCalibrate::addTableWidgetMenu()
 	tableWidgetMenu->show();
 }
 
-void ParameterCalibrate::on_loadStructPara_clicked()
-{
-	qDebug() << "on_loadStructPara_clicked";
-	csvToTable("./Data/D.csv", ui.tableD);
-	tableToMatrixXd(ui.tableD, UPSData::D);
-
-	csvToTable("./Data/S.csv", ui.tableS);
-	tableToMatrixXd(ui.tableS, UPSData::S);
-
-	csvToTable("./Data/Q_DD.csv", ui.tableQ_DD);
-	vector<int>Q_DDindex;
-	tableToMatrixXd(ui.tableQ_DD, UPSData::Q_DD, Q_DDindex);
-
-	csvToTable("./Data/Q_SS.csv", ui.tableQ_SS);
-	vector<int>Q_SSindex;
-	tableToMatrixXd(ui.tableQ_SS, UPSData::Q_SS, Q_SSindex);
-	
-}

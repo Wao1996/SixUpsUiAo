@@ -142,19 +142,26 @@ void SixUpsUiAo::initUIList()
 	realTimeLengths_group.append(ui.led_realTimeLength5);
 	realTimeLengths_group.append(ui.led_realTimeLength6);
 
-	realTimePos_group.append(ui.led_realTimeX);
-	realTimePos_group.append(ui.led_realTimeY);
-	realTimePos_group.append(ui.led_realTimeZ);
-	realTimePos_group.append(ui.led_realTimeRdeg);
-	realTimePos_group.append(ui.led_realTimePdeg);
-	realTimePos_group.append(ui.led_realTimeYdeg);
+	realTimePose_DS_group.append(ui.led_realTimeX);
+	realTimePose_DS_group.append(ui.led_realTimeY);
+	realTimePose_DS_group.append(ui.led_realTimeZ);
+	realTimePose_DS_group.append(ui.led_realTimeRdeg);
+	realTimePose_DS_group.append(ui.led_realTimePdeg);
+	realTimePose_DS_group.append(ui.led_realTimeYdeg);
 
-	realTimePos_Origin_group.append(ui.led_realTimeX_Origin);
-	realTimePos_Origin_group.append(ui.led_realTimeY_Origin);
-	realTimePos_Origin_group.append(ui.led_realTimeZ_Origin);
-	realTimePos_Origin_group.append(ui.led_realTimeRdeg_Origin);
-	realTimePos_Origin_group.append(ui.led_realTimePdeg_Origin);
-	realTimePos_Origin_group.append(ui.led_realTimeYdeg_Origin);
+	realTimePose_setS_group.append(ui.led_realTimeX_setS);
+	realTimePose_setS_group.append(ui.led_realTimeY_setS);
+	realTimePose_setS_group.append(ui.led_realTimeZ_setS);
+	realTimePose_setS_group.append(ui.led_realTimeRdeg_setS);
+	realTimePose_setS_group.append(ui.led_realTimePdeg_setS);
+	realTimePose_setS_group.append(ui.led_realTimeYdeg_setS);
+
+	realTimePos_Dset_group.append(ui.led_realTimeX_Dset);
+	realTimePos_Dset_group.append(ui.led_realTimeY_Dset);
+	realTimePos_Dset_group.append(ui.led_realTimeZ_Dset);
+	realTimePos_Dset_group.append(ui.led_realTimeRdeg_Dset);
+	realTimePos_Dset_group.append(ui.led_realTimePdeg_Dset);
+	realTimePos_Dset_group.append(ui.led_realTimeYdeg_Dset);
 
 
 
@@ -203,7 +210,7 @@ void SixUpsUiAo::initStructPara()
 	csvToMatrixXd("./Data/S_theoretical.csv", UPSData::S_theoretical);
 	csvToMatrixXd("./Data/Q_DD.csv", UPSData::Q_DD);
 	csvToMatrixXd("./Data/Q_SS.csv", UPSData::Q_SS);
-	csvToMatrixXd("./Data/initL.csv", UPSData::initL_norm);
+	csvToMatrixXd("./Data/initL_norm.csv", UPSData::initL_norm);
 	csvToMatrixXd("./Data/homePosAndAngle.csv", UPSData::homePosAndAngle_DS);
 	UPSData::initPosAndAngle_DS = UPSData::homePosAndAngle_DS;
 }
@@ -284,7 +291,8 @@ void SixUpsUiAo::myWidgetDisnable()
 		qlabPosLimit_group[i]->setPixmap(offIcon);
 		qlabOrigin_group[i]->setPixmap(offIcon);
 		realTimeLengths_group[i]->setText("");
-		realTimePos_group[i]->setText("");
+		realTimePose_DS_group[i]->setText("");
+		realTimePose_setS_group[i]->setText("");
 	}
 
 	ui.pmacSta->setPixmap(offIcon);
@@ -419,10 +427,13 @@ void SixUpsUiAo::on_updateUiDataTimer()
 	{
 		//动平台相对静平台
 		strPos = QString::number(UPSData::curPosAndAngle_DS(i), 'f', 3);
-		realTimePos_group[i]->setText(strPos);
+		realTimePose_DS_group[i]->setText(strPos);
+		//运动坐标系相对静平台
+		strPos = QString::number(UPSData::curPosAndAngle_setS(i), 'f', 3);
+		realTimePose_setS_group[i]->setText(strPos);
 		//动平台相对运动坐标系
 		strPos = QString::number(UPSData::curPosAndAngle_Dset(i), 'f', 3);
-		realTimePos_Origin_group[i]->setText(strPos);
+		realTimePos_Dset_group[i]->setText(strPos);
 	}
 
 }
@@ -606,16 +617,21 @@ void SixUpsUiAo::on_setOriginBtn_clicked()
 	Matrix4d Trans_set_M = creatCoordSysGetRt(UPSData::O_set_M, UPSData::X_set_M, UPSData::XOY_set_M);
 	//将运动坐标系转换到静坐标系下描述
 	UPSData::Trans_setS = UPSData::Trans_SM.inverse()*Trans_set_M;
+	UPSData::curPosAndAngle_setS = trans2PosAngle(UPSData::Trans_setS);
+	
 }
 
 void SixUpsUiAo::on_setSPosOriginBtn_clicked()
 {
 	UPSData::Trans_setS = Matrix4d::Identity();
+	UPSData::curPosAndAngle_setS = trans2PosAngle(UPSData::Trans_setS);
 }
 
 void SixUpsUiAo::on_setCurPosOriginBtn_clicked()
 {
 	UPSData::Trans_setS = UPSData::Trans_DS;
+	UPSData::curPosAndAngle_setS = trans2PosAngle(UPSData::Trans_setS);
+
 }
 
 
@@ -732,6 +748,11 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
 	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiJogTranslationSpeed);
 	
+}
+
+void SixUpsUiAo::on_disMultiAxisJog_stop_clicked()
+{
+	myPmac->jogStop();
 }
 
 void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()

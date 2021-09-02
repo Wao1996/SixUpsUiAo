@@ -82,12 +82,13 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  //当前位姿杆长数据
 
  
+ Matrix<double, 6, 1> UPSData::initPosAndAngle_DS = MatrixXd::Zero(6, 1);		//正解初始位姿
+ Matrix<double, 6, 1> UPSData::curPosAndAngle_DS = MatrixXd::Zero(6, 1);		//正解实时位姿
  Matrix<double, 6, 1> UPSData::curPosAndAngle_Dset = MatrixXd::Zero(6, 1);
+ Matrix<double, 6, 1> UPSData::curPosAndAngle_setS = MatrixXd::Zero(6, 1);
  Matrix<double, 6, 1> UPSData::tarPosAndAngle_Dset = MatrixXd::Zero(6, 1);		//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
  Matrix<double, 6, 1> UPSData::prsPosAndAngle_Dset = MatrixXd::Zero(6, 1);		//长按点动按下时的动平台相对运动坐标系位姿
  Matrix<double, 6, 1> UPSData::homePosAndAngle_DS = MatrixXd::Zero(6, 1);		//并联机构 平台零位位姿  单位 mm °
- Matrix<double, 6, 1> UPSData::initPosAndAngle_DS = MatrixXd::Zero(6, 1);		//正解初始位姿
- Matrix<double, 6, 1> UPSData::curPosAndAngle_DS = MatrixXd::Zero(6, 1);		//正解实时位姿
  Matrix<double, 6, 1> UPSData::tarL_norm = MatrixXd::Zero(6, 1);			//有目标位姿反解得到的目标杆长 单位mm
  Matrix<double, 6, 1> UPSData::tarAxlesL_norm = MatrixXd::Zero(6, 1);       //得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
  Matrix<double, 6, 1> UPSData::lastAxlesL_norm = MatrixXd::Zero(6, 1);		//上一步的轴长
