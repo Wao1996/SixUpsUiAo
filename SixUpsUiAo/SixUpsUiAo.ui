@@ -2796,14 +2796,14 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>610</x>
-      <y>90</y>
+      <x>600</x>
+      <y>80</y>
       <width>561</width>
       <height>481</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -2819,13 +2819,13 @@
        </rect>
       </property>
       <property name="text">
-       <string>标定动平台靶标点</string>
+       <string>标定静平台靶标点</string>
       </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_setOrigin">
      <attribute name="title">
-      <string>原点设置</string>
+      <string>运动原点设置</string>
      </attribute>
      <widget class="QRadioButton" name="MsetOriginRBtn">
       <property name="enabled">

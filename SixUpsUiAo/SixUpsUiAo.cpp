@@ -616,6 +616,7 @@ void SixUpsUiAo::on_setOriginBtn_clicked()
 	//运动坐标系在测量坐标系中的齐次坐标
 	Matrix4d Trans_set_M = creatCoordSysGetRt(UPSData::O_set_M, UPSData::X_set_M, UPSData::XOY_set_M);
 	//将运动坐标系转换到静坐标系下描述
+	//TODO 静系相对测量测量坐标系
 	UPSData::Trans_setS = UPSData::Trans_SM.inverse()*Trans_set_M;
 	UPSData::curPosAndAngle_setS = trans2PosAngle(UPSData::Trans_setS);
 	
