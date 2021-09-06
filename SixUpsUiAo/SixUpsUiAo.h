@@ -101,7 +101,8 @@ private slots:
 	void on_axlesHomeBtn_clicked();
 	/*平台回零*/
 	void on_upsHomeBtn_clicked();
-
+	/***************测量准备***************/
+	void on_calibrateSMBtn_clicked();
 	/*************设置运动原点***********/
 	void on_setOriginBtn_clicked();//将测量坐标系中的点设为运动原点
 	void on_setSPosOriginBtn_clicked();//将静坐标系原点设为运动原点

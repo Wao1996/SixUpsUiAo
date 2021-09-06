@@ -221,12 +221,12 @@ void SixUpsUiAo::initStructPara()
 
 void SixUpsUiAo::initTablesStyle()
 {
-	int rowHeight = 25;//行高
+	int rowHeight = 30;//行高
 	int colWidth = 80;//列宽
 	int scrollBarHeight = 20;//滚动条高
 	QStringList VerticalHeaderXYZ;
 	VerticalHeaderXYZ << "X" << "Y" << "Z";
-	/*****tableCirclePt 待拟合参数******/
+	/*****tableSetOrigin 原点设置******/
 	//列设置
 	ui.tableSetOrigin->horizontalHeader()->setDefaultSectionSize(colWidth);
 	ui.tableSetOrigin->setColumnCount(3);
@@ -248,7 +248,7 @@ void SixUpsUiAo::initTablesStyle()
 	ui.tableSetOrigin->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 	ui.tableSetOrigin->setAlternatingRowColors(true);//行奇偶颜色不同
 	ui.tableSetOrigin->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
-	ui.tableSetOrigin->setFixedHeight(4 * rowHeight + scrollBarHeight);
+	ui.tableSetOrigin->setFixedHeight(4 * rowHeight);
 
 	/*****keyPointTable 待拟合参数******/
 	//列设置
@@ -267,7 +267,27 @@ void SixUpsUiAo::initTablesStyle()
 	ui.keyPointTable->setAlternatingRowColors(true);//行奇偶颜色不同
 	ui.keyPointTable->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
 	ui.keyPointTable->setSelectionBehavior(QAbstractItemView::SelectRows); //整行选中的方式
-	//ui.keyPointTable->setFixedHeight(4 * rowHeight + scrollBarHeight);
+
+	/*********************tableSM*****************/
+	
+	QStringList tableSMVerticalHeader;
+	tableSMVerticalHeader <<"静铰点序号"<< "X坐标" << "Y坐标" << "Z坐标";
+	//列设置
+	ui.tableSM->horizontalHeader()->setDefaultSectionSize(colWidth);
+	ui.tableSM->setColumnCount(3);
+	ui.tableSM->horizontalHeader()->setVisible(false);//行号可见
+	ui.tableSM->horizontalHeader()->setStretchLastSection(false);//行头自适应表格
+	//行设置
+	ui.tableSM->setRowCount(tableSMVerticalHeader.size());
+	ui.tableSM->verticalHeader()->setVisible(true);//行号可见
+	ui.tableSM->setVerticalHeaderLabels(tableSMVerticalHeader);
+	ui.tableSM->verticalHeader()->setFont(QFont("黑体", 10));
+	ui.tableSM->verticalHeader()->setFixedWidth(100);
+	ui.tableSM->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+	ui.tableSM->setAlternatingRowColors(true);//行奇偶颜色不同
+	//大小设置
+	ui.tableSM->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
+	ui.tableSM->setFixedHeight(4 * rowHeight + scrollBarHeight);
 }
 
 void SixUpsUiAo::initConnect()
@@ -756,6 +776,26 @@ void SixUpsUiAo::on_upsHomeBtn_clicked()
 	emit upsHome_signal();
 }
 
+void SixUpsUiAo::on_calibrateSMBtn_clicked()
+{
+	int numCol = ui.tableSM->columnCount();
+	MatrixXd Q_SM_temp = MatrixXd::Zero(3, numCol);
+	MatrixXd Q_SS_temp = MatrixXd::Zero(3, numCol);
+	for (int j=0;j< numCol;j++)
+	{
+		int p = ui.tableSM->item(0, j)->text().toInt();
+		Q_SS_temp.col(j) = UPSData::Q_SS.col(p - 1);
+		for (int i = 0;i<3;i++)
+		{
+			if (!ui.tableSM->item(i + 1, j)->text().isEmpty())
+			{
+				Q_SM_temp(i, j) = ui.tableSM->item(i + 1, j)->text().toDouble();
+			}
+		}
+	}
+	UPSData::Trans_SM = rigidMotionSVDSolution(Q_SS_temp, Q_SM_temp);
+}
+
 
 void SixUpsUiAo::on_setOriginBtn_clicked()
 {
@@ -769,7 +809,6 @@ void SixUpsUiAo::on_setOriginBtn_clicked()
 	//运动坐标系在测量坐标系中的齐次坐标
 	Matrix4d Trans_set_M = creatCoordSysGetRt(UPSData::O_set_M, UPSData::X_set_M, UPSData::XOY_set_M);
 	//将运动坐标系转换到静坐标系下描述
-	//TODO 静系相对测量测量坐标系
 	UPSData::Trans_setS = UPSData::Trans_SM.inverse()*Trans_set_M;
 	UPSData::curPosAndAngle_setS = trans2PosAngle(UPSData::Trans_setS);
 	
