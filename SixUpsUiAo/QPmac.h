@@ -31,10 +31,11 @@ public:
 	/*获取电机状态及变量*/
 	QString creatPmacVariableCommand(QList<PmacVariable> &pmacVariableRecipe);//创建获取pmac变量在线命令的字符串
 	void getPmacVariable(QList<PmacVariable> &pmacVariableRecipe, QString strCommand, QList<VectorXd*> pmacVariableList);
-
 	/*设置P变量*/
 	void setPvariable(int p, double data);
-	
+	/*设置初始时各轴显示长度*/
+	void setCurLengths(const  Matrix<double, 6, 1> & lastCurLengthsMM);
+	/*PLC相关*/
 	void enablePLC(int num);//启动PLC
 	void disablePLC(int num);//关闭PLC
 	/*单轴运动控制*/

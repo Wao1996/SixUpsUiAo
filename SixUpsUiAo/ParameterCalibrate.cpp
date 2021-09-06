@@ -146,12 +146,12 @@ void ParameterCalibrate::on_calCircleS_clicked()
 
 void ParameterCalibrate::on_inputTestDataBtn_clicked()
 {
-	csvToTable("./Data/S_M_test1.csv", ui.tableS_M,"静铰点");
-	csvToTable("./Data/D_M_test1.csv", ui.tableD_M, "动铰点");
-	csvToTable("./Data/Q_SM_test1.csv", ui.tableQ_SM, "静靶点");
-	csvToTable("./Data/Q_DM_test1.csv", ui.tableQ_DM, "动靶点");
-	csvToTable("./Data/Q_SM_test2.csv", ui.tableQ_SM_initL, "静靶点");
-	csvToTable("./Data/Q_DM_test2.csv", ui.tableQ_DM_initL, "动靶点");
+	csvToTable("./Data/结构参数/S_M_test1.csv", ui.tableS_M,"静铰点");
+	csvToTable("./Data/结构参数/D_M_test1.csv", ui.tableD_M, "动铰点");
+	csvToTable("./Data/结构参数/Q_SM_test1.csv", ui.tableQ_SM, "静靶点");
+	csvToTable("./Data/结构参数/Q_DM_test1.csv", ui.tableQ_DM, "动靶点");
+	csvToTable("./Data/结构参数/Q_SM_test2.csv", ui.tableQ_SM_initL, "静靶点");
+	csvToTable("./Data/结构参数/Q_DM_test2.csv", ui.tableQ_DM_initL, "动靶点");
 }
 
 void ParameterCalibrate::on_dHingeCalbrateBtn_clicked()
@@ -232,7 +232,7 @@ void ParameterCalibrate::on_sTargetCalbrateBtn_clicked()
 
 void ParameterCalibrate::on_saveD_MBtn_clicked()
 {
-	bool flag = tableToCsv(ui.tableD_M, "./Data/D_M.csv");
+	bool flag = tableToCsv(ui.tableD_M, "./Data/结构参数/D_M.csv");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "测量数据保存成功");
@@ -245,7 +245,7 @@ void ParameterCalibrate::on_saveD_MBtn_clicked()
 
 void ParameterCalibrate::on_saveS_MBtn_clicked()
 {
-	bool flag = tableToCsv(ui.tableS_M, "./Data/S_M.csv");
+	bool flag = tableToCsv(ui.tableS_M, "./Data/结构参数/S_M.csv");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "测量数据保存成功");
@@ -258,7 +258,7 @@ void ParameterCalibrate::on_saveS_MBtn_clicked()
 
 void ParameterCalibrate::on_saveQ_DMBtn_clicked()
 {
-	bool flag = tableToCsv(ui.tableQ_DM, "./Data/Q_DM.csv");
+	bool flag = tableToCsv(ui.tableQ_DM, "./Data/结构参数/Q_DM.csv");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "测量数据保存成功");
@@ -271,7 +271,7 @@ void ParameterCalibrate::on_saveQ_DMBtn_clicked()
 
 void ParameterCalibrate::on_saveQ_SMBtn_clicked()
 {
-	bool flag = tableToCsv(ui.tableQ_SM, "./Data/Q_SM.csv");
+	bool flag = tableToCsv(ui.tableQ_SM, "./Data/结构参数/Q_SM.csv");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "测量数据保存成功");
@@ -284,7 +284,7 @@ void ParameterCalibrate::on_saveQ_SMBtn_clicked()
 
 void ParameterCalibrate::on_saveDBtn_clicked()
 {
-	bool flag = matrixXdToCsv(UPSData::D, "./Data/D.csv");
+	bool flag = matrixXdToCsv(UPSData::D, "./Data/结构参数/D.csv");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "标定数据保存成功");
@@ -297,7 +297,7 @@ void ParameterCalibrate::on_saveDBtn_clicked()
 
 void ParameterCalibrate::on_saveSBtn_clicked()
 {
-	bool flag = matrixXdToCsv(UPSData::S, "./Data/S.csv");
+	bool flag = matrixXdToCsv(UPSData::S, "./Data/结构参数/S.csv");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "标定数据保存成功");
@@ -310,7 +310,7 @@ void ParameterCalibrate::on_saveSBtn_clicked()
 
 void ParameterCalibrate::on_saveQ_DDBtn_clicked()
 {
-	bool flag = matrixXdToCsv(UPSData::Q_DD, "./Data/Q_DD.csv");
+	bool flag = matrixXdToCsv(UPSData::Q_DD, "./Data/结构参数/Q_DD.csv");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "标定数据保存成功");
@@ -323,7 +323,7 @@ void ParameterCalibrate::on_saveQ_DDBtn_clicked()
 
 void ParameterCalibrate::on_saveQ_SSBtn_clicked()
 {
-	bool flag = matrixXdToCsv(UPSData::Q_SS, "./Data/Q_SS.csv");
+	bool flag = matrixXdToCsv(UPSData::Q_SS, "./Data/结构参数/Q_SS.csv");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "标定数据保存成功");
@@ -363,7 +363,7 @@ void ParameterCalibrate::on_ininLcalbrateBtn_clicked()
 
 void ParameterCalibrate::on_saveInitLBtn_clicked()
 {
-	bool flag = matrixXdToCsv(UPSData::initL_norm, "./Data/initL_norm.csv");
+	bool flag = matrixXdToCsv(UPSData::initL_norm, "./Data/结构参数/initL_norm.csv");
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "初始杆长标定数据保存成功");

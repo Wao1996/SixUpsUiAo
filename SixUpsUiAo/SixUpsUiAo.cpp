@@ -7,17 +7,15 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	ui.setupUi(this);
 	qDebug() << "SixUpsUiAo 构造";
 
+	initTablesStyle();
 	initStructPara();
 	initIcon();
 	initUIList();
-	initTablesStyle();
+	
 	initConnect();
 	myWidgetDisnable();
+	
 
-	//UPSData::Trans_setS = Matrix4d::Identity();
-	//Matrix<double, 6, 1> pos;
-	//pos << 0, 0, 0, 10, 0, 0;
-	//UPSData::Trans_setS = posAngle2Trans(pos);
 
 
 	/*Pmac数据采集定时器*/
@@ -63,10 +61,12 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 SixUpsUiAo::~SixUpsUiAo()
 {
 	qDebug() << "SixUpsUiAo 析构";
-	//TODO pmac连接时直接关闭界面
 
+	//pmac连接时直接关闭界面
 	if (GlobalSta::pmacIsConnected)
 	{
+		//记录当前位姿
+		recordCurLengthsMM();
 		delete myPmac;
 		GlobalSta::pmacIsConnected = false;
 	}
@@ -156,12 +156,12 @@ void SixUpsUiAo::initUIList()
 	realTimePose_setS_group.append(ui.led_realTimePdeg_setS);
 	realTimePose_setS_group.append(ui.led_realTimeYdeg_setS);
 
-	realTimePos_Dset_group.append(ui.led_realTimeX_Dset);
-	realTimePos_Dset_group.append(ui.led_realTimeY_Dset);
-	realTimePos_Dset_group.append(ui.led_realTimeZ_Dset);
-	realTimePos_Dset_group.append(ui.led_realTimeRdeg_Dset);
-	realTimePos_Dset_group.append(ui.led_realTimePdeg_Dset);
-	realTimePos_Dset_group.append(ui.led_realTimeYdeg_Dset);
+	realTimePose_Dset_group.append(ui.led_realTimeX_Dset);
+	realTimePose_Dset_group.append(ui.led_realTimeY_Dset);
+	realTimePose_Dset_group.append(ui.led_realTimeZ_Dset);
+	realTimePose_Dset_group.append(ui.led_realTimeRdeg_Dset);
+	realTimePose_Dset_group.append(ui.led_realTimePdeg_Dset);
+	realTimePose_Dset_group.append(ui.led_realTimeYdeg_Dset);
 
 
 
@@ -204,15 +204,19 @@ void SixUpsUiAo::initUIList()
 void SixUpsUiAo::initStructPara()
 {
 	//导入动静平台结构参数
-	csvToMatrixXd("./Data/D.csv", UPSData::D);
-	csvToMatrixXd("./Data/D_theoretical.csv", UPSData::D_theoretical);
-	csvToMatrixXd("./Data/S.csv", UPSData::S);
-	csvToMatrixXd("./Data/S_theoretical.csv", UPSData::S_theoretical);
-	csvToMatrixXd("./Data/Q_DD.csv", UPSData::Q_DD);
-	csvToMatrixXd("./Data/Q_SS.csv", UPSData::Q_SS);
-	csvToMatrixXd("./Data/initL_norm.csv", UPSData::initL_norm);
-	csvToMatrixXd("./Data/homePosAndAngle.csv", UPSData::homePosAndAngle_DS);
+	csvToMatrixXd("./Data/结构参数/D.csv", UPSData::D);
+	csvToMatrixXd("./Data/结构参数/D_theoretical.csv", UPSData::D_theoretical);
+	csvToMatrixXd("./Data/结构参数/S.csv", UPSData::S);
+	csvToMatrixXd("./Data/结构参数/S_theoretical.csv", UPSData::S_theoretical);
+	csvToMatrixXd("./Data/结构参数/Q_DD.csv", UPSData::Q_DD);
+	csvToMatrixXd("./Data/结构参数/Q_SS.csv", UPSData::Q_SS);
+	csvToMatrixXd("./Data/结构参数/initL_norm.csv", UPSData::initL_norm);
+	csvToMatrixXd("./Data/平台参数/homePosAndAngle.csv", UPSData::homePosAndAngle_DS);
 	UPSData::initPosAndAngle_DS = UPSData::homePosAndAngle_DS;
+
+	//导入关键点
+	inputKeyPoint("./Data/平台参数/keyPoint.csv", ui.keyPointTable);
+	
 }
 
 void SixUpsUiAo::initTablesStyle()
@@ -245,6 +249,25 @@ void SixUpsUiAo::initTablesStyle()
 	ui.tableSetOrigin->setAlternatingRowColors(true);//行奇偶颜色不同
 	ui.tableSetOrigin->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
 	ui.tableSetOrigin->setFixedHeight(4 * rowHeight + scrollBarHeight);
+
+	/*****keyPointTable 待拟合参数******/
+	//列设置
+	ui.keyPointTable->horizontalHeader()->setDefaultSectionSize(colWidth);
+	ui.keyPointTable->setColumnCount(7);
+	QStringList keyPointTableHorizontalHeader;
+	keyPointTableHorizontalHeader << "关键点" << "X/mm" << "Y/mm" << "Z/mm" << "绕X/°" << "绕Y/°" << "绕Z/°";
+	ui.keyPointTable->setHorizontalHeaderLabels(keyPointTableHorizontalHeader);
+	ui.keyPointTable->horizontalHeader()->setStretchLastSection(true);//行头自适应表格
+	ui.keyPointTable->horizontalHeader()->setFont(QFont("黑体", 10));//表头字体
+	ui.keyPointTable->horizontalHeader()->setStyleSheet("border-bottom-width: 1px;border-style: outset;border-color: rgb(229,229,229);");//表头和第一行之间横线
+	ui.keyPointTable->horizontalHeader()->setDefaultAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	//行设置
+	ui.keyPointTable->setRowCount(0);
+	ui.keyPointTable->verticalHeader()->setVisible(false);//行号可见
+	ui.keyPointTable->setAlternatingRowColors(true);//行奇偶颜色不同
+	ui.keyPointTable->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
+	ui.keyPointTable->setSelectionBehavior(QAbstractItemView::SelectRows); //整行选中的方式
+	//ui.keyPointTable->setFixedHeight(4 * rowHeight + scrollBarHeight);
 }
 
 void SixUpsUiAo::initConnect()
@@ -270,6 +293,9 @@ void SixUpsUiAo::initConnect()
 	}
 
 	connect(this, &SixUpsUiAo::platformDHome_signal, this, &SixUpsUiAo::platformDHome_slot);
+	//记录关键点表格右键
+	ui.keyPointTable->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.keyPointTable, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenuKeyPoint()));
 }
 
 void SixUpsUiAo::myWidgetEnable()
@@ -293,6 +319,7 @@ void SixUpsUiAo::myWidgetDisnable()
 		realTimeLengths_group[i]->setText("");
 		realTimePose_DS_group[i]->setText("");
 		realTimePose_setS_group[i]->setText("");
+		realTimePose_Dset_group[i]->setText("");
 	}
 
 	ui.pmacSta->setPixmap(offIcon);
@@ -344,6 +371,111 @@ bool SixUpsUiAo::QMesBoxWhetherHome()
 		qDebug() << "平台以当前位姿运动 no";
 		return false;
 	}
+}
+
+bool SixUpsUiAo::inputKeyPoint(const QString & filePath, QTableWidget * tab)
+{
+	QFile keyPointFile(filePath);
+	//获csv取行列数
+	if (!keyPointFile.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		qDebug() << "未打开文件:" << filePath;
+		return false;
+	}
+	QTextStream textStream(&keyPointFile);
+	int csvRowCount = 0;
+	int csvColCount = 0;
+	while (!textStream.atEnd())
+	{
+		QString getRowCount = textStream.readLine();
+		QStringList getColCount = getRowCount.split(',');
+		csvColCount = getColCount.size();
+		csvRowCount++;
+	}
+	keyPointFile.close();
+
+	//获取table行列数
+	int tabRow = tab->rowCount();
+	int tabCol = tab->columnCount();
+
+	//若csv行数大于当前表格列数则扩展表格列数
+	if (csvRowCount > tabRow)
+	{
+		qDebug() << "自动扩展行数->" << csvColCount;
+		for (int i = 0; i < csvRowCount - tabRow; i++)
+		{
+			tab->insertRow(i + tabRow);
+			//QTableWidgetItem * tmpItem = new QTableWidgetItem();
+			//for (int j = 0; j < csvColCount; j++)
+			//{
+			//	tab->setItem(i + tabRow,j, new QTableWidgetItem());//添加新元素
+			//}
+		}
+	}
+
+	//从csv文件读取数据
+	if (!keyPointFile.open(QIODevice::ReadOnly | QIODevice::Text)) { return false; }
+	QTextStream keyPointStream(&keyPointFile);
+	QString line;
+	QStringList fields;
+	for (int i = 0; i < csvRowCount; i++)
+	{
+		line = keyPointStream.readLine();
+		fields = line.split(',');//按照,分割
+		for (int j = 0; j < csvColCount; j++)
+		{
+			QTableWidgetItem *item = new QTableWidgetItem(fields[j]);
+			if (j!=0)
+			{
+				//设置不可编辑
+				item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+			}
+			tab->setItem(i, j, item);
+			//qDebug() << fields[j];
+		}
+	}
+	keyPointFile.close();
+	return true;
+}
+
+void SixUpsUiAo::recordCurLengthsMM()
+{
+	
+	matrixXdToCsv(PmacData::curLengthsMM, "./Data/平台参数/lastCurLengthsMM.csv");
+}
+
+bool SixUpsUiAo::loadLastLengthsMM()
+{
+	Matrix<double, 6, 1> lastCurLengthsMM = MatrixXd::Zero(6, 1);
+	bool flag = csvToMatrixXd("./Data/平台参数/lastCurLengthsMM.csv", lastCurLengthsMM);
+	if (flag)
+	{
+		// pmac初始时杆长设置
+		myPmac->setCurLengths(lastCurLengthsMM);
+		DeleteFileOrFolder("./Data/平台参数/lastCurLengthsMM.csv");
+		return true;
+	} 
+	else
+	{
+		return false;
+	}
+}
+
+bool SixUpsUiAo::DeleteFileOrFolder(const QString & strPath)
+{
+	if (strPath.isEmpty() || !QDir().exists(strPath))//是否传入了空的路径||路径是否存在
+		return false;
+
+	QFileInfo FileInfo(strPath);
+
+	if (FileInfo.isFile())//如果是文件
+		QFile::remove(strPath);
+	else if (FileInfo.isDir())//如果是文件夹
+	{
+		QDir qDir(strPath);
+		qDir.removeRecursively();
+	}
+	return true;
 }
 
 void SixUpsUiAo::upsHome_slot()
@@ -433,7 +565,7 @@ void SixUpsUiAo::on_updateUiDataTimer()
 		realTimePose_setS_group[i]->setText(strPos);
 		//动平台相对运动坐标系
 		strPos = QString::number(UPSData::curPosAndAngle_Dset(i), 'f', 3);
-		realTimePos_Dset_group[i]->setText(strPos);
+		realTimePose_Dset_group[i]->setText(strPos);
 	}
 
 }
@@ -525,6 +657,10 @@ void SixUpsUiAo::on_connectPmacBtn_clicked()
 	}
 	else
 	{
+		myPmac->jogStop();
+		myPmac->setServoOff();
+		//记录当前杆长
+		recordCurLengthsMM();
 		/*回零相关复位*/
 		upsHomeCompleteTimer->stop();
 		GlobalSta::upsIsHome = false;
@@ -549,7 +685,7 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
 	ui.pmacInitSta->setPixmap(loadingIcon);
 	myPmac->initPmac();//初始化pmac
-	bool ifHome = QMesBoxWhetherHome();//平台时候归零
+	bool ifHome = QMesBoxWhetherHome();//询问是否时候归零
 	qDebug() << "on_initPmacBtn_clicked";
 	if (GlobalSta::pmacIsInitialed)
 	{
@@ -558,25 +694,41 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 		updateUiDataTimer->start();//开始更新UI
 	}
 
+	myPmac->jogStop();
 	if (ifHome == true)
 	{
-		myPmac->jogStop();
-		emit upsHome_signal();
-		//TODO 
+		/*平台归零*/
 		//1.运行回零程序
 		//2.待各轴回零结束后 提示初始化完成
+		emit upsHome_signal();
 	}
 	else
 	{
-		//TODO
+		/*平台以当前位姿运动*/
 		//1.从文件中读取上一次正常结束程序时的PMAC杆长
 		//2.将上一次的PMAC杆长赋值给PMAC
 		//3.提示初始化完成
-		GlobalSta::upsIsHome = true;
-		if (GlobalSta::upsIsHome)
+
+		//导入上次杆长数据
+		bool flagloadLastLengthsMM = loadLastLengthsMM();
+		//如果初始化失败
+		if (!flagloadLastLengthsMM)
 		{
-			GlobalSta::upsIsHome = false;
-			myWidgetEnable();
+			int questionResult = QMessageBox::question(NULL, "提示", "加载上一次位姿失败,需将平台归零。原因可能为上一次程序未正常退出。是否归零？", QMessageBox::Yes | QMessageBox::No);
+			if (questionResult == QMessageBox::Yes)
+			{
+				emit upsHome_signal();
+			}
+	
+		}
+		else
+		{
+			GlobalSta::upsIsHome = true;
+			if (GlobalSta::upsIsHome)
+			{
+				GlobalSta::upsIsHome = false;
+				myWidgetEnable();
+			}
 		}
 	}
 	qDebug() << "pmacIsInitialed = " << GlobalSta::pmacIsInitialed;
@@ -603,6 +755,7 @@ void SixUpsUiAo::on_upsHomeBtn_clicked()
 	myPmac->jogStop();
 	emit upsHome_signal();
 }
+
 
 void SixUpsUiAo::on_setOriginBtn_clicked()
 {
@@ -635,10 +788,83 @@ void SixUpsUiAo::on_setCurPosOriginBtn_clicked()
 
 }
 
+void SixUpsUiAo::on_recordKeyPointBtn_clicked()
+{
+	int tabRow = ui.keyPointTable->rowCount();
+	int tabCol = ui.keyPointTable->columnCount();
+	ui.keyPointTable->insertRow(tabRow);
+	qDebug() << tabRow;
+	//关键点序号
+	ui.keyPointTable->setItem(tabRow , 0, new QTableWidgetItem(QString::number(tabRow + 1)));
+	//将当前动平台相对静平台位姿记录
+	for (int i = 0; i < 6; i++ )
+	{
+		QTableWidgetItem *item = new QTableWidgetItem(QString::number(UPSData::curPosAndAngle_DS(i)));
+		item->setFlags(item->flags() & (~Qt::ItemIsEditable));
+		ui.keyPointTable->setItem(tabRow , i + 1, item);
+	}
+	
+}
+
+void SixUpsUiAo::on_saveKeyPointBtn_clicked()
+{
+	bool flag = tableToCsv(ui.keyPointTable, "./Data/平台参数/keyPoint.csv");
+	if (flag)
+	{
+		QMessageBox::information(NULL, "提示", "保存关键点数据成功。");
+	}
+	else
+	{
+		QMessageBox::information(NULL, "提示", "保存关键点数据失败！");
+	}
+}
+
+
+void SixUpsUiAo::addTableWidgetMenuKeyPoint()
+{
+	//获取信号发送者
+	QTableWidget *senderTableWidget = qobject_cast<QTableWidget*>(sender());
+	/*******************************************/
+	//设置菜单选项
+	QMenu *tableWidgetMenu = new QMenu(senderTableWidget);
+	QAction *transPos = new QAction("将关键点转换到目标位姿", senderTableWidget);
+	QAction *deleteRow = new QAction("删除当前关键点数据", senderTableWidget);
+	connect(transPos, &QAction::triggered, this, [=]() {
+		qDebug() << "transPos";
+		QTableWidgetItem * tmpItem = senderTableWidget->currentItem();
+		int curRow = tmpItem->row();
+		Matrix<double, 6, 1> keyPointPosAndAngle_DS = MatrixXd::Zero(6, 1);
+		Matrix<double, 6, 1> keyPointPosAndAngle_Dset = MatrixXd::Zero(6, 1);
+		for (int i = 0; i < 6; i++)
+		{
+			keyPointPosAndAngle_DS(i) = senderTableWidget->item(curRow, i+1 )->text().toDouble();
+		}
+		keyPointPosAndAngle_Dset = posAndAngleDS2Dset(keyPointPosAndAngle_DS, UPSData::Trans_setS);
+		for (int i = 0; i < 6; i++)
+		{
+			AbsTarPos_group[i]->setValue(keyPointPosAndAngle_Dset(i));
+		}
+	});
+	connect(deleteRow, &QAction::triggered, this, [=]() {
+		qDebug() << "deleteRow";
+		QTableWidgetItem * tmpItem = senderTableWidget->currentItem();
+		if (tmpItem == Q_NULLPTR)
+		{
+			return;
+		}
+		else
+		{
+			senderTableWidget->removeRow(tmpItem->row());//删除列
+		}
+	});
+	tableWidgetMenu->addAction(transPos);
+	tableWidgetMenu->addAction(deleteRow);
+	tableWidgetMenu->move(cursor().pos());
+	tableWidgetMenu->show();
+}
 
 void SixUpsUiAo::on_getRealTimePosBtn_clicked()
 {
-	QString strPos;
 	for (int i = 0; i < 6; i++)
 	{
 		AbsTarPos_group[i]->setValue(UPSData::curPosAndAngle_Dset(i));

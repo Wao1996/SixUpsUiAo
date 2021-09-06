@@ -37,7 +37,7 @@ private:
 	QList<QLineEdit *> realTimeLengths_group;//杆长显示
 	QList<QLineEdit *> realTimePose_DS_group;//动平台相对静平台 位姿显示
 	QList<QLineEdit *> realTimePose_setS_group; //运动坐标系相对静平台  位姿显示
-	QList<QLineEdit *> realTimePos_Dset_group;//动平台相对运动坐标系 位姿显示
+	QList<QLineEdit *> realTimePose_Dset_group;//动平台相对运动坐标系 位姿显示
 	QList<QDoubleSpinBox *> AbsTarPos_group;//多轴运动 绝对位置输入框
 	QList<QDoubleSpinBox *> jogInc_group;//单轴运动 距离点动增量
 	QList<QToolButton *> dipJog_group;//单轴运动 距离点动按钮
@@ -69,6 +69,15 @@ private:
 	void switchPmacThread();//切换Pmac线程的开启与关闭
 	/************平台相关*************/
 	bool QMesBoxWhetherHome();//平台是否回归零位对话框
+
+	/*导入关键点表格*/
+	bool inputKeyPoint(const QString & filePath, QTableWidget * tab);
+	/*退出时记录当前位姿PMAC中各轴相对自身原点的长度*/
+	void recordCurLengthsMM();
+	/*连接PMAC后 导入上次退出时的PMAC中各轴相对自身原点的长度*/
+	bool loadLastLengthsMM();
+	//要删除的文件夹或文件的路径
+	bool DeleteFileOrFolder(const QString &strPath);
 signals:
 	void upsHome_signal();
 	void platformDHome_signal();//动平台回初始零位
@@ -92,10 +101,16 @@ private slots:
 	void on_axlesHomeBtn_clicked();
 	/*平台回零*/
 	void on_upsHomeBtn_clicked();
-	/*************设置运动原点*******************/
+
+	/*************设置运动原点***********/
 	void on_setOriginBtn_clicked();//将测量坐标系中的点设为运动原点
 	void on_setSPosOriginBtn_clicked();//将静坐标系原点设为运动原点
 	void on_setCurPosOriginBtn_clicked(); //将当前位姿设为运动原点
+	/*************记录关键点************/
+	void on_recordKeyPointBtn_clicked();
+	void on_saveKeyPointBtn_clicked();
+	//表格右键
+	void addTableWidgetMenuKeyPoint();
 	/***********多轴运动***************/
 	//联动
 	void on_getRealTimePosBtn_clicked();//获取当前位姿

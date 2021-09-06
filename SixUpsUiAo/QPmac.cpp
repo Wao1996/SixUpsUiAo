@@ -222,6 +222,19 @@ void QPmac::setPvariable(int p, double data)
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
 }
 
+void QPmac::setCurLengths(const Matrix<double, 6, 1> & lastCurLengthsMM)
+{
+	
+	Matrix<double, 6, 1> lastCurLengthsCts = lastCurLengthsMM * 96 * 32 * PmacData::cts2mm;
+	QString strCommand = "#1K#2K#3K#4K#5K#6K";
+	for (int i = 0; i < 6; i++)
+	{
+		strCommand.append("M" + QString::number(i+1) + "62=" + QString::number(lastCurLengthsCts(i), 'f', 4));
+	}
+	qDebug() << strCommand;
+	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
+}
+
 void QPmac::enablePLC(int num)
 {
 	QString strCommand = "ENABLE PLC" + QString::number(num);
@@ -262,6 +275,7 @@ void QPmac::jogNegContinuously(int num)
 
 void QPmac::jogStop()
 {
+
 	QString strCommand =  "&1A&2A&3A&4A&5A&6A#1j/#2j/#3j/#4j/#5j/#6j/";
 	Pmac0->GetResponse(pDeviceNumber, strCommand, pAnswer);
 	qDebug() << "jogStop:" << strCommand << ":" << pAnswer;

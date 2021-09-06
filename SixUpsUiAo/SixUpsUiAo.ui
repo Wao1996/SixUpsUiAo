@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1214</width>
+    <width>1297</width>
     <height>870</height>
    </rect>
   </property>
@@ -693,7 +693,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>570</y>
+      <y>550</y>
       <width>249</width>
       <height>221</height>
      </rect>
@@ -1755,8 +1755,8 @@
    <widget class="QGroupBox" name="poseMargin">
     <property name="geometry">
      <rect>
-      <x>400</x>
-      <y>590</y>
+      <x>970</x>
+      <y>580</y>
       <width>244</width>
       <height>200</height>
      </rect>
@@ -2484,8 +2484,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>590</y>
+      <x>270</x>
+      <y>570</y>
       <width>116</width>
       <height>200</height>
      </rect>
@@ -2798,12 +2798,12 @@
      <rect>
       <x>600</x>
       <y>80</y>
-      <width>561</width>
+      <width>661</width>
       <height>481</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -2947,6 +2947,11 @@
        <string>将当前位姿设为运动原点</string>
       </property>
      </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>关键点记录</string>
+     </attribute>
     </widget>
     <widget class="QWidget" name="tab_multiAxis">
      <attribute name="title">
@@ -5243,7 +5248,7 @@
      </size>
     </property>
     <property name="title">
-     <string>动平台相对原点</string>
+     <string>动平台相对运动坐标系</string>
     </property>
     <property name="checkable">
      <bool>true</bool>
@@ -6176,6 +6181,78 @@
      </item>
     </layout>
    </widget>
+   <widget class="QTableWidget" name="keyPointTable">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>570</y>
+      <width>561</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>400</width>
+      <height>125</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>300</height>
+     </size>
+    </property>
+    <property name="dragEnabled">
+     <bool>true</bool>
+    </property>
+    <property name="dragDropOverwriteMode">
+     <bool>false</bool>
+    </property>
+    <property name="dragDropMode">
+     <enum>QAbstractItemView::NoDragDrop</enum>
+    </property>
+    <attribute name="horizontalHeaderStretchLastSection">
+     <bool>false</bool>
+    </attribute>
+    <attribute name="verticalHeaderStretchLastSection">
+     <bool>false</bool>
+    </attribute>
+   </widget>
+   <widget class="QPushButton" name="recordKeyPointBtn">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>740</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>记录关键点</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="saveKeyPointBtn">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>750</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>保存关键点</string>
+    </property>
+   </widget>
    <zorder>realTimeLengths</zorder>
    <zorder>HMI</zorder>
    <zorder>PMAC</zorder>
@@ -6189,13 +6266,16 @@
    <zorder>realTimePose_Dset</zorder>
    <zorder>axlesHomeBtn</zorder>
    <zorder>realTimePose_SetS</zorder>
+   <zorder>keyPointTable</zorder>
+   <zorder>recordKeyPointBtn</zorder>
+   <zorder>saveKeyPointBtn</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1214</width>
+     <width>1297</width>
      <height>26</height>
     </rect>
    </property>
