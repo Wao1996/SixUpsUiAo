@@ -103,12 +103,12 @@ public:
 	static Matrix4d Trans_SM;				//静平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
 	static Matrix4d Trans_DS;				//动平台坐标系相对静平台坐标系齐次变换矩阵
 	static Matrix4d Trans_Dset;				//动平台坐标系相对运动坐标系齐次变换矩阵
+				
 
 	//结构参数与初始杆长标定
-	static int n_D_struct;						//动平台上靶标点个数
-	static int n_S_struct;						//静平台上靶标点个数
 	static MatrixXd Q_DD;						//3*n_D_struct 动平台靶标点在动系下坐标
 	static MatrixXd Q_SS;						//3*n_S_struct 静平台靶标点在静系下坐标
+	static MatrixXd	Q_GD;						//工装靶标点在动系下坐标
 	static Matrix<double, 3, 6> D;				//动坐标系下 动平台铰链点坐标(实际值)
 	static Matrix<double, 3, 6> S;				//静坐标系下 静平台铰链点坐标(实际值)
 	static Matrix<double, 3, 6> D_theoretical;	//动坐标系下 动平台铰链点坐标(理论值) 用于确定动平台坐标系原点

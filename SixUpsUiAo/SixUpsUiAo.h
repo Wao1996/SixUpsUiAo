@@ -102,7 +102,10 @@ private slots:
 	/*平台回零*/
 	void on_upsHomeBtn_clicked();
 	/***************测量准备***************/
-	void on_calibrateSMBtn_clicked();
+	void on_calibrateSMBtn_clicked();//静平台在测量坐标系
+	void on_calibrateGMBtn_clicked();//工装在动平台坐标系
+	/***************工装目标位姿转换*************/
+	void on_transTarPoseBtn_clicked();//工装目标位姿转换
 	/*************设置运动原点***********/
 	void on_setOriginBtn_clicked();//将测量坐标系中的点设为运动原点
 	void on_setSPosOriginBtn_clicked();//将静坐标系原点设为运动原点

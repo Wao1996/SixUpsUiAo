@@ -69,10 +69,9 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  Matrix4d UPSData::Trans_Dset = Matrix4d::Zero();   	//动平台坐标系相对运动坐标系齐次变换矩阵
 
  //结构参数与初始杆长
- int UPSData::n_D_struct = 6;										//动平台上靶标点个数
- int UPSData::n_S_struct = 6;										//静平台上靶标点个数
- MatrixXd UPSData::Q_DD = MatrixXd::Zero(3, 6);						//3*n_D_struct 动平台靶标点在动系下坐标
- MatrixXd UPSData::Q_SS = MatrixXd::Zero(3, 6);						//3*n_S_struct 静平台靶标点在静系下坐标
+ MatrixXd UPSData::Q_DD;											//3*n_D_struct 动平台靶标点在动系下坐标
+ MatrixXd UPSData::Q_SS;											//3*n_S_struct 静平台靶标点在静系下坐标
+ MatrixXd UPSData::Q_GD;											//3*n  工装靶标点在动系下坐标
  Matrix<double, 3, 6> UPSData::D = MatrixXd::Zero(3, 6);			//动平台铰链点在动坐标系下坐标
  Matrix<double, 3, 6> UPSData::S = MatrixXd::Zero(3, 6);			//静平台铰链点在静坐标系下坐标
  Matrix<double, 3, 6> UPSData::D_theoretical = MatrixXd::Zero(3, 6);			

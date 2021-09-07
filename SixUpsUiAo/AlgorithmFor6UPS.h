@@ -125,7 +125,7 @@ extern void calibrateInitLength(Matrix<double, 6, 1>& initL_norm,//求得的初�
 
 
 //!利用激光跟踪仪和靶标点求解实际位姿
-//<返回> 相对静平台坐标系的实际位姿
+//<返回> 相对动平台坐标系的实际位姿
 extern Matrix<double, 6, 1> solveRealPosAndAngleByLazer(const Matrix4d &Trans_SM,//静平台相对测量系的齐次变换矩阵
 	const MatrixXd &Q_DD,//3*n_D 动平台靶标点在动系下坐标,
 	const MatrixXd &Q_DM);//3*n_D 动平台靶标点在测量系下坐标,

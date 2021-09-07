@@ -275,19 +275,68 @@ void SixUpsUiAo::initTablesStyle()
 	//列设置
 	ui.tableSM->horizontalHeader()->setDefaultSectionSize(colWidth);
 	ui.tableSM->setColumnCount(3);
-	ui.tableSM->horizontalHeader()->setVisible(false);//行号可见
+	ui.tableSM->horizontalHeader()->setVisible(false);//列号不可见
 	ui.tableSM->horizontalHeader()->setStretchLastSection(false);//行头自适应表格
 	//行设置
 	ui.tableSM->setRowCount(tableSMVerticalHeader.size());
 	ui.tableSM->verticalHeader()->setVisible(true);//行号可见
 	ui.tableSM->setVerticalHeaderLabels(tableSMVerticalHeader);
 	ui.tableSM->verticalHeader()->setFont(QFont("黑体", 10));
-	ui.tableSM->verticalHeader()->setFixedWidth(100);
+	ui.tableSM->verticalHeader()->setFixedWidth(120);
 	ui.tableSM->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 	ui.tableSM->setAlternatingRowColors(true);//行奇偶颜色不同
 	//大小设置
 	ui.tableSM->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
 	ui.tableSM->setFixedHeight(4 * rowHeight + scrollBarHeight);
+	ui.tableSM->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	/*********************tableGM*****************/
+	QStringList tableGMVerticalHeader;
+	tableGMVerticalHeader << "X坐标" << "Y坐标" << "Z坐标";
+	QStringList tableGMHorizontalHeader;
+	tableGMHorizontalHeader << "靶点1" << "靶点2" << "靶点3";
+	//列设置
+	ui.tableGM->horizontalHeader()->setDefaultSectionSize(colWidth);
+	ui.tableGM->setColumnCount(3);
+	ui.tableGM->setHorizontalHeaderLabels(tableGMHorizontalHeader);
+	ui.tableGM->horizontalHeader()->setVisible(true);//列号可见
+	ui.tableGM->horizontalHeader()->setStretchLastSection(false);//行头自适应表格
+	ui.tableGM->horizontalHeader()->setFont(QFont("黑体", 10));//表头字体
+	ui.tableGM->horizontalHeader()->setStyleSheet("border-bottom-width: 1px;border-style: outset;border-color: rgb(229,229,229);");//表头和第一行之间横线
+	ui.tableGM->horizontalHeader()->setDefaultAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	//行设置
+	ui.tableGM->setRowCount(tableGMVerticalHeader.size());
+	ui.tableGM->verticalHeader()->setVisible(true);//行号可见
+	ui.tableGM->setVerticalHeaderLabels(tableGMVerticalHeader);
+	ui.tableGM->verticalHeader()->setFont(QFont("黑体", 10));
+	ui.tableGM->verticalHeader()->setFixedWidth(120);
+	ui.tableGM->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+	ui.tableGM->setAlternatingRowColors(true);//行奇偶颜色不同
+	//大小设置
+	ui.tableGM->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
+	ui.tableGM->setFixedHeight(4 * rowHeight + scrollBarHeight);
+	ui.tableGM->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+	/*********************tableTarGM*****************/
+
+	QStringList tableTarGMVerticalHeader;
+	tableTarGMVerticalHeader << "工装靶点序号" << "X坐标" << "Y坐标" << "Z坐标";
+	//列设置
+	ui.tableTarGM->horizontalHeader()->setDefaultSectionSize(colWidth);
+	ui.tableTarGM->setColumnCount(3);
+	ui.tableTarGM->horizontalHeader()->setVisible(false);//列号不可见
+	ui.tableTarGM->horizontalHeader()->setStretchLastSection(false);//行头自适应表格
+	//行设置
+	ui.tableTarGM->setRowCount(tableTarGMVerticalHeader.size());
+	ui.tableTarGM->verticalHeader()->setVisible(true);//行号可见
+	ui.tableTarGM->setVerticalHeaderLabels(tableTarGMVerticalHeader);
+	ui.tableTarGM->verticalHeader()->setFont(QFont("黑体", 10));
+	ui.tableTarGM->verticalHeader()->setFixedWidth(120);
+	ui.tableTarGM->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+	ui.tableTarGM->setAlternatingRowColors(true);//行奇偶颜色不同
+	//大小设置
+	ui.tableTarGM->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
+	ui.tableTarGM->setFixedHeight(4 * rowHeight + scrollBarHeight);
+	ui.tableTarGM->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 }
 
 void SixUpsUiAo::initConnect()
@@ -794,6 +843,55 @@ void SixUpsUiAo::on_calibrateSMBtn_clicked()
 		}
 	}
 	UPSData::Trans_SM = rigidMotionSVDSolution(Q_SS_temp, Q_SM_temp);
+}
+
+void SixUpsUiAo::on_calibrateGMBtn_clicked()
+{
+	//1.求工装靶标点在动坐标系下的坐标
+	vector<int> index;
+	MatrixXd Q_GM;
+	tableToMatrixXd(ui.tableGM, Q_GM, index);
+	MatrixXd  Q_GD_homogeneous = UPSData::Trans_DS.inverse()*UPSData::Trans_SM.inverse()*matrix2Homogeneous(Q_GM);
+	UPSData::Q_GD = homogeneous2Matrix(Q_GD_homogeneous);
+	cout << UPSData::Q_GD;
+}
+
+void SixUpsUiAo::on_transTarPoseBtn_clicked()
+{
+	int numCol = ui.tableTarGM->columnCount();
+	//1.目标位置工装靶标点在测量坐标系下的坐标
+	MatrixXd Q_tarGM_temp = MatrixXd::Zero(3, numCol);
+	//2.与其序号对应的工装靶标点在动坐标系下的坐标
+	MatrixXd Q_GD_temp = MatrixXd::Zero(3, numCol);
+	for (int j = 0; j < numCol; j++)
+	{
+		int p = ui.tableTarGM->item(0, j)->text().toInt();
+		Q_GD_temp.col(j) = UPSData::Q_GD.col(p - 1);
+		for (int i = 0; i < 3; i++)
+		{
+			if (!ui.tableTarGM->item(i + 1, j)->text().isEmpty())
+			{
+				Q_tarGM_temp(i, j) = ui.tableTarGM->item(i + 1, j)->text().toDouble();
+			}
+		}
+	}
+	//3.求目标位置工装靶标点相对当前动系的齐次变换矩阵
+	MatrixXd Q_tarGD_temp_homogeneous = UPSData::Trans_DS.inverse()*UPSData::Trans_SM.inverse()*matrix2Homogeneous(Q_tarGM_temp);
+	//目标工装靶点在当前动系下的坐标
+	MatrixXd Q_tarGD_temp = homogeneous2Matrix(Q_tarGD_temp_homogeneous);
+	//4.求目标工装位姿相对当前动系的齐次变换矩阵
+	MatrixXd Trans_tarGD = rigidMotionSVDSolution(Q_GD_temp, Q_tarGD_temp);
+	//5.求目标工装位姿相对当静系的齐次变换矩阵
+	MatrixXd Trans_tarGS = UPSData::Trans_DS*Trans_tarGD;
+	//6.求目标工装在静系中的位姿
+	Matrix<double, 6, 1> PosAndAngle_tarGS = trans2PosAngle(Trans_tarGS);
+	//7.求目标工装在运动坐标系中的位姿
+	Matrix<double, 6, 1> PosAndAngle_tarGset = MatrixXd::Zero(6, 1);
+	PosAndAngle_tarGset = posAndAngleDS2Dset(PosAndAngle_tarGS, UPSData::Trans_setS);
+	for (int i = 0; i < 6; i++)
+	{
+		AbsTarPos_group[i]->setValue(PosAndAngle_tarGset(i));
+	}
 }
 
 
