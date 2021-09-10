@@ -252,11 +252,11 @@ void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle_DS, const Matri
 	Matrix<double, 6, 1> initL_norm;
 	inverseSolution(initPosAndAngle_DS, initL_norm, D, S);
 	//使用的参数
-	double delta_t = 1e-1; //t是0~1的数,表示杆长变化的步长百分比
+	double delta_t = 1e-2; //t是0~1的数,表示杆长变化的步长百分比
 	int k = int(1 / delta_t);//杆长变化次数
 	Matrix<double, 6, 1> delta_L = (targL_norm - initL_norm)*delta_t;
-	double delta = 1e-5; //求偏导时的微小变动量
-	double err = 1e-5; //牛顿迭代的阈值
+	double delta = 1e-6; //求偏导时的微小变动量
+	double err = 1e-6; //牛顿迭代的阈值
 	bool newtonFialed = false;//牛顿迭代成功
 	//赋初值
 	Matrix<double, 6, 1> nPosAndAngle = initPosAndAngle_DS;//nPosAndAngle为n次迭代的位姿

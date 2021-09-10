@@ -14,6 +14,12 @@ void UpsCalculateThread::on_upsCalculateTimer()
 	
 	//运动学正解 求动平台相对静平台实时位姿
 	forwardSolution(UPSData::initPosAndAngle_DS, UPSData::curL_norm, UPSData::curPosAndAngle_DS, UPSData::D, UPSData::S);
+	//cout << "UPSData::initPosAndAngle_DS" << endl;
+	//cout << UPSData::initPosAndAngle_DS << endl;
+	//cout << "UPSData::curL_norm" << endl;
+	//cout << UPSData::curL_norm << endl;
+	//cout << "UPSData::curPosAndAngle_DS" << endl;
+	//cout << UPSData::curPosAndAngle_DS << endl;
 	//更新运动学正解的初始搜索条件 减少正解时间
 	UPSData::initPosAndAngle_DS = UPSData::curPosAndAngle_DS;
 	//求动平台相对静平台实时齐次变换矩阵

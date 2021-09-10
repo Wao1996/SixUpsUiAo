@@ -146,12 +146,24 @@ void ParameterCalibrate::on_calCircleS_clicked()
 
 void ParameterCalibrate::on_inputTestDataBtn_clicked()
 {
-	csvToTable("./Data/结构参数/S_M_test1.csv", ui.tableS_M,"静铰点");
-	csvToTable("./Data/结构参数/D_M_test1.csv", ui.tableD_M, "动铰点");
-	csvToTable("./Data/结构参数/Q_SM_test1.csv", ui.tableQ_SM, "静靶点");
-	csvToTable("./Data/结构参数/Q_DM_test1.csv", ui.tableQ_DM, "动靶点");
-	csvToTable("./Data/结构参数/Q_SM_test2.csv", ui.tableQ_SM_initL, "静靶点");
-	csvToTable("./Data/结构参数/Q_DM_test2.csv", ui.tableQ_DM_initL, "动靶点");
+	//csvToTable("./Data/结构参数/S_M_test1.csv", ui.tableS_M,"静铰点");
+	//csvToTable("./Data/结构参数/D_M_test1.csv", ui.tableD_M, "动铰点");
+	//csvToTable("./Data/结构参数/Q_SM_test1.csv", ui.tableQ_SM, "静靶点");
+	//csvToTable("./Data/结构参数/Q_DM_test1.csv", ui.tableQ_DM, "动靶点");
+	//csvToTable("./Data/结构参数/Q_SM_test2.csv", ui.tableQ_SM_initL, "静靶点");
+	//csvToTable("./Data/结构参数/Q_DM_test2.csv", ui.tableQ_DM_initL, "动靶点");
+}
+
+void ParameterCalibrate::on_inputQ_DMBtn_clicked()
+{
+	
+	csvToTable("./Data/结构参数/Q_DM.csv", ui.tableQ_DM_initL, "动靶点");
+
+}
+
+void ParameterCalibrate::on_inputQ_SMBtn_clicked()
+{
+	csvToTable("./Data/结构参数/Q_SM.csv", ui.tableQ_SM_initL, "静靶点");
 }
 
 void ParameterCalibrate::on_dHingeCalbrateBtn_clicked()

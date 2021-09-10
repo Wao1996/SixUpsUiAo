@@ -35,6 +35,8 @@ private slots:
 	void on_calCircleC_clicked();//圆心拟合
 	void on_calCircleS_clicked();//球心拟合
 	void on_inputTestDataBtn_clicked();//导入测试数据
+	void on_inputQ_DMBtn_clicked();
+	void on_inputQ_SMBtn_clicked();
 	/*标定*/
 	void on_dHingeCalbrateBtn_clicked();//动平台铰链点标定
 	void on_sHingeCalbrateBtn_clicked();//静平台铰链点标定

@@ -4,7 +4,7 @@
 QByteArray int8ToByte(qint8 i, Endian endian = BigEndian)
 {
 	QByteArray result;
-	result.resize(4);
+	result.resize(1);
 	result[0] = (uchar)(0x000000ff & i);
 	return result;
 }
@@ -58,7 +58,7 @@ QByteArray int32ToByte(qint32 i, Endian endian = BigEndian)
 QByteArray int64ToByte(qint64 i, Endian endian = BigEndian)
 {
 	QByteArray result;
-	result.resize(4);
+	result.resize(8);
 	// Ð¡¶ËÄ£Ê½
 	if (endian == LittileEndian)
 	{

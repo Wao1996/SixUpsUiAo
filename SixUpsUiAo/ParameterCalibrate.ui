@@ -145,7 +145,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -1791,14 +1791,40 @@
   <widget class="QPushButton" name="inputTestDataBtn">
    <property name="geometry">
     <rect>
-     <x>540</x>
-     <y>200</y>
+     <x>740</x>
+     <y>210</y>
      <width>191</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
     <string>导入测试输入</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="inputQ_SMBtn">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>210</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>导入静靶标</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="inputQ_DMBtn">
+   <property name="geometry">
+    <rect>
+     <x>570</x>
+     <y>210</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>导入动靶标</string>
    </property>
   </widget>
  </widget>
