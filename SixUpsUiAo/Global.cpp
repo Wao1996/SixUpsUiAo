@@ -30,6 +30,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  VectorXd PmacData::originState = VectorXd::Zero(6);//原点开关状态
  VectorXd PmacData::axleHomeCompleteState = VectorXd::Zero(6);//pmac中 各轴回零完成状态
  VectorXd PmacData::curLengthsMM = VectorXd::Zero(6);//杆长
+ VectorXd PmacData::curForce = VectorXd::Zero(6);//力
  VectorXd PmacData::pVariable = VectorXd::Zero(20);//P变量
  
   /***********************SingleJogData ************************************************/
@@ -44,6 +45,8 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  double UPSData::multiJogRotateSpeed = 0.01;//多轴点动 转动运动速度 单位°/s
  double UPSData::multiJogRotateStep = 0.01;//多轴点动 转动运动步长 单位°
  Matrix<double, 6, 1> UPSData::multiJogMoveDirection = MatrixXd::Zero(6, 1);
+ int UPSData::multiJogMoveDirectionID = 3;
+ int UPSData::multiSpeedID = 1;
  double UPSData::multiJogMoveStep = 0;//多轴长按点动 运动步长
 //建立坐标系
  MatrixXd UPSData::circlePt;//3*n(圆心拟合数据点个数) 

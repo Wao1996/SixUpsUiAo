@@ -1,4 +1,10 @@
 A					  
+I124=$100001				      
+I224=$100001				      
+I324=$100001				      
+I424=$100001				      
+I524=$100001					  
+I624=$100001					  
 CLOSE					  
 UNDEFINE ALL					  
 &1					  
@@ -11,7 +17,7 @@ UNDEFINE ALL
 OPEN PROG1 CLEAR					  
 ABS					  
 LINEAR					  
-FRAX(X,Y,Z)					  
-F1.0000
+FRAX(X,Y,Z,U,V,W)					  
+F3.0000
 X-7.3508 Y-7.4157 Z-8.0661 U-8.1471 V-0.1857 W-10.8506						
 CLOSE

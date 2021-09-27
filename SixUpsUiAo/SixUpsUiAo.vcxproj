@@ -104,6 +104,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HMIcommunication.cpp" />
     <ClCompile Include="PmacDeviceLib.cpp" />
     <ClCompile Include="QPmac.cpp" />
     <ClCompile Include="typeCast.cpp" />
@@ -126,6 +127,7 @@
   <ItemGroup>
     <ClInclude Include="AlgorithmFor6UPS.h" />
     <ClInclude Include="Global.h" />
+    <QtMoc Include="HMIcommunication.h" />
     <ClInclude Include="PmacDeviceLib.h" />
     <QtMoc Include="WaitWindow.h" />
     <QtMoc Include="UpsCalculateThread.h" />

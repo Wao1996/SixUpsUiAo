@@ -30,6 +30,9 @@ quint16 byte2ToUint16(QByteArray, Endian);
 quint32 byte4ToUint32(QByteArray, Endian);
 quint64 byte8ToUint64(QByteArray, Endian);
 
+double byte4ToFloat(QByteArray, Endian);
+QByteArray floatToByte(float, Endian);
+
 double byte8ToDouble(QByteArray, Endian);
 QByteArray doubleToByte(double, Endian);
 QByteArray doubleListToByte(QList<double>, Endian);

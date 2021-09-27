@@ -5,6 +5,8 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
+
+
 	qDebug() << "SixUpsUiAo 构造";
 
 	initTablesStyle();
@@ -50,11 +52,11 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	calculateQthread = new QThread(this);
 	myUpsCalculateThread = new UpsCalculateThread();
 	myUpsCalculateThread->moveToThread(calculateQthread);
-	//connect(calculateQthread, &QThread::started, myPmacThread, &QPmacThread::startPmac);
 	connect(calculateQthread, &QThread::finished, myUpsCalculateThread, &QObject::deleteLater);
 	connect(calculateQthread, &QThread::finished, calculateQthread, &QObject::deleteLater);
 	connect(upsCalculateTimer, &QTimer::timeout, myUpsCalculateThread, &UpsCalculateThread::on_upsCalculateTimer);
 	calculateQthread->start();
+
 
 }
 
@@ -73,9 +75,14 @@ SixUpsUiAo::~SixUpsUiAo()
 	qDebug() << "stop pamcQthread";
 	GlobalSta::pmacQthreadIsSarted = false;
 
-	calculateQthread->quit();
-	calculateQthread->wait();
+	if (calculateQthread->isRunning())
+	{
+		calculateQthread->quit();
+		calculateQthread->wait();
+	}
+
 }
+
 
 
 void SixUpsUiAo::initIcon()
@@ -95,6 +102,8 @@ void SixUpsUiAo::initIcon()
 
 void SixUpsUiAo::initUIList()
 {
+	/*隐藏*/
+	//ui.tabWidget->removeTab(3);
 	/***************赋初值****************/
 	//多轴点动运动模块
 	ui.led_multiAxisJogTranslationSpeed->setValue(UPSData::multiJogTranslationSpeed);
@@ -112,6 +121,11 @@ void SixUpsUiAo::initUIList()
 	btnGroupMultiAxisDirection->addButton(ui.aRBtn, 4);
 	btnGroupMultiAxisDirection->addButton(ui.bRBtn, 5);
 	btnGroupMultiAxisDirection->addButton(ui.cRBtn, 6);
+
+	btnGroupMultiSpeed= new QButtonGroup(this);
+	btnGroupMultiSpeed->addButton(ui.lowSpeed_RBtn, 1);
+	btnGroupMultiSpeed->addButton(ui.middleSpeed_RBtn, 2);
+	btnGroupMultiSpeed->addButton(ui.highSpeed_RBtn, 3);
 
 
 	qlabNegLimit_group.append(ui.staNegLimit1);
@@ -141,6 +155,13 @@ void SixUpsUiAo::initUIList()
 	realTimeLengths_group.append(ui.led_realTimeLength4);
 	realTimeLengths_group.append(ui.led_realTimeLength5);
 	realTimeLengths_group.append(ui.led_realTimeLength6);
+
+	realTimeForce_group.append(ui.led_realTimeForce1);
+	realTimeForce_group.append(ui.led_realTimeForce2);
+	realTimeForce_group.append(ui.led_realTimeForce3);
+	realTimeForce_group.append(ui.led_realTimeForce4);
+	realTimeForce_group.append(ui.led_realTimeForce5);
+	realTimeForce_group.append(ui.led_realTimeForce6);
 
 	realTimePose_DS_group.append(ui.led_realTimeX);
 	realTimePose_DS_group.append(ui.led_realTimeY);
@@ -337,6 +358,29 @@ void SixUpsUiAo::initTablesStyle()
 	ui.tableTarGM->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
 	ui.tableTarGM->setFixedHeight(4 * rowHeight + scrollBarHeight);
 	ui.tableTarGM->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+	/*tableInput*/
+	QStringList tableInputVerticalHeader;
+	tableInputVerticalHeader << "X坐标" << "Y坐标" << "Z坐标";
+	//列设置
+	ui.tableInput->horizontalHeader()->setDefaultSectionSize(colWidth);
+	ui.tableInput->setColumnCount(4);
+	ui.tableInput->horizontalHeader()->setVisible(true);//列号不可见
+	ui.tableInput->horizontalHeader()->setStretchLastSection(false);//行头自适应表格
+	//行设置
+	ui.tableInput->setRowCount(tableInputVerticalHeader.size());
+	ui.tableInput->verticalHeader()->setVisible(true);//行号可见
+	ui.tableInput->setVerticalHeaderLabels(tableInputVerticalHeader);
+	ui.tableInput->verticalHeader()->setFont(QFont("黑体", 10));
+	ui.tableInput->verticalHeader()->setFixedWidth(80);
+	ui.tableInput->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+	ui.tableInput->setAlternatingRowColors(true);//行奇偶颜色不同
+	ui.tableInput->horizontalHeader()->setStyleSheet("border-bottom-width: 1px;border-style: outset;border-color: rgb(229,229,229);");//表头和第一行之间横线
+	ui.tableInput->horizontalHeader()->setDefaultAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	//大小设置
+	ui.tableInput->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
+	ui.tableInput->setFixedHeight(4 * rowHeight + scrollBarHeight);
+	ui.tableInput->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 }
 
 void SixUpsUiAo::initConnect()
@@ -362,9 +406,20 @@ void SixUpsUiAo::initConnect()
 	}
 
 	connect(this, &SixUpsUiAo::platformDHome_signal, this, &SixUpsUiAo::platformDHome_slot);
+	//多轴运动选择运动方向
+	connect(btnGroupMultiAxisDirection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &SixUpsUiAo::btnGroupMultiAxisDirection_clicked);
+	//多轴联动运动速度
+	connect(btnGroupMultiSpeed, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &SixUpsUiAo::btnGroupMultiSpeed_clicked);
 	//记录关键点表格右键
 	ui.keyPointTable->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(ui.keyPointTable, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenuKeyPoint()));
+	//测量准备右键添加列
+	ui.tableSM->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.tableSM, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenuAddCoils()));
+	ui.tableGM->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.tableGM, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenuAddCoils()));
+	ui.tableTarGM->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.tableTarGM, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenuAddCoils()));
 }
 
 void SixUpsUiAo::myWidgetEnable()
@@ -386,6 +441,7 @@ void SixUpsUiAo::myWidgetDisnable()
 		qlabPosLimit_group[i]->setPixmap(offIcon);
 		qlabOrigin_group[i]->setPixmap(offIcon);
 		realTimeLengths_group[i]->setText("");
+		realTimeForce_group[i]->setText("");
 		realTimePose_DS_group[i]->setText("");
 		realTimePose_setS_group[i]->setText("");
 		realTimePose_Dset_group[i]->setText("");
@@ -399,7 +455,7 @@ void SixUpsUiAo::myWidgetDisnable()
 	ui.servoOffBtn->setEnabled(false);
 	ui.axlesHomeBtn->setEnabled(false);
 	ui.upsHomeBtn->setEnabled(false);
-	ui.tabWidget->setEnabled(false);
+	//ui.tabWidget->setEnabled(false);
 }
 
 void SixUpsUiAo::switchPmacThread()
@@ -590,6 +646,8 @@ void SixUpsUiAo::on_updateUiDataTimer()
 		strLength = QString::number(PmacData::curLengthsMM(i), 'f', 3);
 		realTimeLengths_group[i]->setText(strLength);
 
+		strLength = QString::number(PmacData::curForce(i), 'f', 3); 
+		realTimeForce_group[i]->setText(strLength);
 		/**********开关状态***************/
 		//负限位
 		if (PmacData::negLimitState(i) == 1)
@@ -822,8 +880,49 @@ void SixUpsUiAo::on_axlesHomeBtn_clicked()
 void SixUpsUiAo::on_upsHomeBtn_clicked()
 {
 	myPmac->jogStop();
-	emit upsHome_signal();
+	inverseSolution(UPSData::homePosAndAngle_DS, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
+	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiSpeed);
 }
+
+void SixUpsUiAo::on_openHMIBtn_clicked()
+{
+
+	/*HMI*/
+	HMIQthread = new QThread();
+	myHMIcommunication = new HMIcommunication();
+	myHMIcommunication->moveToThread(HMIQthread);
+	connect(HMIQthread, &QThread::started, myHMIcommunication, &HMIcommunication::startHMI);
+	connect(HMIQthread, &QThread::finished, myHMIcommunication, &QObject::deleteLater);
+	connect(HMIQthread, &QThread::finished, HMIQthread, &QObject::deleteLater);
+	connect(myHMIcommunication, &HMIcommunication::wirteRegisters, this, &SixUpsUiAo::wirteRegisters_slot);
+	connect(myHMIcommunication, &HMIcommunication::writeCoils, this, &SixUpsUiAo::writeCoils_slot);
+	HMIQthread->start();
+
+	ui.closeHMIBtn->setEnabled(true);
+	ui.openHMIBtn->setEnabled(false);
+	ui.HMISta->setPixmap(onIcon);
+}
+
+void SixUpsUiAo::on_closeHMIBtn_clicked()
+{
+	
+	if (HMIQthread->isRunning())
+	{
+		HMIQthread->requestInterruption();
+		HMIQthread->quit();
+		HMIQthread->wait();
+		delete HMIQthread;
+
+	}
+
+	ui.openHMIBtn->setEnabled(true);
+	ui.closeHMIBtn->setEnabled(false);
+	ui.HMISta->setPixmap(offIcon);
+}
+
+
+
 
 void SixUpsUiAo::on_calibrateSMBtn_clicked()
 {
@@ -854,6 +953,83 @@ void SixUpsUiAo::on_calibrateGMBtn_clicked()
 	MatrixXd  Q_GD_homogeneous = UPSData::Trans_DS.inverse()*UPSData::Trans_SM.inverse()*matrix2Homogeneous(Q_GM);
 	UPSData::Q_GD = homogeneous2Matrix(Q_GD_homogeneous);
 	cout << UPSData::Q_GD;
+}
+
+void SixUpsUiAo::addTableWidgetMenuAddCoils()
+{
+	//获取信号发送者
+	QTableWidget *senderTableWidget = qobject_cast<QTableWidget*>(sender());
+	//qDebug() << senderTableWidget->objectName();
+
+	/************根据表格名设定不同列标题**************/
+	QString curTabName = senderTableWidget->objectName();//获取发送信号的表格名
+	QStringList tabNameList;//各种表格名
+	tabNameList << "tableSM" << "tableGM" << "tableTarGM";
+	QString colTitle;//列标题
+	switch (tabNameList.indexOf(curTabName))
+	{
+	case 0:
+		colTitle = "测点";
+		break;
+	case 1:
+		colTitle = "靶点";
+		break;
+	case 2:
+		colTitle = "动靶点";
+		break;
+	default:
+		break;
+	}
+	/*******************************************/
+	//设置菜单选项
+	QMenu *tableWidgetMenu = new QMenu(senderTableWidget);
+	QAction *addColumn = new QAction("添加列", senderTableWidget);
+	QAction *deleteColumn = new QAction("删除当前列", senderTableWidget);
+	QAction *clearContents = new QAction("清空所有内容", senderTableWidget);
+	connect(addColumn, &QAction::triggered, this, [=]() {
+		qDebug() << "addCol";
+		int rows = senderTableWidget->rowCount();//获取行列数
+		int cols = senderTableWidget->columnCount();
+		senderTableWidget->insertColumn(cols);//插入列
+		QTableWidgetItem * tmpItem = new QTableWidgetItem();
+		senderTableWidget->setHorizontalHeaderItem(cols, tmpItem);//设置列标题
+		QTableWidgetItem * colItem = senderTableWidget->horizontalHeaderItem(cols);
+		colItem->setText(colTitle + QString::number(cols + 1));
+		for (int i = 0; i < rows; i++)
+		{
+			senderTableWidget->setItem(i, cols, new QTableWidgetItem());//添加新元素
+		}
+		senderTableWidget->selectColumn(cols);//选中新列
+	});
+	connect(deleteColumn, &QAction::triggered, this, [=]() {
+		qDebug() << "deleteCol";
+		QTableWidgetItem * tmpItem = senderTableWidget->currentItem();
+		if (tmpItem == Q_NULLPTR)
+		{
+			return;
+		}
+		else
+		{
+			senderTableWidget->removeColumn(tmpItem->column());//删除列
+		}
+	});
+	connect(clearContents, &QAction::triggered, this, [=]() {
+		qDebug() << "clearContents";
+		QTableWidgetItem * tmpItem = senderTableWidget->currentItem();
+		if (tmpItem == Q_NULLPTR)
+		{
+			return;
+		}
+		else
+		{
+			senderTableWidget->clearContents();
+		}
+	});
+	tableWidgetMenu->addAction(addColumn);
+	tableWidgetMenu->addAction(deleteColumn);
+	tableWidgetMenu->addAction(clearContents);
+	tableWidgetMenu->move(cursor().pos());
+	tableWidgetMenu->show();
 }
 
 void SixUpsUiAo::on_transTarPoseBtn_clicked()
@@ -1000,6 +1176,24 @@ void SixUpsUiAo::addTableWidgetMenuKeyPoint()
 	tableWidgetMenu->show();
 }
 
+void SixUpsUiAo::btnGroupMultiSpeed_clicked(int id)
+{
+	switch (id)
+	{
+	case 1:
+		UPSData::multiSpeed = 1;
+		break;
+	case 2:
+		UPSData::multiSpeed = 2;
+		break;
+	case 3:
+		UPSData::multiSpeed = 3;
+		break;
+	default:
+		break;
+	}
+}
+
 void SixUpsUiAo::on_getRealTimePosBtn_clicked()
 {
 	for (int i = 0; i < 6; i++)
@@ -1040,6 +1234,11 @@ void SixUpsUiAo::absTarPos_group_valueChanged(double data)
 }
 
 
+void SixUpsUiAo::btnGroupMultiAxisDirection_clicked(int id)
+{
+	UPSData::multiJogMoveDirectionID = id;
+}
+
 void SixUpsUiAo::on_led_multiAxisJogTranslationSpeed_valueChanged(double data)
 {
 	UPSData::multiJogTranslationSpeed = data;
@@ -1067,7 +1266,7 @@ void SixUpsUiAo::on_led_multiAxisJogRotateStep_valueChanged(double data)
 void SixUpsUiAo::on_disMultiAxisJog_clicked()
 {
 	Matrix<double, 6, 1> incPosAndAngle = MatrixXd::Zero(6, 1);
-	switch (btnGroupMultiAxisDirection->checkedId())
+	switch (UPSData::multiJogMoveDirectionID)
 	{
 	case 1:
 		incPosAndAngle(0) = UPSData::multiJogTranslationStep;
@@ -1110,7 +1309,21 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 	//反解
 	inverseSolution(tarPosAndAngle_DS, UPSData::tarL_norm, UPSData::D, UPSData::S);
 	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
-	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiJogTranslationSpeed);
+
+	double moveTime = 30;
+	if (UPSData::multiJogMoveDirectionID<=3)
+	{
+		//平动
+		moveTime = abs(UPSData::multiJogTranslationStep / UPSData::multiJogTranslationSpeed);
+	} 
+	else
+	{
+		//转动
+		moveTime = abs(UPSData::multiJogRotateStep / UPSData::multiJogRotateSpeed);
+	}
+	double vel = (UPSData::tarL_norm - UPSData::curL_norm).norm() / moveTime;
+	//myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiJogTranslationSpeed);
+	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, vel);
 	
 }
 
@@ -1126,8 +1339,7 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
 	/*设置运动方向*/
-	int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
-	switch (MultiAxisDirectionID)
+	switch (UPSData::multiJogMoveDirectionID)
 	{
 	case 1:
 		moveDirection(0) = -1;
@@ -1159,7 +1371,7 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 	}
 	/*设置运动步长及*/
 	UPSData::multiJogMoveDirection = moveDirection;
-	if (MultiAxisDirectionID <= 3)
+	if (UPSData::multiJogMoveDirectionID <= 3)
 	{
 		//平动
 		UPSData::multiJogMoveStep = UPSData::multiJogTranslationSpeed * upsJogTimer->interval() / 1000.0; //最小运动步长
@@ -1185,8 +1397,7 @@ void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
 	/*设置运动方向*/
-	int MultiAxisDirectionID = btnGroupMultiAxisDirection->checkedId();//电机了那个方向
-	switch (MultiAxisDirectionID)
+	switch (UPSData::multiJogMoveDirectionID)
 	{
 	case 1:
 		moveDirection(0) = 1;
@@ -1218,7 +1429,7 @@ void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 	}
 	/*设置运动步长及*/
 	UPSData::multiJogMoveDirection = moveDirection;
-	if (MultiAxisDirectionID <= 3)
+	if (UPSData::multiJogMoveDirectionID <= 3)
 	{
 		//平动
 		UPSData::multiJogMoveStep = UPSData::multiJogTranslationSpeed * upsJogTimer->interval() / 1000.0;//运动步长
@@ -1312,3 +1523,90 @@ void SixUpsUiAo::prsJogNeg_released()
 	qDebug() << "axleNum:" << axleNum << " prsJogNeg_released";
 }
 
+void SixUpsUiAo::wirteRegisters_slot(const int & address, const double & data)
+{
+	switch (address)
+	{
+	case 1:
+		ui.led_multiAxisJogTranslationSpeed->setValue(data);
+		break;
+	case 3:
+		ui.led_multiAxisJogTranslationStep->setValue(data);
+		break;
+	case 5:
+		ui.led_multiAxisJogRotateSpeed->setValue(data);
+		break;
+	case 7:
+		ui.led_multiAxisJogRotateStep->setValue(data);
+		break;
+	case 9:
+	{
+		int tempID = data;
+		btnGroupMultiAxisDirection->button(tempID)->click();
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+void SixUpsUiAo::writeCoils_slot(const int & address, const bool & flag)
+{
+	switch (address)
+	{
+	case 1:
+		if (flag)
+		{
+			myPmac->jogStop();
+			qDebug() << "move stop";
+		}
+		break;
+	case 2:
+		if (flag)
+		{
+			ui.disMultiAxisJog->click();
+			qDebug() << "distance move";
+		}
+		break;
+	case 3:
+		if (flag)
+		{
+			ui.prsmultiAxisJogPos->pressed();
+			qDebug() << "+press move start";
+		}
+		else
+		{
+			ui.prsmultiAxisJogPos->released();
+			qDebug() << "+press move stop";
+		}
+		break;
+	case 4:
+		if (flag)
+		{
+			ui.prsMultiAxisJogNeg->pressed();
+			qDebug() << "-press move start";
+		}
+		else
+		{
+			ui.prsMultiAxisJogNeg->released();
+			qDebug() << "-press move stop";
+		}
+		break;
+	case 5:
+		if (flag)
+		{
+			ui.recordKeyPointBtn->click();
+			qDebug() << "ui.recordKeyPointBtn->click();";
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void SixUpsUiAo::on_inputBtn_clicked()
+{
+	QString strFile = QFileDialog::getOpenFileName(this, "选择文件", "./", "文本文件(*.txt;*.csv;)");
+	qDebug() << strFile;
+	csvToTable(strFile, ui.tableInput);
+}

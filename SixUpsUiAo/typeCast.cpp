@@ -289,6 +289,62 @@ quint64 byte8ToUint64(QByteArray arr, Endian endian = BigEndian)
 	return res;
 }
 
+
+double byte4ToFloat(QByteArray arr, Endian endian = BigEndian)
+{
+	if (arr.size() != 4)
+	{
+		return 0.0f;
+	}
+	float res = 0.0f;
+
+	// 小端模式
+	if (endian == LittileEndian)
+	{
+		memcpy(&res, arr.data(), sizeof(res));
+	}
+
+	// 大端模式
+	else if (endian == BigEndian)
+	{
+		QByteArray arrInver;
+		for (int i = arr.size() - 1; i > -1; i--)
+		{
+			arrInver.append(arr.at(i));
+		}
+		memcpy(&res, arrInver.data(), sizeof(res));
+	}
+	return res;
+}
+
+QByteArray floatToByte(float dataF, Endian endian = BigEndian)
+{
+	QByteArray res;
+	res.resize(4);
+
+	// 小端模式
+	if (endian == LittileEndian)
+	{
+		unsigned char *hex = (unsigned char *)&dataF;
+		res = QByteArray((char*)hex, 4);
+		return res;
+	}
+
+	// 大端模式
+	else if (endian == BigEndian)
+	{
+		QByteArray arrInver;
+		unsigned char *hex = (unsigned char *)&dataF;
+		res = QByteArray((char*)hex, 4);
+		for (int i = res.size() - 1; i > -1; i--)
+		{
+			arrInver.append(res.at(i));
+		}
+		return arrInver;
+	}
+}
+
+
 double byte8ToDouble(QByteArray arr, Endian endian = BigEndian)
 {
 	if (arr.size() != 8)
@@ -623,6 +679,14 @@ bool csvToTable(const QString &filePath, QTableWidget *tab)
 			}
 		}
 	}
+	//若csv列数小于当前表格列数则缩小表格
+	else if (csvColCount < tabCol)
+	{
+		for (int i = csvColCount; i < tabCol; i++)
+		{
+			tab->removeColumn(csvColCount);
+		}
+	}
 	for (int i = 0; i < csvRowCount; i++)
 	{
 		line = in.readLine();
@@ -657,8 +721,7 @@ bool csvToTable(const QString & filePath, QTableWidget * tab, const QString colT
 		csvColCount = getColCount.size();
 		csvRowCount++;
 	}
-	//cout << "csvRowCount:" << csvRowCount << endl;
-	//cout << "csvColCount:" << csvColCount << endl;
+
 	structParaFile.close();
 	//获取table行列数
 	int tabRow = tab->rowCount();

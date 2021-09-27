@@ -21,6 +21,7 @@ QPmac::QPmac(QObject *parent):QObject(parent)
 	pmacVariableRecipe.append(CURLENGTHSMM);
 	pmacVariableRecipe.append(PVARIABLE); 
 	pmacVariableRecipe.append(ORIGINSTATE);
+	pmacVariableRecipe.append(CURFORCE);
 
 	pmacVariableList.append(&PmacData::negLimitState);
 	pmacVariableList.append(&PmacData::posLimitState);
@@ -28,6 +29,7 @@ QPmac::QPmac(QObject *parent):QObject(parent)
 	pmacVariableList.append(&PmacData::curLengthsMM);
 	pmacVariableList.append(&PmacData::pVariable);
 	pmacVariableList.append(&PmacData::originState);
+	pmacVariableList.append(&PmacData::curForce);
 }
 
 QPmac::~QPmac()
@@ -137,6 +139,13 @@ QString QPmac::creatPmacVariableCommand(QList<PmacVariable> &pmacVariableRecipe)
 				strCommand.append("M" + QString::number(j) + "20");
 			}
 			break;
+		case CURFORCE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 1; j <= numTemp; j++)
+			{
+				strCommand.append("M" + QString::number(j) + "05");
+			}
+			break;
 			//需要采集什么数据 在此处添加即可；
 		default:
 			qDebug() << "getPmacVariable solve pmacVariableRecipe ERROR!";
@@ -205,6 +214,23 @@ void QPmac::getPmacVariable(QList<PmacVariable>& pmacVariableRecipe, QString str
 			{
 				(*pmacVariableList.at(i))(j) = res.at(0).toDouble();
 				res.removeFirst();
+			}
+			break;
+		case CURFORCE:
+			numTemp = pmacVariableList.at(i)->size();
+			for (int j = 0; j < numTemp; j++)
+			{
+				if (j==3)
+				{
+					(*pmacVariableList.at(i))(j) = - res.at(0).toDouble() * 500 / 2048 * 9.80665;
+					res.removeFirst();
+				} 
+				else
+				{
+					(*pmacVariableList.at(i))(j) = res.at(0).toDouble() * 500 / 2048 * 9.80665;
+					res.removeFirst();
+				}
+
 			}
 			break;
 		//需要采集什么数据 在此处添加即可；
@@ -351,6 +377,12 @@ void QPmac::upsAbsMove(Matrix<double, 6, 1> absL,double vel)
 		QString Head;
 		QString content;
 		Head.sprintf("A\
+					  \nI124=$100001\
+				      \nI224=$100001\
+				      \nI324=$100001\
+				      \nI424=$100001\
+				      \nI524=$100001\
+					  \nI624=$100001\
 					  \nCLOSE\
 					  \nUNDEFINE ALL\
 					  \n&1\
@@ -363,7 +395,7 @@ void QPmac::upsAbsMove(Matrix<double, 6, 1> absL,double vel)
 					  \nOPEN PROG1 CLEAR\
 					  \nABS\
 					  \nLINEAR\
-					  \nFRAX(X,Y,Z)\
+					  \nFRAX(X,Y,Z,U,V,W)\
 					  \nF%.4f", vel);
 		content.sprintf("\nX%.4f Y%.4f Z%.4f U%.4f V%.4f W%.4f\
 						\nCLOSE", absL(0), absL(1), absL(2), absL(3), absL(4), absL(5));
@@ -397,6 +429,12 @@ void QPmac::upsHomeMove(Matrix<double, 6, 1> absL,  double vel)
 		//char cmdP2Start[] = "CMD\"P2=0\"";
 		//char cmdP2End[] = "CMD\"P2=1\"";
 		Head.sprintf("A\
+					  \nI124=$100001\
+				      \nI224=$100001\
+				      \nI324=$100001\
+				      \nI424=$100001\
+				      \nI524=$100001\
+					  \nI624=$100001\
 					  \nCLOSE\
 					  \nUNDEFINE ALL\
 					  \n&1\

@@ -71,6 +71,9 @@
     <ClCompile Include="WaitWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HMIcommunication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="ParameterCalibrate.ui">
@@ -94,6 +97,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="WaitWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="HMIcommunication.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

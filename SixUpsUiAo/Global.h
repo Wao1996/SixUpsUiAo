@@ -17,6 +17,7 @@ enum PmacVariable
 	CURLENGTHSMM = 4,           //轴杆长
 	PVARIABLE = 5,              //P变量
 	ORIGINSTATE = 6,            //原点开关
+	CURFORCE =7,				//力
 };
 
 class GlobalSta 
@@ -52,6 +53,7 @@ public:
 	static VectorXd originState;  //原点开关状态
 	static VectorXd axleHomeCompleteState;//pmac中 各轴回零完成状态
 	static VectorXd curLengthsMM;//pmac中显示的杆长  (相对零位的杆长) 单位mm
+	static VectorXd curForce;//支链力
 	static VectorXd pVariable;//P变量列表
 	
 };
@@ -75,11 +77,13 @@ public:
 
 	//并联机构运动参数
 	static double multiSpeed;//多轴联动 运动速度 单位mm/
+	static int multiSpeedID;//多轴联动运动速度ID
 	static double multiJogTranslationSpeed;//多轴点动 平动运动速度 单位mm/s
 	static double multiJogTranslationStep;//多轴点动 平动运动步长 单位mm
 	static double multiJogRotateSpeed;//多轴点动 转动运动速度 单位°/s
 	static double multiJogRotateStep;//多轴点动 转动运动步长 单位°
 	static Matrix<double, 6, 1> multiJogMoveDirection;//多轴点动运动方向
+	static int multiJogMoveDirectionID;//多轴点动运动方向ID
 	static double multiJogMoveStep;//多轴长按点动 运动步长
 
 	//建立坐标系
