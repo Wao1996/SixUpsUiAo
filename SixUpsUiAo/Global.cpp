@@ -32,7 +32,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  VectorXd PmacData::curLengthsMM = VectorXd::Zero(6);//杆长
  VectorXd PmacData::curForce = VectorXd::Zero(6);//力
  VectorXd PmacData::pVariable = VectorXd::Zero(20);//P变量
- 
+ VectorXd PmacData::redundantChain = VectorXd::Zero(2);//冗余支链的 位置 力
   /***********************SingleJogData ************************************************/
  double SingleJogData::jogSpeed = 0.1;//点动速度
  VectorXd SingleJogData::jogInc = VectorXd::Zero(6);//点动距离向量

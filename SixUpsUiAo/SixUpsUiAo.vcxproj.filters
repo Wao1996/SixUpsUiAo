@@ -74,6 +74,12 @@
     <ClCompile Include="HMIcommunication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="qcustomplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CurvePlot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="ParameterCalibrate.ui">
@@ -100,6 +106,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="HMIcommunication.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="qcustomplot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="CurvePlot.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

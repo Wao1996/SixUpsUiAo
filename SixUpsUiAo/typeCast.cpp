@@ -679,6 +679,69 @@ bool csvToTable(const QString &filePath, QTableWidget *tab)
 			}
 		}
 	}
+	for (int i = 0; i < csvRowCount; i++)
+	{
+		line = in.readLine();
+		fields = line.split(',');//按照,分割
+		for (int j = 0; j < csvColCount; j++)
+		{
+			tab->setItem(i, j, new QTableWidgetItem(fields[j]));
+			//tab->setItem(i, j, new QTableWidgetItem(QString::number(fields[j].toDouble(),'f',4)));
+		}
+	}
+	structParaFile.close();
+	return true;
+
+}
+
+bool csvToTableAdapt(const QString & filePath, QTableWidget * tab)
+{
+	QFile structParaFile(filePath);
+	//获取csv文件的行列数
+	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		qDebug() << "未打开文件:" << filePath;
+		return false;
+	}
+	QTextStream getCsvRowColCount(&structParaFile);
+	int csvRowCount = 0;
+	int csvColCount = 0;
+	while (!getCsvRowColCount.atEnd())
+	{
+		QString getRowCount = getCsvRowColCount.readLine();
+		QStringList getColCount = getRowCount.split(',');
+		csvColCount = getColCount.size();
+		csvRowCount++;
+	}
+	//cout << "csvRowCount:" << csvRowCount << endl;
+	//cout << "csvColCount:" << csvColCount << endl;
+	structParaFile.close();
+	//获取table行列数
+	int tabRow = tab->rowCount();
+	int tabCol = tab->columnCount();
+	//从csv文件读取数据
+	if (!structParaFile.open(QIODevice::ReadOnly | QIODevice::Text)) { return false; }
+	QTextStream in(&structParaFile);
+	QString line;
+	QStringList fields;
+	if (csvRowCount > tabRow)
+	{
+		qDebug() << "数据行数超限!!";
+		return false;
+	}
+	//若csv列数大于当前表格列数则扩展表格列数
+	if (csvColCount > tabCol)
+	{
+		qDebug() << "自动扩展列数->" << csvColCount;
+		for (int i = 0; i < csvColCount - tabCol; i++)
+		{
+			tab->insertColumn(i + tabCol);
+			for (int j = 0; j < csvRowCount; j++)
+			{
+				tab->setItem(j, i + tabCol, new QTableWidgetItem());//添加新元素
+			}
+		}
+	}
 	//若csv列数小于当前表格列数则缩小表格
 	else if (csvColCount < tabCol)
 	{
@@ -699,7 +762,6 @@ bool csvToTable(const QString &filePath, QTableWidget *tab)
 	}
 	structParaFile.close();
 	return true;
-
 }
 
 bool csvToTable(const QString & filePath, QTableWidget * tab, const QString colTitle)
@@ -912,6 +974,31 @@ bool tableToCsv(const QTableWidget * tab, const QString & filePath)
 				continue;
 			}
 			QString str = item->text();
+			str.replace(",", " ");
+			conTents += str + ",";
+		}
+		conTents = conTents.left(conTents.length() - 1);
+		conTents += "\n";
+	}
+	stream << conTents;
+	file.close();
+	return true;
+}
+
+bool qlistQvectorToCsv( QList<QVector<double>> qlist, const QString & filePath)
+{
+	QFile file(filePath);
+	if (!file.open(QIODevice::Truncate | QIODevice::WriteOnly)) { return false; }
+	QTextStream stream(&file);
+	QString conTents;
+	int rows = qlist.at(0).size();
+	int cols = qlist.size();
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < cols; j++)
+		{
+			
+			QString str = QString::number(qlist.at(j).at(i), 'f', 6);
 			str.replace(",", " ");
 			conTents += str + ",";
 		}

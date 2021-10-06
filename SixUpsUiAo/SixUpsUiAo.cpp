@@ -57,6 +57,58 @@ SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	connect(upsCalculateTimer, &QTimer::timeout, myUpsCalculateThread, &UpsCalculateThread::on_upsCalculateTimer);
 	calculateQthread->start();
 
+	/*************力绘制************************/
+	plotTimer = new QTimer(this);
+	plotTimer->setInterval(100);//设置定时器的间隔50ms
+	plotTimer->setTimerType(Qt::PreciseTimer);//精确定时
+	connect(plotTimer, &QTimer::timeout, this, &SixUpsUiAo::on_plotTimer);
+	/*力曲线窗口初始化*/
+	//1号轴
+	widget_Force1 = ui.widget_Force1;
+	curves_Force1 = new CurvePlot(widget_Force1);
+	curves_Force1->setxAxisRange(0, 210);
+	curves_Force1->setyAxisRange(-2400, 2400);
+	curves_Force1->setSelectLegend(false);
+
+	widget_Force2 = ui.widget_Force2;
+	curves_Force2 = new CurvePlot(widget_Force2);
+	curves_Force2->setxAxisRange(0, 210);
+	curves_Force2->setyAxisRange(-2400, 2400);
+	curves_Force2->setSelectLegend(false);
+
+	widget_Force3 = ui.widget_Force3;
+	curves_Force3 = new CurvePlot(widget_Force3);
+	curves_Force3->setxAxisRange(0, 210);
+	curves_Force3->setyAxisRange(-2400, 2400);
+	curves_Force3->setSelectLegend(false);
+
+	widget_Force4 = ui.widget_Force4;
+	curves_Force4 = new CurvePlot(widget_Force4);
+	curves_Force4->setxAxisRange(0, 210);
+	curves_Force4->setyAxisRange(-2400, 2400);
+	curves_Force4->setSelectLegend(false);
+
+	widget_Force5 = ui.widget_Force5;
+	curves_Force5 = new CurvePlot(widget_Force5);
+	curves_Force5->setxAxisRange(0, 210);
+	curves_Force5->setyAxisRange(-2400, 2400);
+	curves_Force5->setSelectLegend(false);
+
+	widget_Force6 = ui.widget_Force6;
+	curves_Force6 = new CurvePlot(widget_Force6);
+	curves_Force6->setxAxisRange(0, 210);
+	curves_Force6->setyAxisRange(-2400, 2400);
+	curves_Force6->setSelectLegend(false);
+
+	widget_Force7 = ui.widget_Force7;
+	curves_Force7 = new CurvePlot(widget_Force7);
+	curves_Force7->setxAxisRange(0, 210);
+	curves_Force7->setyAxisRange(-2400, 2400);
+	curves_Force7->setSelectLegend(false);
+	/*注册数据类型 跨线程传递*/
+	qRegisterMetaType<QList<QList<QVariant>>>("QList<QList<QVariant>>");
+	qRegisterMetaType<QList<QList<QVariant>>>("QList<QList<QVariant>>*");
+	qRegisterMetaType<CurveType>("CurveType");
 
 }
 
@@ -271,7 +323,7 @@ void SixUpsUiAo::initTablesStyle()
 	ui.tableSetOrigin->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
 	ui.tableSetOrigin->setFixedHeight(4 * rowHeight);
 
-	/*****keyPointTable 待拟合参数******/
+	/*****keyPointTable ******/
 	//列设置
 	ui.keyPointTable->horizontalHeader()->setDefaultSectionSize(colWidth);
 	ui.keyPointTable->setColumnCount(7);
@@ -386,7 +438,7 @@ void SixUpsUiAo::initTablesStyle()
 void SixUpsUiAo::initConnect()
 {
 	connect(this, &SixUpsUiAo::upsHome_signal, this, &SixUpsUiAo::upsHome_slot);//平台回零
-	for (int i = 0; i < PmacData::numL; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		/**************************多轴运动**************************/
 		connect(AbsTarPos_group[i], QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SixUpsUiAo::absTarPos_group_valueChanged);
@@ -435,7 +487,7 @@ void SixUpsUiAo::myWidgetEnable()
 void SixUpsUiAo::myWidgetDisnable()
 {
 	/*让相关状态显示UI初始化*/
-	for (int i = 0; i < PmacData::numL; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		qlabNegLimit_group[i]->setPixmap(offIcon);
 		qlabPosLimit_group[i]->setPixmap(offIcon);
@@ -603,6 +655,16 @@ bool SixUpsUiAo::DeleteFileOrFolder(const QString & strPath)
 	return true;
 }
 
+void SixUpsUiAo::addPoint(CurvePlot * graph, const double & x_temp, const double & y_temp)
+{
+	graph->x0.append(x_temp);
+	graph->y0.append(y_temp);
+	QList<QVariant> xy;
+	xy.append(x_temp);
+	xy.append(y_temp);
+	graph->x_y0.append(xy);
+}
+
 void SixUpsUiAo::upsHome_slot()
 {
 	qDebug() << "upsHome_slot ";
@@ -638,14 +700,19 @@ void SixUpsUiAo::on_paraCailbrate_triggered()
 
 void SixUpsUiAo::on_updateUiDataTimer()
 {
-	//qDebug() << "on_updateUiDataTimer";
+
 	QString strLength;
-	for (int i = 0; i < PmacData::numL; i++)
+	/*冗余支链相关显示*/
+	strLength = QString::number(PmacData::redundantChain(0), 'f', 3);
+	ui.led_realTimeLength7->setText(strLength);
+	strLength = QString::number(PmacData::redundantChain(1), 'f', 3);
+	ui.led_realTimeForce7->setText(strLength);
+	for (int i = 0; i < 6; i++)
 	{
 		/**********杆长***************/
 		strLength = QString::number(PmacData::curLengthsMM(i), 'f', 3);
 		realTimeLengths_group[i]->setText(strLength);
-
+		/**********支链力*************/
 		strLength = QString::number(PmacData::curForce(i), 'f', 3); 
 		realTimeForce_group[i]->setText(strLength);
 		/**********开关状态***************/
@@ -764,6 +831,44 @@ void SixUpsUiAo::on_upsJogTimer()
 	//myPmac->enablePLC(1);
 	myPmac->upsJogJMove(UPSData::tarAxlesL_norm, axlesSpeed);
 	UPSData::lastAxlesL_norm = UPSData::tarAxlesL_norm;//更新
+
+}
+
+void SixUpsUiAo::on_plotTimer()
+{
+	//绘图时间
+	endTime = QDateTime::currentDateTime();
+	intervalTime = startTime.msecsTo(endTime) / 1000.0;
+
+	//添加点
+	//addPoint(curves_Force1, intervalTime, PmacData::curForce(0));
+	recordData[0].append(intervalTime);
+	for (int i=0;i<6;i++)
+	{
+		recordData[i+1].append(PmacData::curForce(i));
+	}
+	recordData[7].append(PmacData::redundantChain(1));
+	for (int i = 0; i < 6; i++)
+	{
+		recordData[i + 8].append(UPSData::curL_norm(i));
+	}
+	recordData[14].append(PmacData::redundantChain(0));
+	//设置数据
+	widget_Force1->graph(0)->setData(recordData[0], recordData[1]);
+	widget_Force2->graph(0)->setData(recordData[0], recordData[2]);
+	widget_Force3->graph(0)->setData(recordData[0], recordData[3]);
+	widget_Force4->graph(0)->setData(recordData[0], recordData[4]);
+	widget_Force5->graph(0)->setData(recordData[0], recordData[5]);
+	widget_Force6->graph(0)->setData(recordData[0], recordData[6]);
+	widget_Force7->graph(0)->setData(recordData[0], recordData[7]);
+	//重新绘制
+	widget_Force1->replot(QCustomPlot::rpQueuedReplot);
+	widget_Force2->replot(QCustomPlot::rpQueuedReplot);
+	widget_Force3->replot(QCustomPlot::rpQueuedReplot);
+	widget_Force4->replot(QCustomPlot::rpQueuedReplot);
+	widget_Force5->replot(QCustomPlot::rpQueuedReplot);
+	widget_Force6->replot(QCustomPlot::rpQueuedReplot);
+	widget_Force7->replot(QCustomPlot::rpQueuedReplot);
 
 }
 
@@ -1117,6 +1222,12 @@ void SixUpsUiAo::on_recordKeyPointBtn_clicked()
 		ui.keyPointTable->setItem(tabRow , i + 1, item);
 	}
 	
+}
+
+void SixUpsUiAo::on_inputKeyPointBtn_clicked()
+{
+	QString strFile = QFileDialog::getOpenFileName(this, "选择文件", "./", "文本文件(*.txt;*.csv;)");
+	csvToTable(strFile, ui.keyPointTable);
 }
 
 void SixUpsUiAo::on_saveKeyPointBtn_clicked()
@@ -1608,5 +1719,66 @@ void SixUpsUiAo::on_inputBtn_clicked()
 {
 	QString strFile = QFileDialog::getOpenFileName(this, "选择文件", "./", "文本文件(*.txt;*.csv;)");
 	qDebug() << strFile;
-	csvToTable(strFile, ui.tableInput);
+	csvToTableAdapt(strFile, ui.tableInput);
+}
+
+void SixUpsUiAo::on_plotForceBtn_toggled(bool checked)
+{
+	/*开始绘图 仅仅绘图不运动*/
+	if (checked)
+	{
+		qDebug() << "on_plotRealTimeCurve  is checked";
+		if (!plotTimer->isActive())
+		{
+			recordData.clear();
+			QVector<double> vectorTemp;
+			for (int i = 0; i < 15; i++)
+			{
+				recordData.append(vectorTemp);
+			}
+			plotTimer->start();
+			startTime = QDateTime::currentDateTime();//获取开始时间
+			qDebug() << "plotTimer->start()";
+		}
+		else
+		{
+			QMessageBox::information(NULL, "提示", "当前正在绘图！");
+		}
+	}
+	else
+	{
+		qDebug() << "on_plotRealTimeCurve  is  not checked";
+		if (!plotTimer->isActive())
+		{
+			QMessageBox::information(NULL, "提示", "当前未在绘图！");
+		}
+		else
+		{
+			qDebug() << "plotTimer->stop()";
+			plotTimer->stop();
+		}
+	}
+}
+
+void SixUpsUiAo::on_clearForceBtn_clicked()
+{
+	recordData.clear();
+	curves_Force1->clearAllCurves();
+	curves_Force2->clearAllCurves();
+	curves_Force3->clearAllCurves();
+	curves_Force4->clearAllCurves();
+	curves_Force5->clearAllCurves();
+	curves_Force6->clearAllCurves();
+	curves_Force7->clearAllCurves();
+}
+
+void SixUpsUiAo::on_recordForceBtn_clicked()
+{
+	QString strFile = QFileDialog::getSaveFileName(this, "另存为", "./", "文本文件(*.csv;)");
+	if (!strFile.isEmpty())
+	{
+		qlistQvectorToCsv(recordData, strFile);
+	}
+
+	
 }

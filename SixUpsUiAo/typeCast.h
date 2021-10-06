@@ -50,6 +50,7 @@ bool matrixXdToTable(const MatrixXd &mat, QTableWidget* tab, const QString colTi
 bool matrixXdToCsv(const MatrixXd &mat, const QString &filePath);
 //读取csv文件到表格
 bool csvToTable(const QString &filePath, QTableWidget *tab);
+bool csvToTableAdapt(const QString &filePath, QTableWidget *tab);//根据csv大小调整table大小
 bool csvToTable(const QString &filePath, QTableWidget *tab, const QString colTitle);
 //读取csv文件到MatrixXd
 bool csvToMatrixXd(const QString &filePath, Matrix<double, 6, 1> &mat);
@@ -57,4 +58,7 @@ bool csvToMatrixXd(const QString &filePath, Matrix<double, 3, 6> &mat);
 bool csvToMatrixXd(const QString &filePath, MatrixXd &mat);
 //表格写入csv文件
 bool tableToCsv(const QTableWidget *tab, const QString &filePath);
+
+//表格写入csv文件
+bool qlistQvectorToCsv( QList<QVector<double>> qlist, const QString &filePath);
 

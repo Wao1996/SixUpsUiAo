@@ -18,8 +18,16 @@ enum PmacVariable
 	PVARIABLE = 5,              //P变量
 	ORIGINSTATE = 6,            //原点开关
 	CURFORCE =7,				//力
+	REDUNDENTCHAIN=8,			//冗余支链信息
 };
 
+enum CurveType
+{
+	/*曲线类型*/
+	Disp,
+	Vel,
+	Force
+};
 class GlobalSta 
 {
 public:
@@ -55,6 +63,7 @@ public:
 	static VectorXd curLengthsMM;//pmac中显示的杆长  (相对零位的杆长) 单位mm
 	static VectorXd curForce;//支链力
 	static VectorXd pVariable;//P变量列表
+	static VectorXd redundantChain;//冗余支链的 位置 力
 	
 };
 

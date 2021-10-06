@@ -22,6 +22,8 @@ QPmac::QPmac(QObject *parent):QObject(parent)
 	pmacVariableRecipe.append(PVARIABLE); 
 	pmacVariableRecipe.append(ORIGINSTATE);
 	pmacVariableRecipe.append(CURFORCE);
+	pmacVariableRecipe.append(REDUNDENTCHAIN);//冗余支链待删除
+
 
 	pmacVariableList.append(&PmacData::negLimitState);
 	pmacVariableList.append(&PmacData::posLimitState);
@@ -30,6 +32,7 @@ QPmac::QPmac(QObject *parent):QObject(parent)
 	pmacVariableList.append(&PmacData::pVariable);
 	pmacVariableList.append(&PmacData::originState);
 	pmacVariableList.append(&PmacData::curForce);
+	pmacVariableList.append(&PmacData::redundantChain);//冗余支链待删除
 }
 
 QPmac::~QPmac()
@@ -143,8 +146,14 @@ QString QPmac::creatPmacVariableCommand(QList<PmacVariable> &pmacVariableRecipe)
 			numTemp = pmacVariableList.at(i)->size();
 			for (int j = 1; j <= numTemp; j++)
 			{
-				strCommand.append("M" + QString::number(j) + "05");
+				//strCommand.append("M" + QString::number(j) + "05");
+				strCommand.append("P" + QString::number(j) + "15");
 			}
+			break;
+			//冗余支链待删除
+		case REDUNDENTCHAIN:
+			//strCommand.append("#7PM705");
+			strCommand.append("#7PP715");
 			break;
 			//需要采集什么数据 在此处添加即可；
 		default:
@@ -222,7 +231,7 @@ void QPmac::getPmacVariable(QList<PmacVariable>& pmacVariableRecipe, QString str
 			{
 				if (j==3)
 				{
-					(*pmacVariableList.at(i))(j) = - res.at(0).toDouble() * 500 / 2048 * 9.80665;
+					(*pmacVariableList.at(i))(j) = - res.at(0).toDouble() * 500 / 2048 * 9.80665;//这里取反是因为3号力传感器安装时正负接反了
 					res.removeFirst();
 				} 
 				else
@@ -232,6 +241,13 @@ void QPmac::getPmacVariable(QList<PmacVariable>& pmacVariableRecipe, QString str
 				}
 
 			}
+			break;
+		//冗余支链待删除
+		case REDUNDENTCHAIN:
+			(*pmacVariableList.at(i))(0) = res.at(0).toDouble() / PmacData::cts2mm / 2;//冗余支链伸长量
+			res.removeFirst();
+			(*pmacVariableList.at(i))(1) = res.at(0).toDouble()* 300 / 2048 * 9.80665;//冗余支链受力
+			res.removeFirst();
 			break;
 		//需要采集什么数据 在此处添加即可；
 		default:
@@ -491,7 +507,7 @@ void QPmac::upsJogJMove(Matrix<double, 6, 1> tarAxlesL_norm, Matrix<double, 6, 1
 void QPmac::on_dataGatherTimer()
 {
 	getPmacVariable(pmacVariableRecipe, PmacData::pmacGetVariableCommand, pmacVariableList);
-	for (int i = 0;i < PmacData::numL;i++)
+	for (int i = 0;i < 6;i++)
 	{
 		if (PmacData::curLengthsMM(i) > -0.0005 && PmacData::curLengthsMM(i) < 0.0005 )
 		{

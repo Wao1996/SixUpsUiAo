@@ -14,6 +14,8 @@
 #include "QPmac.h"
 #include "UpsCalculateThread.h"
 #include "HMIcommunication.h"
+#include "qcustomplot.h"
+#include "CurvePlot.h"
 
 class SixUpsUiAo : public QMainWindow
 {
@@ -85,6 +87,38 @@ private:
 	bool loadLastLengthsMM();
 	//要删除的文件夹或文件的路径
 	bool DeleteFileOrFolder(const QString &strPath);
+
+
+	/***********力绘制***********/
+	QTimer *plotTimer;					//开始实时绘图定时器
+	QDateTime startTime;
+	QDateTime endTime;
+	double intervalTime = 0;
+	QList<QVector<double>> recordData;
+	/*曲线操作绘制*/
+	void addPoint(CurvePlot *graph, const double &x_temp, const double &y_temp);//添加数据点
+	/*1号轴轴*/
+	QCustomPlot *widget_Force1;
+	CurvePlot *curves_Force1;
+
+	QCustomPlot *widget_Force2;
+	CurvePlot *curves_Force2;
+
+	QCustomPlot *widget_Force3;
+	CurvePlot *curves_Force3;
+
+	QCustomPlot *widget_Force4;
+	CurvePlot *curves_Force4;
+
+	QCustomPlot *widget_Force5;
+	CurvePlot *curves_Force5;
+
+	QCustomPlot *widget_Force6;
+	CurvePlot *curves_Force6;
+
+	QCustomPlot *widget_Force7;
+	CurvePlot *curves_Force7;
+
 signals:
 	void upsHome_signal();				//并联机构回零位信号
 	void platformDHome_signal();		//动平台回初始零位信号
@@ -121,6 +155,7 @@ private slots:
 	void on_setCurPosOriginBtn_clicked();	//将当前位姿设为运动原点
 	/*************记录关键点************/
 	void on_recordKeyPointBtn_clicked();
+	void on_inputKeyPointBtn_clicked();
 	void on_saveKeyPointBtn_clicked();
 	//表格右键
 	void addTableWidgetMenuKeyPoint();
@@ -159,6 +194,12 @@ private slots:
 	//写保持寄存器
 	void wirteRegisters_slot(const int & address, const double & data);
 	void writeCoils_slot(const int & address, const bool & flag);
-
+	/************导入数据 矩阵变换位姿*********/
 	void on_inputBtn_clicked();
+
+	/*******力绘制********/
+	void on_plotForceBtn_toggled(bool checked);
+	void on_clearForceBtn_clicked();
+	void on_recordForceBtn_clicked();
+	void on_plotTimer();					//力绘制定时器
 };

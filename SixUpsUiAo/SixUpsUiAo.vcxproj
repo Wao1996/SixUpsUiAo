@@ -57,7 +57,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Link>
-      <AdditionalDependencies>Qt5PrintSupportd.lib;Qt5AxContainerd.lib;Qt5AxBased.lib;Qt5AxContainer.lib;Qt5AxBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Qt5PrintSupport.lib;Qt5AxContainer.lib;Qt5AxBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <ClCompile>
@@ -104,8 +104,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CurvePlot.cpp" />
     <ClCompile Include="HMIcommunication.cpp" />
     <ClCompile Include="PmacDeviceLib.cpp" />
+    <ClCompile Include="qcustomplot.cpp" />
     <ClCompile Include="QPmac.cpp" />
     <ClCompile Include="typeCast.cpp" />
     <ClCompile Include="UpsCalculateThread.cpp" />
@@ -126,12 +128,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlgorithmFor6UPS.h" />
+    <QtMoc Include="CurvePlot.h" />
     <ClInclude Include="Global.h" />
     <QtMoc Include="HMIcommunication.h" />
     <ClInclude Include="PmacDeviceLib.h" />
     <QtMoc Include="WaitWindow.h" />
     <QtMoc Include="UpsCalculateThread.h" />
     <QtMoc Include="QPmac.h" />
+    <QtMoc Include="qcustomplot.h" />
     <ClInclude Include="typeCast.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
