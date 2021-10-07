@@ -53,12 +53,14 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Qt5PrintSupportd.lib;Qt5AxContainerd.lib;Qt5AxBased.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)六自由度调姿平台$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Link>
       <AdditionalDependencies>Qt5PrintSupport.lib;Qt5AxContainer.lib;Qt5AxBase.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <OutputFile>$(OutDir)六自由度调姿平台$(TargetExt)</OutputFile>
     </Link>
     <ClCompile>
       <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -133,7 +135,14 @@
     <QtMoc Include="WaitWindow.h" />
     <QtMoc Include="UpsCalculateThread.h" />
     <QtMoc Include="QPmac.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="typeCast.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SixUpsUiAo.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon\6UPS85Gray256.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
