@@ -23,8 +23,8 @@ enum PmacVariable
 class GlobalSta 
 {
 public:
-	//皮肤路径
-	static QString skinPath;
+	//数据地址
+	static QString dataFile;
 	//设备状态
 	static bool pmacIsConnected;//PMAC
 	static bool pmacIsInitialed;
@@ -76,15 +76,15 @@ class UPSData
 public:
 
 	//并联机构运动参数
-	static double multiSpeed;//多轴联动 运动速度 单位mm/
-	static int multiSpeedID;//多轴联动运动速度ID
-	static double multiJogTranslationSpeed;//多轴点动 平动运动速度 单位mm/s
-	static double multiJogTranslationStep;//多轴点动 平动运动步长 单位mm
-	static double multiJogRotateSpeed;//多轴点动 转动运动速度 单位°/s
-	static double multiJogRotateStep;//多轴点动 转动运动步长 单位°
-	static Matrix<double, 6, 1> multiJogMoveDirection;//多轴点动运动方向
-	static int multiJogMoveDirectionID;//多轴点动运动方向ID
-	static double multiJogMoveStep;//多轴长按点动 运动步长
+	static double multiSpeed;							//多轴联动 运动速度 单位mm/
+	static int multiSpeedID;							//多轴联动 运动速度ID
+	static double multiJogTranslationSpeed;				//多轴点动 平动运动速度 单位mm/s
+	static double multiJogTranslationStep;				//多轴点动 平动运动步长 单位mm
+	static double multiJogRotateSpeed;					//多轴点动 转动运动速度 单位°/s
+	static double multiJogRotateStep;					//多轴点动 转动运动步长 单位°
+	static Matrix<double, 6, 1> multiJogMoveDirection;	//多轴点动 运动方向
+	static int multiJogMoveDirectionID;					//多轴点动 运动方向ID
+	static double multiJogMoveStep;						//多轴长按点动 运动步长
 
 	//建立坐标系
 	static MatrixXd circlePt;				//3*n(圆心拟合数据点个数) 
@@ -92,10 +92,9 @@ public:
 	static double r;						//拟合的半径
 
 	//运动原点设置相关
-	static Matrix<double, 3, 1>	O_set_M;	//运动坐标系原点在测量坐标系中位置
-	static Matrix<double, 3, 1> X_set_M;	//运动坐标系X轴正方向一点在测量坐标系中位置
-	static Matrix<double, 3, 1> XOY_set_M;	//运动坐标系XOY平面一点在测量坐标系中位置
-	static Matrix4d Trans_setS;			//运动坐标系相对静坐标系的齐次变换矩阵
+	static Vector3d XYZ_setD;				//运动原点在动坐标系下的位置
+	static Matrix<double, 3, 6> D_set;		//修改运动原点后 动平台铰链点在运动坐标系下的坐标
+	static Matrix4d Trans_setS;				//运动坐标系相对静坐标系的齐次变换矩阵
 
 	static int n_D;							//测量的动平台靶标点个数
 	static int n_S;							//测量的静平台靶标点个数
@@ -106,13 +105,14 @@ public:
 	static Matrix4d Trans_DM;				//动平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
 	static Matrix4d Trans_SM;				//静平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
 	static Matrix4d Trans_DS;				//动平台坐标系相对静平台坐标系齐次变换矩阵
-	static Matrix4d Trans_Dset;				//动平台坐标系相对运动坐标系齐次变换矩阵
+	static Matrix4d Trans_setD;				//运动坐标系相对动平台齐次变换矩阵
 				
 
 	//结构参数与初始杆长标定
 	static MatrixXd Q_DD;						//3*n_D_struct 动平台靶标点在动系下坐标
 	static MatrixXd Q_SS;						//3*n_S_struct 静平台靶标点在静系下坐标
 	static MatrixXd	Q_GD;						//工装靶标点在动系下坐标
+
 	static Matrix<double, 3, 6> D;				//动坐标系下 动平台铰链点坐标(实际值)
 	static Matrix<double, 3, 6> S;				//静坐标系下 静平台铰链点坐标(实际值)
 	static Matrix<double, 3, 6> D_theoretical;	//动坐标系下 动平台铰链点坐标(理论值) 用于确定动平台坐标系原点
@@ -120,21 +120,23 @@ public:
 	static Matrix<double, 6, 1> initL_norm;		//并联机构各支链处于零位时 实际的杆长 单位 mm 
 
 
-	//位姿杆长数据
-
-	//static Matrix<double, 6, 1> tarPosAndAngle_DS;	//动平台相对静平台的目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
+	//实时位姿
+	static Matrix<double, 6, 1> curPosAndAngle_setS;	//运动坐标系相对静平台 实时位姿 单位 mm °
+	static Matrix<double, 6, 1> curPosAndAngle_DS;		//动平台相对静平台     实时位姿 单位 mm °
+	static Matrix<double, 6, 1> curPosAndAngle_setD;	//运动坐标系相对动平台 实时位姿 单位 mm °
+	//目标位姿
 	static Matrix<double, 6, 1> tarPosAndAngle_Dset; 	//动平台相对运动坐标系的目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
-	static Matrix<double, 6, 1> prsPosAndAngle_Dset;	//长按点动按下时的动平台相对运动坐标系位姿
+	static Matrix<double, 6, 1> tarPosAndAngle_setS;	//运动坐标系相对静平台的目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
+	
+	static Matrix<double, 6, 1> prsPosAndAngle_setS;	//长按点动按下时的运动坐标系相对静平台
 	static Matrix<double, 6, 1>	homePosAndAngle_DS;		//并联机构 动平台相对静平台的零位位姿   单位 mm °
 	static Matrix<double, 6, 1> initPosAndAngle_DS;		//动平台相对静平台 正解初始位姿 单位 mm °
-	static Matrix<double, 6, 1> curPosAndAngle_DS;		//动平台相对静平台 正解实时位姿 单位 mm °
-	static Matrix<double, 6, 1> curPosAndAngle_setS;	//运动坐标系相对静平台 正解实时位姿 单位 mm °
-	static Matrix<double, 6, 1> curPosAndAngle_Dset;	//动平台相对运动坐标系 正解实时位姿 单位 mm °
-	static Matrix<double, 6, 1> tarL_norm;				//由目标位姿反解得到的目标杆长 单位mm
+	
+	static Matrix<double, 6, 1> tarL_norm;				//由目标位姿反解得到的目标铰点杆长(带有norm后缀的表示从虎克铰到球铰点的长度) 单位mm
 	static Matrix<double, 6, 1> tarAxlesL_norm;			//得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm
 	static Matrix<double, 6, 1> lastAxlesL_norm;		//上一步轴长
-	static Matrix<double, 6, 1> curL_norm;				//由PMAC值换算得到的实时杆长 单位mm
-	static Matrix<double, 6, 1> lastL_norm;				//上一步的杆长
+	static Matrix<double, 6, 1> curL_norm;				//由PMAC值换算得到的实时铰点杆长 单位mm
+	static Matrix<double, 6, 1> lastL_norm;				//上一步的铰点杆长
 	
 
 	static Matrix<double, 6, 1> realPosAndAngleByQD;	//激光跟踪仪测量靶标点计算得到的实际位姿

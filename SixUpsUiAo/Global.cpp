@@ -1,10 +1,10 @@
 #include "Global.h"
-/************************GlobalSta start*************************************************/
 
-QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
-//"./other/qss/psblack.css" //黑
-//"./other/qss/flatwhite.css"//白
-//"./other/qss/lightblue.css"//蓝
+QReadWriteLock rwLock;
+
+/************************GlobalSta start*************************************************/
+ QString GlobalSta::dataFile = "E:/MyVS2017Space/GitHub/Wao1996/SixUpsUiAo/SixUpsUiAo";
+ //QString GlobalSta::dataFile = "D:/SixUpsUi/SixUpsUiAo";
  bool GlobalSta::pmacIsConnected = false; 
  bool GlobalSta::pmacIsInitialed = false;
  bool GlobalSta::axlesIshome = false;
@@ -39,7 +39,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
 
  /***********************UPSData start************************************************/
 //运动参数
- double UPSData::multiSpeed = 1;//多轴联动 进给轴速度 单位mm/s
+ double UPSData::multiSpeed = 2;//多轴联动 进给轴速度 单位mm/s
  double UPSData::multiJogTranslationSpeed = 0.1;//多轴点动 平动运动速度 单位mm/s
  double UPSData::multiJogTranslationStep = 0.1;//多轴点动 平动运动步长 单位mm
  double UPSData::multiJogRotateSpeed = 0.01;//多轴点动 转动运动速度 单位°/s
@@ -54,9 +54,8 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  double UPSData::r = 0;						//拟合的半径
 
  //运动原点设置相关
- Matrix<double, 3, 1> UPSData::O_set_M = MatrixXd::Zero(3, 1);  //在测量坐标系下 运动坐标系原点位置
- Matrix<double, 3, 1> UPSData::X_set_M = MatrixXd::Zero(3, 1);  //在测量坐标系下 运动坐标系的第二个测量点(为新坐标系x轴 **正** 方向上的一点)
- Matrix<double, 3, 1> UPSData::XOY_set_M = MatrixXd::Zero(3, 1);//在测量坐标系下 运动坐标系的第三个测量点(为新坐标系XOY平面上的一点(**在y轴正半轴空间**))
+ Vector3d UPSData::XYZ_setD = Vector3d::Zero();
+ Matrix<double, 3, 6> UPSData::D_set = MatrixXd::Zero(3, 6);			//修改运动原点后 动平台铰链点在运动坐标系下的坐标
  Matrix4d UPSData::Trans_setS = Matrix4d::Identity();
 
 //测量相关
@@ -69,7 +68,7 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  Matrix4d UPSData::Trans_DM = Matrix4d::Zero();			//动平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
  Matrix4d UPSData::Trans_SM = Matrix4d::Zero();			//静平台坐标系相对测量坐标系齐次变换矩阵(平台标定时用，其余时候不用)
  Matrix4d UPSData::Trans_DS = Matrix4d::Zero();			//动平台坐标系相对静平台坐标系齐次变换矩阵
- Matrix4d UPSData::Trans_Dset = Matrix4d::Zero();   	//动平台坐标系相对运动坐标系齐次变换矩阵
+ Matrix4d UPSData::Trans_setD = Matrix4d::Identity();
 
  //结构参数与初始杆长
  MatrixXd UPSData::Q_DD;											//3*n_D_struct 动平台靶标点在动系下坐标
@@ -81,15 +80,18 @@ QString GlobalSta::skinPath = "./other/qss/flatwhite.css";
  Matrix<double, 3, 6> UPSData::S_theoretical = MatrixXd::Zero(3, 6);		
  Matrix<double, 6, 1> UPSData::initL_norm = MatrixXd::Zero(6, 1);	//初始杆长
 
+
  //当前位姿杆长数据
 
- 
- Matrix<double, 6, 1> UPSData::initPosAndAngle_DS = MatrixXd::Zero(6, 1);		//正解初始位姿
- Matrix<double, 6, 1> UPSData::curPosAndAngle_DS = MatrixXd::Zero(6, 1);		//正解实时位姿
- Matrix<double, 6, 1> UPSData::curPosAndAngle_Dset = MatrixXd::Zero(6, 1);
  Matrix<double, 6, 1> UPSData::curPosAndAngle_setS = MatrixXd::Zero(6, 1);
- Matrix<double, 6, 1> UPSData::tarPosAndAngle_Dset = MatrixXd::Zero(6, 1);		//目标位姿 xyzabc（按照该位姿执行运动） 单位 mm °
- Matrix<double, 6, 1> UPSData::prsPosAndAngle_Dset = MatrixXd::Zero(6, 1);		//长按点动按下时的动平台相对运动坐标系位姿
+ Matrix<double, 6, 1> UPSData::curPosAndAngle_DS = MatrixXd::Zero(6, 1);		
+ Matrix<double, 6, 1> UPSData::curPosAndAngle_setD = MatrixXd::Zero(6, 1);
+ 
+ Matrix<double, 6, 1> UPSData::tarPosAndAngle_Dset = MatrixXd::Zero(6, 1);
+ Matrix<double, 6, 1> UPSData::tarPosAndAngle_setS = MatrixXd::Zero(6, 1);
+
+ Matrix<double, 6, 1> UPSData::prsPosAndAngle_setS = MatrixXd::Zero(6, 1);
+ Matrix<double, 6, 1> UPSData::initPosAndAngle_DS = MatrixXd::Zero(6, 1);		
  Matrix<double, 6, 1> UPSData::homePosAndAngle_DS = MatrixXd::Zero(6, 1);		//并联机构 平台零位位姿  单位 mm °
  Matrix<double, 6, 1> UPSData::tarL_norm = MatrixXd::Zero(6, 1);			//有目标位姿反解得到的目标杆长 单位mm
  Matrix<double, 6, 1> UPSData::tarAxlesL_norm = MatrixXd::Zero(6, 1);       //得到目标杆长后 每个轴相对自身零位所需要的移动的距离 单位mm

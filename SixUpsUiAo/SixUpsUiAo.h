@@ -27,6 +27,9 @@ public:
 	ParameterCalibrate * ParameterCalibrateUI;	//参数标定窗口
 	WaitWindow *WaitWindowUI;					//等待窗口
 	bool upsHomeSignalEmited = false;			//并联机构回零程序发送标志
+	bool flag_calibrateSM = false;				//标定静平台靶标点 标志
+	bool flag_calibrateGM = false;				//标定工装靶标点  标志
+
 private:
     Ui::SixUpsUiAoClass ui;
 
@@ -42,7 +45,7 @@ private:
 	QList<QLineEdit *> realTimeForce_group;			//力显示
 	QList<QLineEdit *> realTimePose_DS_group;		//动平台相对静平台 位姿显示
 	QList<QLineEdit *> realTimePose_setS_group;		//运动坐标系相对静平台  位姿显示
-	QList<QLineEdit *> realTimePose_Dset_group;		//动平台相对运动坐标系 位姿显示
+	QList<QLineEdit *> realTimePose_setD_group;		//运动坐标系相对动平台 位姿显示
 	QList<QDoubleSpinBox *> AbsTarPos_group;		//多轴运动 绝对位置输入框
 	QList<QDoubleSpinBox *> jogInc_group;			//单轴运动 距离点动增量
 	QList<QToolButton *> dipJog_group;				//单轴运动 距离点动按钮
@@ -63,6 +66,9 @@ private:
 	//HMI通讯线程
 	QThread *HMIQthread = nullptr;
 	HMIcommunication *myHMIcommunication = nullptr;
+
+	QString keyPointsFile = ""; //关键点数据地址
+	QString dataFfile = "";		//数据文件路径
 	/***********初始化相关********/
 	void initIcon();
 	void initUIList();
@@ -113,15 +119,16 @@ private slots:
 	void on_calibrateGMBtn_clicked();		//工装在动平台坐标系
 	//表格右键添加列
 	void addTableWidgetMenuAddCoils();
+	void addTableWidgetMenuClearContent();
 	/***************工装目标位姿转换*************/
 	void on_transTarPoseBtn_clicked();		//工装目标位姿转换
 	/*************设置运动原点***********/
 	void on_setOriginBtn_clicked();			//将测量坐标系中的点设为运动原点
-	void on_setSPosOriginBtn_clicked();		//将静坐标系原点设为运动原点
-	void on_setCurPosOriginBtn_clicked();	//将当前位姿设为运动原点
 	/*************记录关键点************/
-	void on_recordKeyPointBtn_clicked();
-	void on_saveKeyPointBtn_clicked();
+	void on_recordKeyPointBtn_clicked();	//记录关键点
+	void on_inputKeyPointBtn_clicked();		//载入关键点数据
+	void on_saveKeyPointBtn_clicked();		//保存关键点数据
+	void on_saveAsKeyPointBtn_clicked();	//关键点数据另存为
 	//表格右键
 	void addTableWidgetMenuKeyPoint();
 	/***********多轴运动***************/
@@ -159,6 +166,8 @@ private slots:
 	//写保持寄存器
 	void wirteRegisters_slot(const int & address, const double & data);
 	void writeCoils_slot(const int & address, const bool & flag);
-
-	void on_inputBtn_clicked();
+	/************导入数据 矩阵变换位姿*********/
+	void on_inputPointsBtn_clicked();				//导入关键点
+	void on_inputMatBtn_clicked();					//导入位姿变换矩阵
+	void on_Mat2PosBtn_clicked();					//位姿变换矩阵转为目标位姿
 };

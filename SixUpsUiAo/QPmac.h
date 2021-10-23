@@ -5,6 +5,7 @@
 #include "PmacDeviceLib.h"
 #include "Global.h"
 
+
 class QPmac :public QObject
 {
 	Q_OBJECT

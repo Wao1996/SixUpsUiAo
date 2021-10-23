@@ -7,5 +7,6 @@ int main(int argc, char *argv[])
 	//QApplication::setStyle(QStyleFactory::create("fusion"));
     SixUpsUiAo w;
     w.show();
+	w.setWindowTitle("六自由度调姿平台控制程序");
     return a.exec();
 }

@@ -1,6 +1,6 @@
 #include "QPmac.h"
 
-QReadWriteLock lock;
+extern QReadWriteLock rwLock;
 
 QPmac::QPmac(QObject *parent):QObject(parent)
 {
@@ -56,13 +56,15 @@ bool QPmac::creatPmacSelect()
 	if (pbSuccess_open)
 	{
 		qDebug() << "open success";
-		QMessageBox::information(NULL, QStringLiteral("提示"), QStringLiteral("连接成功,请初始化Pmac!"));
+		//QMessageBox::information(NULL, QStringLiteral("提示"), QStringLiteral("连接成功,请初始化Pmac!"));
+		QMessageBox::information(NULL, "提示", "连接成功,请初始化Pmac!");
 		return  true;
 	}
 	else
 	{
 		qDebug() << "open failed";
-		QMessageBox::information(NULL, QStringLiteral("提示"), QStringLiteral("连接失败,您取消了连接或者检查是否以管理员身份运行!"));
+		//QMessageBox::information(NULL, QStringLiteral("提示"), QStringLiteral("连接失败,您取消了连接或者检查是否以管理员身份运行!"));
+		QMessageBox::information(NULL, "提示", "连接失败,您取消了连接或者检查是否以管理员身份运行!");
 		return false;
 	}
 }
@@ -72,7 +74,6 @@ void QPmac::initPmac()
 	//创建获取pmac变量在线命令的字符串
 	PmacData::pmacGetVariableCommand = creatPmacVariableCommand(pmacVariableRecipe);
 	GlobalSta::pmacIsInitialed = true;
-
 }
 
 bool QPmac::downloadFile(QString strFile)
@@ -344,9 +345,9 @@ void QPmac::setHomeCompleteZero()
 
 void QPmac::axlesHomeMove()
 {
-	QDir temDir("./pmacProgram");
-	QString filePath = temDir.absolutePath();
-	QString axlesHomeFile = filePath + "/axlesHome.pmc";
+	//QDir temDir("./pmacProgram");
+	//QString filePath = temDir.absolutePath();
+	QString axlesHomeFile = GlobalSta::dataFile + "/pmacProgram/axlesHome.pmc";
 	bool downloadFileState = downloadFile(axlesHomeFile);
 	if (downloadFileState == true)
 	{
@@ -367,9 +368,9 @@ void QPmac::axlesHomeZMove()
 
 void QPmac::upsAbsMove(Matrix<double, 6, 1> absL,double vel)
 {
-	QDir temDir("./pmacProgram");
-	QString filePath = temDir.absolutePath();
-	QString absHomeMoveFile = filePath + "/upsAbsMove.pmc";
+	//QDir temDir("./pmacProgram");
+	//QString filePath = temDir.absolutePath();
+	QString absHomeMoveFile = GlobalSta::dataFile + "/pmacProgram/upsAbsMove.pmc";
 	QFile file(absHomeMoveFile);
 	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
@@ -417,9 +418,9 @@ void QPmac::upsAbsMove(Matrix<double, 6, 1> absL,double vel)
 
 void QPmac::upsHomeMove(Matrix<double, 6, 1> absL,  double vel)
 {
-	QDir temDir("./pmacProgram");
-	QString filePath = temDir.absolutePath();
-	QString upsHomeMoveFile = filePath + "/upsHomeMove.pmc";
+	//QDir temDir("./pmacProgram");
+	//QString filePath = temDir.absolutePath();
+	QString upsHomeMoveFile = GlobalSta::dataFile + "/pmacProgram/upsHomeMove.pmc";
 	QFile file(upsHomeMoveFile);
 	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
@@ -490,6 +491,7 @@ void QPmac::upsJogJMove(Matrix<double, 6, 1> tarAxlesL_norm, Matrix<double, 6, 1
 
 void QPmac::on_dataGatherTimer()
 {
+
 	getPmacVariable(pmacVariableRecipe, PmacData::pmacGetVariableCommand, pmacVariableList);
 	for (int i = 0;i < PmacData::numL;i++)
 	{

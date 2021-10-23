@@ -131,13 +131,11 @@ extern Matrix<double, 6, 1> solveRealPosAndAngleByLazer(const Matrix4d &Trans_SM
 	const MatrixXd &Q_DM);//3*n_D 动平台靶标点在测量系下坐标,
 
 /*************************************************************************************/
-//动平台相对运动坐标系的位姿向量 转化为 动平台相对静坐标系的位姿向量
-extern Matrix<double, 6, 1> posAndAngleDset2DS(const Matrix<double, 6, 1> &posAndAngle_Dset,
-	const Matrix4d &Trans_setS);
 
-//动平台相对静坐标系的位姿向量 转化为 动平台相对运动的位姿向量
-extern Matrix<double, 6, 1> posAndAngleDS2Dset(const Matrix<double, 6, 1> &posAndAngle_DS,
-	const Matrix4d &Trans_setS);
+//动平台相对静坐标系的位姿向量 转化为 运动坐标系相对动平台位姿向量
+extern Matrix<double, 6, 1> posAndAngleDS2setS(const Matrix<double, 6, 1> &posAndAngle_DS,
+	const Matrix4d &Trans_setD);
+
 /****************************************************************************************/
 //!根据并联机器人上装配件的待测点组的坐标(激光跟踪仪测得的)计算需要输入的平台目标位姿
 //以下分两个函数写目的是使待测点组合动系的关系更灵活，若发生改变可以重新计算，若未变则只需计算一次

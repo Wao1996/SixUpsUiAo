@@ -1,25 +1,21 @@
 #include "SixUpsUiAo.h"
 
+extern QReadWriteLock rwLock;
 
 SixUpsUiAo::SixUpsUiAo(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
 
-
-	qDebug() << "SixUpsUiAo 构造";
+	qDebug() << GlobalSta::dataFile;
 
 	initTablesStyle();
 	initStructPara();
 	initIcon();
 	initUIList();
-	
 	initConnect();
 	myWidgetDisnable();
 	
-
-
-
 	/*Pmac数据采集定时器*/
 	dataGatherTimer = new QTimer(this);
 	dataGatherTimer->setInterval(100);
@@ -103,7 +99,8 @@ void SixUpsUiAo::initIcon()
 void SixUpsUiAo::initUIList()
 {
 	/*隐藏*/
-	//ui.tabWidget->removeTab(3);
+	ui.tabWidget->removeTab(4);
+	ui.mainToolBar->setVisible(false);//隐藏工具栏
 	/***************赋初值****************/
 	//多轴点动运动模块
 	ui.led_multiAxisJogTranslationSpeed->setValue(UPSData::multiJogTranslationSpeed);
@@ -177,12 +174,12 @@ void SixUpsUiAo::initUIList()
 	realTimePose_setS_group.append(ui.led_realTimePdeg_setS);
 	realTimePose_setS_group.append(ui.led_realTimeYdeg_setS);
 
-	realTimePose_Dset_group.append(ui.led_realTimeX_Dset);
-	realTimePose_Dset_group.append(ui.led_realTimeY_Dset);
-	realTimePose_Dset_group.append(ui.led_realTimeZ_Dset);
-	realTimePose_Dset_group.append(ui.led_realTimeRdeg_Dset);
-	realTimePose_Dset_group.append(ui.led_realTimePdeg_Dset);
-	realTimePose_Dset_group.append(ui.led_realTimeYdeg_Dset);
+	realTimePose_setD_group.append(ui.led_realTimeX_setD);
+	realTimePose_setD_group.append(ui.led_realTimeY_setD);
+	realTimePose_setD_group.append(ui.led_realTimeZ_setD);
+	realTimePose_setD_group.append(ui.led_realTimeRdeg_setD);
+	realTimePose_setD_group.append(ui.led_realTimePdeg_setD);
+	realTimePose_setD_group.append(ui.led_realTimeYdeg_setD);
 
 
 
@@ -225,18 +222,16 @@ void SixUpsUiAo::initUIList()
 void SixUpsUiAo::initStructPara()
 {
 	//导入动静平台结构参数
-	csvToMatrixXd("./Data/结构参数/D.csv", UPSData::D);
-	csvToMatrixXd("./Data/结构参数/D_theoretical.csv", UPSData::D_theoretical);
-	csvToMatrixXd("./Data/结构参数/S.csv", UPSData::S);
-	csvToMatrixXd("./Data/结构参数/S_theoretical.csv", UPSData::S_theoretical);
-	csvToMatrixXd("./Data/结构参数/Q_DD.csv", UPSData::Q_DD);
-	csvToMatrixXd("./Data/结构参数/Q_SS.csv", UPSData::Q_SS);
-	csvToMatrixXd("./Data/结构参数/initL_norm.csv", UPSData::initL_norm);
-	csvToMatrixXd("./Data/平台参数/homePosAndAngle.csv", UPSData::homePosAndAngle_DS);
+	csvToMatrixXd(GlobalSta::dataFile + "/Data/结构参数/D_new.csv", UPSData::D);
+	csvToMatrixXd(GlobalSta::dataFile + "/Data/结构参数/D_theoretical_new.csv", UPSData::D_theoretical);
+	csvToMatrixXd(GlobalSta::dataFile + "/Data/结构参数/S_new.csv", UPSData::S);
+	csvToMatrixXd(GlobalSta::dataFile + "/Data/结构参数/S_theoretical_new.csv", UPSData::S_theoretical);
+	csvToMatrixXd(GlobalSta::dataFile + "/Data/结构参数/Q_DD.csv", UPSData::Q_DD);
+	csvToMatrixXd(GlobalSta::dataFile + "/Data/结构参数/Q_SS.csv", UPSData::Q_SS);
+	csvToMatrixXd(GlobalSta::dataFile + "/Data/结构参数/initL_norm_new.csv", UPSData::initL_norm);
+	csvToMatrixXd(GlobalSta::dataFile + "/Data/平台参数/homePosAndAngle_new.csv", UPSData::homePosAndAngle_DS);
 	UPSData::initPosAndAngle_DS = UPSData::homePosAndAngle_DS;
-
-	//导入关键点
-	inputKeyPoint("./Data/平台参数/keyPoint.csv", ui.keyPointTable);
+	UPSData::D_set = UPSData::D;
 	
 }
 
@@ -247,29 +242,6 @@ void SixUpsUiAo::initTablesStyle()
 	int scrollBarHeight = 20;//滚动条高
 	QStringList VerticalHeaderXYZ;
 	VerticalHeaderXYZ << "X" << "Y" << "Z";
-	/*****tableSetOrigin 原点设置******/
-	//列设置
-	ui.tableSetOrigin->horizontalHeader()->setDefaultSectionSize(colWidth);
-	ui.tableSetOrigin->setColumnCount(3);
-	QStringList tableCirclePtHorizontalHeader;
-	tableCirclePtHorizontalHeader << "O" << "X" << "XoY" ;
-	ui.tableSetOrigin->setHorizontalHeaderLabels(tableCirclePtHorizontalHeader);
-
-	//行设置
-	ui.tableSetOrigin->setRowCount(3);
-	ui.tableSetOrigin->verticalHeader()->setVisible(true);//行号可见
-	ui.tableSetOrigin->setVerticalHeaderLabels(VerticalHeaderXYZ);
-	ui.tableSetOrigin->verticalHeader()->setFont(QFont("黑体", 12));
-	ui.tableSetOrigin->verticalHeader()->setFixedWidth(25);
-	ui.tableSetOrigin->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-
-	ui.tableSetOrigin->horizontalHeader()->setStretchLastSection(true);//行头自适应表格
-	ui.tableSetOrigin->horizontalHeader()->setFont(QFont("黑体", 12));//表头字体
-	ui.tableSetOrigin->horizontalHeader()->setStyleSheet("border-bottom-width: 1px;border-style: outset;border-color: rgb(229,229,229);");//表头和第一行之间横线
-	ui.tableSetOrigin->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-	ui.tableSetOrigin->setAlternatingRowColors(true);//行奇偶颜色不同
-	ui.tableSetOrigin->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
-	ui.tableSetOrigin->setFixedHeight(4 * rowHeight);
 
 	/*****keyPointTable 待拟合参数******/
 	//列设置
@@ -292,7 +264,7 @@ void SixUpsUiAo::initTablesStyle()
 	/*********************tableSM*****************/
 	
 	QStringList tableSMVerticalHeader;
-	tableSMVerticalHeader <<"静铰点序号"<< "X坐标" << "Y坐标" << "Z坐标";
+	tableSMVerticalHeader <<"静靶点序号"<< "X坐标" << "Y坐标" << "Z坐标";
 	//列设置
 	ui.tableSM->horizontalHeader()->setDefaultSectionSize(colWidth);
 	ui.tableSM->setColumnCount(3);
@@ -314,9 +286,9 @@ void SixUpsUiAo::initTablesStyle()
 	QStringList tableGMVerticalHeader;
 	tableGMVerticalHeader << "X坐标" << "Y坐标" << "Z坐标";
 	QStringList tableGMHorizontalHeader;
-	tableGMHorizontalHeader << "靶点1" << "靶点2" << "靶点3";
+	tableGMHorizontalHeader << "工装靶点1" << "工装靶点2" << "工装靶点3";
 	//列设置
-	ui.tableGM->horizontalHeader()->setDefaultSectionSize(colWidth);
+	ui.tableGM->horizontalHeader()->setDefaultSectionSize(100);
 	ui.tableGM->setColumnCount(3);
 	ui.tableGM->setHorizontalHeaderLabels(tableGMHorizontalHeader);
 	ui.tableGM->horizontalHeader()->setVisible(true);//列号可见
@@ -340,12 +312,18 @@ void SixUpsUiAo::initTablesStyle()
 	/*********************tableTarGM*****************/
 
 	QStringList tableTarGMVerticalHeader;
-	tableTarGMVerticalHeader << "工装靶点序号" << "X坐标" << "Y坐标" << "Z坐标";
+	tableTarGMVerticalHeader << "X坐标" << "Y坐标" << "Z坐标";
+	QStringList tableTarGMHorizontalHeader;
+	tableTarGMHorizontalHeader << "工装靶点1" << "工装靶点2" << "工装靶点3";
 	//列设置
-	ui.tableTarGM->horizontalHeader()->setDefaultSectionSize(colWidth);
+	ui.tableTarGM->horizontalHeader()->setDefaultSectionSize(100);
 	ui.tableTarGM->setColumnCount(3);
-	ui.tableTarGM->horizontalHeader()->setVisible(false);//列号不可见
+	ui.tableTarGM->setHorizontalHeaderLabels(tableTarGMHorizontalHeader);
+	ui.tableTarGM->horizontalHeader()->setVisible(true);//列号不可见
 	ui.tableTarGM->horizontalHeader()->setStretchLastSection(false);//行头自适应表格
+	ui.tableTarGM->horizontalHeader()->setFont(QFont("黑体", 10));//表头字体
+	ui.tableTarGM->horizontalHeader()->setStyleSheet("border-bottom-width: 1px;border-style: outset;border-color: rgb(229,229,229);");//表头和第一行之间横线
+	ui.tableTarGM->horizontalHeader()->setDefaultAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 	//行设置
 	ui.tableTarGM->setRowCount(tableTarGMVerticalHeader.size());
 	ui.tableTarGM->verticalHeader()->setVisible(true);//行号可见
@@ -359,28 +337,50 @@ void SixUpsUiAo::initTablesStyle()
 	ui.tableTarGM->setFixedHeight(4 * rowHeight + scrollBarHeight);
 	ui.tableTarGM->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-	/*tableInput*/
+	/*tableInputPoints*/
 	QStringList tableInputVerticalHeader;
 	tableInputVerticalHeader << "X坐标" << "Y坐标" << "Z坐标";
 	//列设置
-	ui.tableInput->horizontalHeader()->setDefaultSectionSize(colWidth);
-	ui.tableInput->setColumnCount(4);
-	ui.tableInput->horizontalHeader()->setVisible(true);//列号不可见
-	ui.tableInput->horizontalHeader()->setStretchLastSection(false);//行头自适应表格
+	ui.tableInputPoints->horizontalHeader()->setDefaultSectionSize(colWidth);
+	ui.tableInputPoints->setColumnCount(4);
+	ui.tableInputPoints->horizontalHeader()->setVisible(true);//列号不可见
+	ui.tableInputPoints->horizontalHeader()->setStretchLastSection(false);//行头自适应表格
 	//行设置
-	ui.tableInput->setRowCount(tableInputVerticalHeader.size());
-	ui.tableInput->verticalHeader()->setVisible(true);//行号可见
-	ui.tableInput->setVerticalHeaderLabels(tableInputVerticalHeader);
-	ui.tableInput->verticalHeader()->setFont(QFont("黑体", 10));
-	ui.tableInput->verticalHeader()->setFixedWidth(80);
-	ui.tableInput->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-	ui.tableInput->setAlternatingRowColors(true);//行奇偶颜色不同
-	ui.tableInput->horizontalHeader()->setStyleSheet("border-bottom-width: 1px;border-style: outset;border-color: rgb(229,229,229);");//表头和第一行之间横线
-	ui.tableInput->horizontalHeader()->setDefaultAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	ui.tableInputPoints->setRowCount(tableInputVerticalHeader.size());
+	ui.tableInputPoints->verticalHeader()->setVisible(true);//行号可见
+	ui.tableInputPoints->setVerticalHeaderLabels(tableInputVerticalHeader);
+	ui.tableInputPoints->verticalHeader()->setFont(QFont("黑体", 10));
+	ui.tableInputPoints->verticalHeader()->setFixedWidth(80);
+	ui.tableInputPoints->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+	ui.tableInputPoints->setAlternatingRowColors(true);//行奇偶颜色不同
+	ui.tableInputPoints->horizontalHeader()->setStyleSheet("border-bottom-width: 1px;border-style: outset;border-color: rgb(229,229,229);");//表头和第一行之间横线
+	ui.tableInputPoints->horizontalHeader()->setDefaultAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 	//大小设置
-	ui.tableInput->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
-	ui.tableInput->setFixedHeight(4 * rowHeight + scrollBarHeight);
-	ui.tableInput->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	ui.tableInputPoints->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
+	ui.tableInputPoints->setFixedHeight(4 * rowHeight + scrollBarHeight);
+	ui.tableInputPoints->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+	/*tableInputMat4d*/
+	
+	//列设置
+	ui.tableInputMat4d->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);//列宽平均
+	ui.tableInputMat4d->setColumnCount(4);
+	ui.tableInputMat4d->horizontalHeader()->setVisible(false);//列号不可见
+	//ui.tableInputMat4d->horizontalHeader()->setStretchLastSection(false);//行头自适应表格
+	//行设置
+	ui.tableInputMat4d->setRowCount(4);
+	ui.tableInputMat4d->verticalHeader()->setVisible(false);//行号可见
+	ui.tableInputMat4d->setVerticalHeaderLabels(tableInputVerticalHeader);
+	ui.tableInputMat4d->verticalHeader()->setFont(QFont("黑体", 10));
+	ui.tableInputMat4d->verticalHeader()->setFixedWidth(80);
+	ui.tableInputMat4d->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+	ui.tableInputMat4d->setAlternatingRowColors(true);//行奇偶颜色不同
+	ui.tableInputMat4d->horizontalHeader()->setStyleSheet("border-bottom-width: 1px;border-style: outset;border-color: rgb(229,229,229);");//表头和第一行之间横线
+	ui.tableInputMat4d->horizontalHeader()->setDefaultAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	//大小设置
+	ui.tableInputMat4d->verticalHeader()->setDefaultSectionSize(rowHeight);    //设置默认行高
+	ui.tableInputMat4d->setFixedHeight(4 * rowHeight + scrollBarHeight);
+	ui.tableInputMat4d->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 }
 
 void SixUpsUiAo::initConnect()
@@ -419,16 +419,18 @@ void SixUpsUiAo::initConnect()
 	ui.tableGM->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(ui.tableGM, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenuAddCoils()));
 	ui.tableTarGM->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(ui.tableTarGM, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenuAddCoils()));
+	connect(ui.tableTarGM, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(addTableWidgetMenuClearContent()));
 }
 
 void SixUpsUiAo::myWidgetEnable()
 {
-	ui.servoOnBtn->setEnabled(true);
-	ui.servoOffBtn->setEnabled(true);
-	ui.axlesHomeBtn->setEnabled(true);
-	ui.upsHomeBtn->setEnabled(true);
+	ui.servoBox->setEnabled(true);
+	ui.HMIBox->setEnabled(true);
+
 	ui.tabWidget->setEnabled(true);
+	ui.tabWidget_input->setEnabled(true);
+	ui.tabWidget_2->setEnabled(true);
+
 	ui.pmacInitSta->setPixmap(onIcon);
 }
 
@@ -444,18 +446,19 @@ void SixUpsUiAo::myWidgetDisnable()
 		realTimeForce_group[i]->setText("");
 		realTimePose_DS_group[i]->setText("");
 		realTimePose_setS_group[i]->setText("");
-		realTimePose_Dset_group[i]->setText("");
+		realTimePose_setD_group[i]->setText("");
 	}
 
 	ui.pmacSta->setPixmap(offIcon);
 	ui.pmacInitSta->setPixmap(offIcon);
 	ui.connectPmacBtn->setText("连接");
 	ui.initPmacBtn->setEnabled(false);
-	ui.servoOnBtn->setEnabled(false);
-	ui.servoOffBtn->setEnabled(false);
-	ui.axlesHomeBtn->setEnabled(false);
-	ui.upsHomeBtn->setEnabled(false);
+	ui.servoBox->setEnabled(false);
+	ui.HMIBox->setEnabled(false);
+
 	//ui.tabWidget->setEnabled(false);
+	//ui.tabWidget_input->setEnabled(false);
+	//ui.tabWidget_2->setEnabled(false);
 }
 
 void SixUpsUiAo::switchPmacThread()
@@ -566,18 +569,18 @@ bool SixUpsUiAo::inputKeyPoint(const QString & filePath, QTableWidget * tab)
 void SixUpsUiAo::recordCurLengthsMM()
 {
 	
-	matrixXdToCsv(PmacData::curLengthsMM, "./Data/平台参数/lastCurLengthsMM.csv");
+	matrixXdToCsv(PmacData::curLengthsMM, GlobalSta::dataFile + "/Data/平台参数/lastCurLengthsMM.csv");
 }
 
 bool SixUpsUiAo::loadLastLengthsMM()
 {
 	Matrix<double, 6, 1> lastCurLengthsMM = MatrixXd::Zero(6, 1);
-	bool flag = csvToMatrixXd("./Data/平台参数/lastCurLengthsMM.csv", lastCurLengthsMM);
+	bool flag = csvToMatrixXd(GlobalSta::dataFile+"/Data/平台参数/lastCurLengthsMM.csv", lastCurLengthsMM);
 	if (flag)
 	{
 		// pmac初始时杆长设置
 		myPmac->setCurLengths(lastCurLengthsMM);
-		DeleteFileOrFolder("./Data/平台参数/lastCurLengthsMM.csv");
+		DeleteFileOrFolder(GlobalSta::dataFile+"/Data/平台参数/lastCurLengthsMM.csv");
 		return true;
 	} 
 	else
@@ -691,10 +694,11 @@ void SixUpsUiAo::on_updateUiDataTimer()
 		strPos = QString::number(UPSData::curPosAndAngle_setS(i), 'f', 3);
 		realTimePose_setS_group[i]->setText(strPos);
 		//动平台相对运动坐标系
-		strPos = QString::number(UPSData::curPosAndAngle_Dset(i), 'f', 3);
-		realTimePose_Dset_group[i]->setText(strPos);
+		strPos = QString::number(UPSData::curPosAndAngle_setD(i), 'f', 3);
+		realTimePose_setD_group[i]->setText(strPos);
 	}
 
+	
 }
 
 void SixUpsUiAo::on_upsHomeCompleteTimer()
@@ -738,18 +742,16 @@ void SixUpsUiAo::on_upsJogTimer()
 	/***********采用在线命令形式***********/
 	Matrix<double, 6, 1> delta_Lengths;//本次运动每个轴的运动增量 mm
 	Matrix<double, 6, 1> axlesSpeed;//每个轴的运动速度 mm/s
-	Matrix<double, 6, 1> tarL_norm;//目标杆长
-	//动平台目标位姿 相对 运动坐标系的位姿向量
-	UPSData::prsPosAndAngle_Dset = UPSData::prsPosAndAngle_Dset + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
-	//动平台目标位姿 相对 静坐标系的位姿向量
-	Matrix<double, 6, 1> tarPosAndAngle_DS = posAndAngleDset2DS(UPSData::prsPosAndAngle_Dset, UPSData::Trans_setS);
+	Matrix<double, 6, 1> tarL_norm;//目标铰点杆长
+	//运动坐标系相对静平台 下一步的位姿向量
+	UPSData::prsPosAndAngle_setS = UPSData::prsPosAndAngle_setS + UPSData::multiJogMoveStep * UPSData::multiJogMoveDirection;
 	//运动学反解反解
-	inverseSolution(tarPosAndAngle_DS, tarL_norm, UPSData::D, UPSData::S);
+	inverseSolution(UPSData::prsPosAndAngle_setS, tarL_norm, UPSData::D_set, UPSData::S);
 	//求PMAC杆长
 	UPSData::tarAxlesL_norm = tarL_norm - UPSData::initL_norm;
-	//计算这一次各杆长度与上一次各杆长度的差值
+	//计算这一步各杆铰点长度与上一步各杆铰点长度的差值 得到 每根杆的变化量
 	delta_Lengths = UPSData::tarAxlesL_norm - UPSData::lastAxlesL_norm;
-	//用各杆长差值计算各杆的运动速度 保证每根杆同一时间到达目标位置
+	//用每根杆的变化量计算各杆的运动速度 保证每根杆同一时间到达目标位置
 	axlesSpeed = delta_Lengths.cwiseAbs() * PmacData::cts2mm / upsJogTimer->interval();
 	/*判断 如果有杆在限位位置时还想限位方向运动 则终止运动*/
 	for (int i = 0; i < 6; i++)
@@ -761,7 +763,6 @@ void SixUpsUiAo::on_upsJogTimer()
 			return;
 		}
 	}
-	//myPmac->enablePLC(1);
 	myPmac->upsJogJMove(UPSData::tarAxlesL_norm, axlesSpeed);
 	UPSData::lastAxlesL_norm = UPSData::tarAxlesL_norm;//更新
 
@@ -798,6 +799,7 @@ void SixUpsUiAo::on_connectPmacBtn_clicked()
 		upsCalculateTimer->stop();//停止计算并联机构实时位姿
 		dataGatherTimer->stop();//数据采集停止
 		updateUiDataTimer->stop();//停止更新UI
+		ui.closeHMIBtn->click();
 		GlobalSta::pmacIsInitialed = false;
 		//让相关状态显示UI初始化
 		myWidgetDisnable();
@@ -845,6 +847,10 @@ void SixUpsUiAo::on_initPmacBtn_clicked()
 			if (questionResult == QMessageBox::Yes)
 			{
 				emit upsHome_signal();
+			}
+			else
+			{
+				myWidgetEnable();
 			}
 	
 		}
@@ -929,6 +935,18 @@ void SixUpsUiAo::on_calibrateSMBtn_clicked()
 	int numCol = ui.tableSM->columnCount();
 	MatrixXd Q_SM_temp = MatrixXd::Zero(3, numCol);
 	MatrixXd Q_SS_temp = MatrixXd::Zero(3, numCol);
+	//判断表格中是否有空值
+	for (int j = 0; j < numCol; j++)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (ui.tableSM->item(i, j) == NULL || ui.tableSM->item(i, j)->text()=="")
+			{
+				QMessageBox::information(NULL, "提示", "表格中存在空值。");
+				return;
+			}
+		}
+	}
 	for (int j=0;j< numCol;j++)
 	{
 		int p = ui.tableSM->item(0, j)->text().toInt();
@@ -942,24 +960,49 @@ void SixUpsUiAo::on_calibrateSMBtn_clicked()
 		}
 	}
 	UPSData::Trans_SM = rigidMotionSVDSolution(Q_SS_temp, Q_SM_temp);
+	QMessageBox::information(NULL, "提示", "标定静平台靶标点成功！");
+	flag_calibrateSM = true;
 }
 
 void SixUpsUiAo::on_calibrateGMBtn_clicked()
 {
-	//1.求工装靶标点在动坐标系下的坐标
+	int numCol = ui.tableGM->columnCount();
+	//判断表格中是否有空值
+	for (int j = 0; j < numCol; j++)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			if (ui.tableGM->item(i, j) == NULL || ui.tableGM->item(i, j)->text() == "")
+			{
+				QMessageBox::information(NULL, "提示", "表格中存在空值。");
+				return;
+			}
+		}
+	}
+
+	//求工装靶标点在动坐标系下的坐标
 	vector<int> index;
 	MatrixXd Q_GM;
-	tableToMatrixXd(ui.tableGM, Q_GM, index);
-	MatrixXd  Q_GD_homogeneous = UPSData::Trans_DS.inverse()*UPSData::Trans_SM.inverse()*matrix2Homogeneous(Q_GM);
-	UPSData::Q_GD = homogeneous2Matrix(Q_GD_homogeneous);
-	cout << UPSData::Q_GD;
+	bool flag = tableToMatrixXd(ui.tableGM, Q_GM, index);
+	if (flag)
+	{
+		MatrixXd  Q_GD_homogeneous = UPSData::Trans_DS.inverse()*UPSData::Trans_SM.inverse()*matrix2Homogeneous(Q_GM);
+		UPSData::Q_GD = homogeneous2Matrix(Q_GD_homogeneous);
+		cout << UPSData::Q_GD;
+		QMessageBox::information(NULL, "提示", "标定工装靶标点成功！");
+		flag_calibrateGM = true;
+	} 
+	else
+	{
+		QMessageBox::information(NULL, "提示", "标定工装靶标点失败！");
+	}
+	
 }
 
 void SixUpsUiAo::addTableWidgetMenuAddCoils()
 {
 	//获取信号发送者
 	QTableWidget *senderTableWidget = qobject_cast<QTableWidget*>(sender());
-	//qDebug() << senderTableWidget->objectName();
 
 	/************根据表格名设定不同列标题**************/
 	QString curTabName = senderTableWidget->objectName();//获取发送信号的表格名
@@ -972,7 +1015,7 @@ void SixUpsUiAo::addTableWidgetMenuAddCoils()
 		colTitle = "测点";
 		break;
 	case 1:
-		colTitle = "靶点";
+		colTitle = "工装靶点";
 		break;
 	case 2:
 		colTitle = "动靶点";
@@ -984,7 +1027,7 @@ void SixUpsUiAo::addTableWidgetMenuAddCoils()
 	//设置菜单选项
 	QMenu *tableWidgetMenu = new QMenu(senderTableWidget);
 	QAction *addColumn = new QAction("添加列", senderTableWidget);
-	QAction *deleteColumn = new QAction("删除当前列", senderTableWidget);
+	QAction *deleteColumn = new QAction("删除列", senderTableWidget);
 	QAction *clearContents = new QAction("清空所有内容", senderTableWidget);
 	connect(addColumn, &QAction::triggered, this, [=]() {
 		qDebug() << "addCol";
@@ -1000,6 +1043,26 @@ void SixUpsUiAo::addTableWidgetMenuAddCoils()
 			senderTableWidget->setItem(i, cols, new QTableWidgetItem());//添加新元素
 		}
 		senderTableWidget->selectColumn(cols);//选中新列
+
+		if (tabNameList.indexOf(curTabName) == 1)
+		{
+			ui.tableTarGM->insertColumn(cols);//插入列
+			tmpItem = new QTableWidgetItem();
+			ui.tableTarGM->setHorizontalHeaderItem(cols, tmpItem);//设置列标题
+			colItem = ui.tableTarGM->horizontalHeaderItem(cols);
+			colItem->setText(colTitle + QString::number(cols + 1));
+			for (int i = 0; i < rows; i++)
+			{
+				ui.tableTarGM->setItem(i, cols, new QTableWidgetItem());//添加新元素
+			}
+			ui.tableTarGM->selectColumn(cols);//选中新列
+			flag_calibrateGM = false;
+		}
+		else
+		{
+			flag_calibrateSM = false;
+		}
+
 	});
 	connect(deleteColumn, &QAction::triggered, this, [=]() {
 		qDebug() << "deleteCol";
@@ -1010,7 +1073,24 @@ void SixUpsUiAo::addTableWidgetMenuAddCoils()
 		}
 		else
 		{
-			senderTableWidget->removeColumn(tmpItem->column());//删除列
+			int colNum = senderTableWidget->columnCount();
+			if (colNum<=3)
+			{
+				return;
+			}
+
+			if (tabNameList.indexOf(curTabName) == 1)
+			{
+				
+				senderTableWidget->removeColumn(colNum - 1);
+				ui.tableTarGM->removeColumn(colNum - 1);//删除列
+				flag_calibrateGM = false;
+			}
+			else
+			{
+				senderTableWidget->removeColumn(tmpItem->column());//删除列
+				flag_calibrateSM = false;
+			}
 		}
 	});
 	connect(clearContents, &QAction::triggered, this, [=]() {
@@ -1032,74 +1112,119 @@ void SixUpsUiAo::addTableWidgetMenuAddCoils()
 	tableWidgetMenu->show();
 }
 
+void SixUpsUiAo::addTableWidgetMenuClearContent()
+{
+	//获取信号发送者
+	QTableWidget *senderTableWidget = qobject_cast<QTableWidget*>(sender());
+
+	/*******************************************/
+	//设置菜单选项
+	QMenu *tableWidgetMenu = new QMenu(senderTableWidget);
+	QAction *clearContents = new QAction("清空所有内容", senderTableWidget);
+	connect(clearContents, &QAction::triggered, this, [=]() {
+		qDebug() << "clearContents";
+		QTableWidgetItem * tmpItem = senderTableWidget->currentItem();
+		if (tmpItem == Q_NULLPTR)
+		{
+			return;
+		}
+		else
+		{
+			senderTableWidget->clearContents();
+		}
+	});
+	tableWidgetMenu->addAction(clearContents);
+	tableWidgetMenu->move(cursor().pos());
+	tableWidgetMenu->show();
+}
+
 void SixUpsUiAo::on_transTarPoseBtn_clicked()
 {
+	if (flag_calibrateSM == false)
+	{
+		QMessageBox::information(NULL, "提示", "尚未标定静平台靶标点在测量坐标系下位置,请标定后重试。");
+		return;
+	}
+
+	if (flag_calibrateGM == false)
+	{
+		QMessageBox::information(NULL, "提示", "尚未标定工装靶标点在动系下坐标,请标定后重试。");
+		return;
+	}
+
 	int numCol = ui.tableTarGM->columnCount();
-	//1.目标位置工装靶标点在测量坐标系下的坐标
-	MatrixXd Q_tarGM_temp = MatrixXd::Zero(3, numCol);
-	//2.与其序号对应的工装靶标点在动坐标系下的坐标
-	MatrixXd Q_GD_temp = MatrixXd::Zero(3, numCol);
+	//判断表格中是否有空值
 	for (int j = 0; j < numCol; j++)
 	{
-		int p = ui.tableTarGM->item(0, j)->text().toInt();
-		Q_GD_temp.col(j) = UPSData::Q_GD.col(p - 1);
 		for (int i = 0; i < 3; i++)
 		{
-			if (!ui.tableTarGM->item(i + 1, j)->text().isEmpty())
+			if (ui.tableTarGM->item(i, j) == NULL || ui.tableTarGM->item(i, j)->text() == "")
 			{
-				Q_tarGM_temp(i, j) = ui.tableTarGM->item(i + 1, j)->text().toDouble();
+				QMessageBox::information(NULL, "提示", "表格中存在空值。");
+				return;
 			}
 		}
 	}
-	//3.求目标位置工装靶标点相对当前动系的齐次变换矩阵
+
+	//1.目标位置靶标点在测量坐标系下的坐标
+	MatrixXd Q_tarGM_temp = MatrixXd::Zero(3, numCol);
+	//2.与其序号对应的工装靶标点在动平台下的坐标
+	MatrixXd Q_GD_temp = MatrixXd::Zero(3, numCol);
+	Q_GD_temp = UPSData::Q_GD;
+	for (int j = 0; j < numCol; j++)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			if (!ui.tableTarGM->item(i , j)->text().isEmpty())
+			{
+				Q_tarGM_temp(i, j) = ui.tableTarGM->item(i, j)->text().toDouble();
+			}
+		}
+	}
+	//3.求目标位置靶标点在动平台下的的齐次坐标
 	MatrixXd Q_tarGD_temp_homogeneous = UPSData::Trans_DS.inverse()*UPSData::Trans_SM.inverse()*matrix2Homogeneous(Q_tarGM_temp);
-	//目标工装靶点在当前动系下的坐标
+	//目标工装靶点在动平台下的坐标
 	MatrixXd Q_tarGD_temp = homogeneous2Matrix(Q_tarGD_temp_homogeneous);
-	//4.求目标工装位姿相对当前动系的齐次变换矩阵
+	//4.求目标工装相对当前动平台的齐次变换矩阵
 	MatrixXd Trans_tarGD = rigidMotionSVDSolution(Q_GD_temp, Q_tarGD_temp);
 	//5.求目标工装位姿相对当静系的齐次变换矩阵
 	MatrixXd Trans_tarGS = UPSData::Trans_DS*Trans_tarGD;
-	//6.求目标工装在静系中的位姿
+	//6.求目标工装在静系中的位姿()
 	Matrix<double, 6, 1> PosAndAngle_tarGS = trans2PosAngle(Trans_tarGS);
-	//7.求目标工装在运动坐标系中的位姿
-	Matrix<double, 6, 1> PosAndAngle_tarGset = MatrixXd::Zero(6, 1);
-	PosAndAngle_tarGset = posAndAngleDS2Dset(PosAndAngle_tarGS, UPSData::Trans_setS);
+	//7.求目标工装所在运动坐标系在静系中的位姿
+	Matrix<double, 6, 1> PosAndAngle_tarGsetS = posAndAngleDS2setS(PosAndAngle_tarGS, UPSData::Trans_setD);
 	for (int i = 0; i < 6; i++)
 	{
-		AbsTarPos_group[i]->setValue(PosAndAngle_tarGset(i));
+		AbsTarPos_group[i]->setValue(PosAndAngle_tarGsetS(i));
 	}
+	ui.tabWidget->setCurrentIndex(2);
 }
 
 
 void SixUpsUiAo::on_setOriginBtn_clicked()
 {
 	qDebug() << "on_creatDCrdSys_clicked";
-	MatrixXd CrdSysD = Matrix3d::Zero();
-	vector<int> index;
-	tableToMatrixXd(ui.tableSetOrigin, CrdSysD, index);
-	UPSData::O_set_M = CrdSysD.col(0);
-	UPSData::X_set_M = CrdSysD.col(1);
-	UPSData::XOY_set_M = CrdSysD.col(2);
-	//运动坐标系在测量坐标系中的齐次坐标
-	Matrix4d Trans_set_M = creatCoordSysGetRt(UPSData::O_set_M, UPSData::X_set_M, UPSData::XOY_set_M);
-	//将运动坐标系转换到静坐标系下描述
-	UPSData::Trans_setS = UPSData::Trans_SM.inverse()*Trans_set_M;
-	UPSData::curPosAndAngle_setS = trans2PosAngle(UPSData::Trans_setS);
+
+	UPSData::XYZ_setD(0) = ui.led_X_setD->value();
+	UPSData::XYZ_setD(1) = ui.led_Y_setD->value();
+	UPSData::XYZ_setD(2) = ui.led_Z_setD->value();
 	
+	
+	//修改动平台结构参数
+	Matrix<double, 3, 6> XYZ_setD_Mat= MatrixXd::Zero(3, 6);
+	for (int i=0;i<6;i++)
+	{
+		XYZ_setD_Mat.col(i) = UPSData::XYZ_setD;
+	}
+	UPSData::D_set = UPSData::D - XYZ_setD_Mat;
+
+	//修改 运动坐标系相对动平台的齐次变换矩阵
+	UPSData::Trans_setD(0, 3) = UPSData::XYZ_setD(0);
+	UPSData::Trans_setD(1, 3) = UPSData::XYZ_setD(1);
+	UPSData::Trans_setD(2, 3) = UPSData::XYZ_setD(2);
+	UPSData::curPosAndAngle_setD = trans2PosAngle(UPSData::Trans_setD);
 }
 
-void SixUpsUiAo::on_setSPosOriginBtn_clicked()
-{
-	UPSData::Trans_setS = Matrix4d::Identity();
-	UPSData::curPosAndAngle_setS = trans2PosAngle(UPSData::Trans_setS);
-}
-
-void SixUpsUiAo::on_setCurPosOriginBtn_clicked()
-{
-	UPSData::Trans_setS = UPSData::Trans_DS;
-	UPSData::curPosAndAngle_setS = trans2PosAngle(UPSData::Trans_setS);
-
-}
 
 void SixUpsUiAo::on_recordKeyPointBtn_clicked()
 {
@@ -1108,20 +1233,43 @@ void SixUpsUiAo::on_recordKeyPointBtn_clicked()
 	ui.keyPointTable->insertRow(tabRow);
 	qDebug() << tabRow;
 	//关键点序号
-	ui.keyPointTable->setItem(tabRow , 0, new QTableWidgetItem(QString::number(tabRow + 1)));
+	ui.keyPointTable->setItem(tabRow, 0, new QTableWidgetItem(QString::number(tabRow + 1)));
 	//将当前动平台相对静平台位姿记录
-	for (int i = 0; i < 6; i++ )
+	for (int i = 0; i < 6; i++)
 	{
 		QTableWidgetItem *item = new QTableWidgetItem(QString::number(UPSData::curPosAndAngle_DS(i)));
 		item->setFlags(item->flags() & (~Qt::ItemIsEditable));
-		ui.keyPointTable->setItem(tabRow , i + 1, item);
+		ui.keyPointTable->setItem(tabRow, i + 1, item);
 	}
-	
+}
+
+void SixUpsUiAo::on_inputKeyPointBtn_clicked()
+{
+	QString tempKeyPointsFile = QFileDialog::getOpenFileName(this, "选择文件", "D:/", "文本文件(*.txt;*.csv;)");
+	if (tempKeyPointsFile != "")
+	{
+		keyPointsFile = tempKeyPointsFile;
+		ui.keyPointTable->clearContents();
+		inputKeyPoint(keyPointsFile, ui.keyPointTable);	
+	}
+	ui.led_keyPointsFile->setText(keyPointsFile);
 }
 
 void SixUpsUiAo::on_saveKeyPointBtn_clicked()
 {
-	bool flag = tableToCsv(ui.keyPointTable, "./Data/平台参数/keyPoint.csv");
+	if (keyPointsFile == "")
+	{
+		int questionResult = QMessageBox::question(NULL, "提示", "未导入关键点文件，是否新建关键点文件?", QMessageBox::Yes | QMessageBox::No);
+		if (questionResult == QMessageBox::Yes)
+		{
+			keyPointsFile = QFileDialog::getSaveFileName(this, "选择文件", "D:/", "表格文件(*.csv);;文本文件(*.txt)");
+		}
+		else
+		{
+			return;
+		}
+	}
+	bool flag = tableToCsv(ui.keyPointTable, keyPointsFile);
 	if (flag)
 	{
 		QMessageBox::information(NULL, "提示", "保存关键点数据成功。");
@@ -1130,8 +1278,28 @@ void SixUpsUiAo::on_saveKeyPointBtn_clicked()
 	{
 		QMessageBox::information(NULL, "提示", "保存关键点数据失败！");
 	}
+	ui.led_keyPointsFile->setText(keyPointsFile);
 }
 
+
+void SixUpsUiAo::on_saveAsKeyPointBtn_clicked()
+{
+	QString tempKeyPointsFile = QFileDialog::getSaveFileName(this, "选择文件", "D:/", "表格文件(*.csv);;文本文件(*.txt)");
+	if (tempKeyPointsFile != "")
+	{
+		keyPointsFile = tempKeyPointsFile;
+		bool flag = tableToCsv(ui.keyPointTable, keyPointsFile);
+		if (flag)
+		{
+			QMessageBox::information(NULL, "提示", "另存关键点数据成功。");
+		}
+		else
+		{
+			QMessageBox::information(NULL, "提示", "另存关键点数据失败！");
+		}
+	} 
+	ui.led_keyPointsFile->setText(keyPointsFile);
+}
 
 void SixUpsUiAo::addTableWidgetMenuKeyPoint()
 {
@@ -1145,18 +1313,27 @@ void SixUpsUiAo::addTableWidgetMenuKeyPoint()
 	connect(transPos, &QAction::triggered, this, [=]() {
 		qDebug() << "transPos";
 		QTableWidgetItem * tmpItem = senderTableWidget->currentItem();
-		int curRow = tmpItem->row();
-		Matrix<double, 6, 1> keyPointPosAndAngle_DS = MatrixXd::Zero(6, 1);
-		Matrix<double, 6, 1> keyPointPosAndAngle_Dset = MatrixXd::Zero(6, 1);
-		for (int i = 0; i < 6; i++)
+		if (tmpItem == Q_NULLPTR)
 		{
-			keyPointPosAndAngle_DS(i) = senderTableWidget->item(curRow, i+1 )->text().toDouble();
+			return;
 		}
-		keyPointPosAndAngle_Dset = posAndAngleDS2Dset(keyPointPosAndAngle_DS, UPSData::Trans_setS);
-		for (int i = 0; i < 6; i++)
+		else
 		{
-			AbsTarPos_group[i]->setValue(keyPointPosAndAngle_Dset(i));
+			int curRow = tmpItem->row();
+			Matrix<double, 6, 1> keyPointPosAndAngle_DS = MatrixXd::Zero(6, 1);
+			Matrix<double, 6, 1> keyPointPosAndAngle_setS = MatrixXd::Zero(6, 1);
+			for (int i = 0; i < 6; i++)
+			{
+				keyPointPosAndAngle_DS(i) = senderTableWidget->item(curRow, i+1 )->text().toDouble();
+			}
+			keyPointPosAndAngle_setS = posAndAngleDS2setS(keyPointPosAndAngle_DS, UPSData::Trans_setD);
+			for (int i = 0; i < 6; i++)
+			{
+				AbsTarPos_group[i]->setValue(keyPointPosAndAngle_setS(i));
+			}
+			ui.tabWidget->setCurrentIndex(2);
 		}
+
 	});
 	connect(deleteRow, &QAction::triggered, this, [=]() {
 		qDebug() << "deleteRow";
@@ -1184,10 +1361,10 @@ void SixUpsUiAo::btnGroupMultiSpeed_clicked(int id)
 		UPSData::multiSpeed = 1;
 		break;
 	case 2:
-		UPSData::multiSpeed = 2;
+		UPSData::multiSpeed = 2.5;
 		break;
 	case 3:
-		UPSData::multiSpeed = 3;
+		UPSData::multiSpeed = 4;
 		break;
 	default:
 		break;
@@ -1198,7 +1375,7 @@ void SixUpsUiAo::on_getRealTimePosBtn_clicked()
 {
 	for (int i = 0; i < 6; i++)
 	{
-		AbsTarPos_group[i]->setValue(UPSData::curPosAndAngle_Dset(i));
+		AbsTarPos_group[i]->setValue(UPSData::curPosAndAngle_setS(i));
 	}
 	qDebug() << "on_getRealTimePosBtn_clicked";
 }
@@ -1207,11 +1384,10 @@ void SixUpsUiAo::on_startMoveBtn_clicked()
 {
 	for (int i = 0; i < 6; i++)
 	{
-		UPSData::tarPosAndAngle_Dset(i) = AbsTarPos_group[i]->value();
+		UPSData::tarPosAndAngle_setS(i) = AbsTarPos_group[i]->value();
 	}
-	Matrix<double, 6, 1> tarPosAndAngle_DS = posAndAngleDset2DS(UPSData::tarPosAndAngle_Dset, UPSData::Trans_setS);
 	//反解求杆长
-	inverseSolution(tarPosAndAngle_DS, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	inverseSolution(UPSData::tarPosAndAngle_setS, UPSData::tarL_norm, UPSData::D_set, UPSData::S);
 	//杆长减初始杆长得到PMAC杆长
 	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
 	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiSpeed);
@@ -1296,18 +1472,10 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 		qDebug() << "on_disMultiAxisJog_clicked ERROR!";
 		break;
 	}
-	qDebug() << "Step:" ;
-	cout << incPosAndAngle << endl;
-	//动平台目标位姿相对运动坐标系的位姿向量
-	UPSData::tarPosAndAngle_Dset = UPSData::curPosAndAngle_Dset + incPosAndAngle;
-	qDebug() << "tarPosAndAngle_Dset:";
-	cout << UPSData::tarPosAndAngle_Dset << endl;
-	//动平台目标位相对静坐标系的位姿向量
-	Matrix<double, 6, 1> tarPosAndAngle_DS = posAndAngleDset2DS(UPSData::tarPosAndAngle_Dset, UPSData::Trans_setS);
-	qDebug() << "tarPosAndAngle_DS:";
-	cout << tarPosAndAngle_DS << endl;
+	//运动坐标系相对静平台的目标位姿
+	UPSData::tarPosAndAngle_setS = UPSData::curPosAndAngle_setS + incPosAndAngle;
 	//反解
-	inverseSolution(tarPosAndAngle_DS, UPSData::tarL_norm, UPSData::D, UPSData::S);
+	inverseSolution(UPSData::tarPosAndAngle_setS, UPSData::tarL_norm, UPSData::D_set, UPSData::S);
 	UPSData::tarAxlesL_norm = UPSData::tarL_norm - UPSData::initL_norm;
 
 	double moveTime = 30;
@@ -1322,7 +1490,6 @@ void SixUpsUiAo::on_disMultiAxisJog_clicked()
 		moveTime = abs(UPSData::multiJogRotateStep / UPSData::multiJogRotateSpeed);
 	}
 	double vel = (UPSData::tarL_norm - UPSData::curL_norm).norm() / moveTime;
-	//myPmac->upsAbsMove(UPSData::tarAxlesL_norm, UPSData::multiJogTranslationSpeed);
 	myPmac->upsAbsMove(UPSData::tarAxlesL_norm, vel);
 	
 }
@@ -1335,7 +1502,7 @@ void SixUpsUiAo::on_disMultiAxisJog_stop_clicked()
 void SixUpsUiAo::on_prsMultiAxisJogNeg_pressed()
 {
 
-	UPSData::prsPosAndAngle_Dset = UPSData::curPosAndAngle_Dset;
+	UPSData::prsPosAndAngle_setS = UPSData::curPosAndAngle_setS;
 	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
 	/*设置运动方向*/
@@ -1392,8 +1559,7 @@ void SixUpsUiAo::on_prsMultiAxisJogNeg_released()
 
 void SixUpsUiAo::on_prsmultiAxisJogPos_pressed()
 {
-
-	UPSData::prsPosAndAngle_Dset = UPSData::curPosAndAngle_Dset;
+	UPSData::prsPosAndAngle_setS = UPSData::curPosAndAngle_setS;
 	UPSData::lastAxlesL_norm = UPSData::curL_norm - UPSData::initL_norm;
 	Matrix<double, 6, 1> moveDirection = MatrixXd::Zero(6, 1);//运动方向向量
 	/*设置运动方向*/
@@ -1604,9 +1770,78 @@ void SixUpsUiAo::writeCoils_slot(const int & address, const bool & flag)
 	}
 }
 
-void SixUpsUiAo::on_inputBtn_clicked()
+void SixUpsUiAo::on_inputPointsBtn_clicked()
 {
-	QString strFile = QFileDialog::getOpenFileName(this, "选择文件", "./", "文本文件(*.txt;*.csv;)");
-	qDebug() << strFile;
-	csvToTable(strFile, ui.tableInput);
+	QString strFile = QFileDialog::getOpenFileName(this, "选择文件", "D:/", "文本文件(*.txt;*.csv;)");
+	Vector2d csvSize = getCsvSize(strFile);
+	
+	if (strFile != "")
+	{
+		if (csvSize(0) > 3 )
+		{
+			QMessageBox::information(NULL, "提示", "导入数据点文件的行数应小于等于3");
+		}
+		else
+		{
+			csvToTableAdapt(strFile, ui.tableInputPoints);
+		}
+	}
+}
+
+void SixUpsUiAo::on_inputMatBtn_clicked()
+{
+	QString strFile = QFileDialog::getOpenFileName(this, "选择文件", "D:/", "文本文件(*.txt;*.csv;)");
+	Vector2d csvSize = getCsvSize(strFile);
+	if (strFile!="")
+	{
+		if (csvSize(0) != 4 || csvSize(1) != 4)
+		{
+			QMessageBox::information(NULL, "提示", "导入矩阵的维度错误，应为4×4矩阵。");
+		}
+		else
+		{
+			csvToTable(strFile, ui.tableInputMat4d);
+		}
+	} 
+
+}
+
+void SixUpsUiAo::on_Mat2PosBtn_clicked()
+{
+	Matrix4d mat = Matrix4d::Identity();
+	//判断表格中是否有空值
+	for (int j = 0; j < 4; j++)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (ui.tableInputMat4d->item(i, j) == NULL || ui.tableInputMat4d->item(i, j)->text() == "")
+			{
+				QMessageBox::information(NULL, "提示", "表格中存在空值。");
+				return;
+			}
+		}
+	}
+
+	bool flag = tableToMatrixXd(ui.tableInputMat4d , mat);
+
+	if (flag)
+	{
+		//求目标在静系中的位姿
+		Matrix<double, 6, 1> PosAndAngle_matS = trans2PosAngle(mat);
+
+		//求目标在运动坐标系在静系中的位姿
+		//Matrix<double, 6, 1> PosAndAngle_matsetS = posAndAngleDS2setS(PosAndAngle_matS, UPSData::Trans_setD);
+		for (int i = 0; i < 6; i++)
+		{
+			AbsTarPos_group[i]->setValue(PosAndAngle_matS(i));
+		}
+		
+		QMessageBox::information(NULL, "提示", "转换到目标位姿成功！");
+		ui.tabWidget->setCurrentIndex(2);
+	} 
+	else
+	{
+		QMessageBox::information(NULL, "提示", "转换到目标位姿失败。");
+	}
+
 }

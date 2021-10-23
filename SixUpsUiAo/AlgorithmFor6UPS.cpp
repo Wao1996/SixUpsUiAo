@@ -252,7 +252,7 @@ void forwardSolution(const Matrix<double, 6, 1>& initPosAndAngle_DS, const Matri
 	Matrix<double, 6, 1> initL_norm;
 	inverseSolution(initPosAndAngle_DS, initL_norm, D, S);
 	//使用的参数
-	double delta_t = 1e-2; //t是0~1的数,表示杆长变化的步长百分比
+	double delta_t = 0.05; //t是0~1的数,表示杆长变化的步长百分比
 	int k = int(1 / delta_t);//杆长变化次数
 	Matrix<double, 6, 1> delta_L = (targL_norm - initL_norm)*delta_t;
 	double delta = 1e-6; //求偏导时的微小变动量
@@ -351,26 +351,17 @@ Matrix<double, 6, 1> solveRealPosAndAngleByLazer(const Matrix4d & Trans_SM, cons
 	return realPosAndAngle;
 }
 
-Matrix<double, 6, 1> posAndAngleDset2DS(const Matrix<double, 6, 1> &posAndAngle_Dset, const Matrix4d &Trans_setS)
-{
-	//动平台位姿相对运动坐标系的齐次变换矩阵
-	Matrix4d Trans_Dset = posAngle2Trans(posAndAngle_Dset);
-	//动平台位姿相对静坐标系的齐次变换矩阵
-	Matrix4d Trans_DS =  Trans_setS*Trans_Dset;
-	//动平台位姿齐次变换矩阵转化为目标位姿向量
-	Matrix<double, 6, 1> posAndAngle_DS = trans2PosAngle(Trans_DS);
-	return posAndAngle_DS;
-}
 
-Matrix<double, 6, 1> posAndAngleDS2Dset(const Matrix<double, 6, 1>& posAndAngle_DS, const Matrix4d & Trans_setS)
+
+Matrix<double, 6, 1> posAndAngleDS2setS(const Matrix<double, 6, 1>& posAndAngle_DS, const Matrix4d & Trans_setD)
 {
 	//动平台位姿相对静平台的齐次变换矩阵
 	Matrix4d Trans_DS = posAngle2Trans(posAndAngle_DS);
-	//动平台位姿相对运动坐标系的齐次变换矩阵
-	Matrix4d Trans_Dset  = Trans_setS.inverse() *Trans_DS;
-	//动平台位姿齐次变换矩阵转化为目标位姿向量
-	Matrix<double, 6, 1> posAndAngle_Dset = trans2PosAngle(Trans_Dset);
-	return posAndAngle_Dset;
+	//运动坐标系相对静平台的齐次变换矩阵
+	Matrix4d Trans_setS = Trans_DS * Trans_setD;
+	//齐次变换矩阵转化为目标位姿向量
+	Matrix<double, 6, 1> posAndAngle_setS = trans2PosAngle(Trans_setS);
+	return posAndAngle_setS;
 }
 
 
